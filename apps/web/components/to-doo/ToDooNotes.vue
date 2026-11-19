@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Button as AButton, Input as AInput } from 'ant-design-vue';
 import { computed, ref } from 'vue';
+import ToDooIcon from './ToDooIcon.vue';
 import type { TreeEntry } from '../../../../shared/contracts';
 import type { ToDooEntityMap } from '../../../../shared/to-doo-contracts';
 type Ref = ToDooEntityMap['task']['noteRefs'][number];
@@ -41,32 +42,43 @@ function add(note: TreeEntry) {
     <div class="todo-between">
       <h3>{{ label || '关联资料' }}</h3>
       <AButton html-type="button" class="todo-link" @click="choosing = !choosing" type="link">
-        {{ choosing ? '收起' : '+ 关联资料' }}
+        <ToDooIcon :name="choosing ? 'close' : 'plus'" :size="14" />{{
+          choosing ? '收起' : '关联资料'
+        }}
       </AButton>
     </div>
     <div v-for="(link, i) in modelValue" :key="link.noteId" class="todo-note-row">
-      <span class="todo-note-icon">▤</span
+      <span class="todo-note-icon" aria-hidden="true"><ToDooIcon name="note" :size="16" /></span
       ><AButton
         html-type="button"
         class="todo-note-name"
         type="text"
         :disabled="!notes.some((n) => n.id === link.noteId)"
+        :title="notes.find((n) => n.id === link.noteId)?.name || link.title || '资料不可用'"
         @click="emit('open-note', link.noteId)"
       >
-        {{ notes.find((n) => n.id === link.noteId)?.name || link.title || '资料不可用'
-        }}<small v-if="!notes.some((n) => n.id === link.noteId)">资料已移除或当前不可访问</small
-        ><small v-else
-          >{{
-            link.role === 'source'
-              ? '来源'
-              : link.role === 'output'
-                ? '成果证据'
-                : link.role === 'review'
-                  ? '复盘资料'
-                  : '关联资料'
-          }}
-          ↗</small
-        ></AButton
+        <span class="todo-note-copy"
+          ><span class="todo-note-title">{{
+            notes.find((n) => n.id === link.noteId)?.name || link.title || '资料不可用'
+          }}</span
+          ><small v-if="!notes.some((n) => n.id === link.noteId)">资料已移除或当前不可访问</small
+          ><small v-else
+            >{{
+              link.role === 'source'
+                ? '来源'
+                : link.role === 'output'
+                  ? '成果证据'
+                  : link.role === 'review'
+                    ? '复盘资料'
+                    : '关联资料'
+            }}
+          </small></span
+        ><ToDooIcon
+          v-if="notes.some((n) => n.id === link.noteId)"
+          class="todo-note-open-icon"
+          name="external"
+          :size="14"
+        /> </AButton
       ><AButton
         html-type="button"
         class="todo-icon-button"
@@ -79,16 +91,67 @@ function add(note: TreeEntry) {
           )
         "
       >
-        ×
+        <ToDooIcon name="close" :size="16" />
       </AButton>
     </div>
     <p v-if="!modelValue.length && !choosing" class="todo-muted todo-small">还没有关联资料</p>
     <div v-if="choosing" class="todo-note-picker">
       <label>搜索资料<AInput v-model:value="query" placeholder="按资料名称或路径搜索" /></label
       ><AButton v-for="n in available" :key="n.id" html-type="button" @click="add(n)">
-        {{ n.name }}<small>{{ n.path }}</small>
+        <span class="todo-note-title">{{ n.name }}</span
+        ><small>{{ n.path }}</small>
       </AButton>
       <p v-if="!available.length" class="todo-muted">没有可关联的资料</p>
     </div>
   </div>
 </template>
+<style scoped>
+.todo-note-row {
+  min-width: 0;
+}
+.todo-note-name.ant-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-height: 36px;
+  height: auto;
+  white-space: normal;
+}
+.todo-note-copy {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+.todo-note-title {
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+.todo-note-open-icon {
+  flex: 0 0 auto;
+  color: var(--todo-muted);
+}
+.todo-note-picker > label {
+  flex: 0 0 auto;
+}
+.todo-note-picker .ant-btn {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: 44px;
+  height: auto;
+  white-space: normal;
+}
+.todo-note-picker .ant-btn small {
+  white-space: normal;
+  line-height: 1.5;
+}
+</style>

@@ -6,8 +6,15 @@ it('serves fixed OAuth discovery and public client registration while protecting
     const metadata = await f.app.inject({ url: '/.well-known/oauth-authorization-server/api/auth' });
     expect(metadata.statusCode).toBe(200);
     expect(metadata.json().issuer).toBe(f.config.origin + '/api/auth');
+    expect(metadata.json()).toMatchObject({
+      authorization_response_iss_parameter_supported: true,
+      code_challenge_methods_supported: ['S256'],
+      registration_endpoint: f.config.origin + '/api/auth/oauth2/register',
+    });
+    expect(metadata.json().token_endpoint_auth_methods_supported).toContain('none');
     const resource = await f.app.inject({ url: '/.well-known/oauth-protected-resource/mcp' });
     expect(resource.statusCode).toBe(200); expect(resource.json().resource).toBe(f.config.origin + '/mcp');
+    expect(resource.json().authorization_servers).toEqual([metadata.json().issuer]);
     const client = await f.app.inject({ method: 'POST', url: '/api/auth/oauth2/register',
       payload: { client_name: 'fixture', redirect_uris: ['https://client.example/callback'], token_endpoint_auth_method: 'none', scope: 'knowledge:read offline_access' } });
     expect(client.statusCode).toBe(201);

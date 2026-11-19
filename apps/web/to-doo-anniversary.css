@@ -27,18 +27,121 @@
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--card-pigment) 22%, var(--todo-line));
   border-radius: var(--todo-radius);
-  padding: 16px;
-  gap: 16px;
+  padding: 0;
+  gap: 0;
   box-shadow: none;
+  color: var(--card-ink, var(--todo-ink));
+  overflow-wrap: anywhere;
+}
+.to-doo-workspace .todo-anniversaries {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  align-items: start;
+  gap: 16px;
+}
+.todo-anniversary[data-card-style] .todo-anniversary-face {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  aspect-ratio: 4 / 5;
+  padding: 20px 20px 64px;
+}
+.todo-anniversary-face > :not(.todo-anniversary-art) {
+  position: relative;
+  z-index: 1;
+}
+.todo-anniversary-face .todo-anniversary-heading {
+  display: flex;
+  align-items: center;
+  height: 22px;
+  flex: 0 0 22px;
+  min-width: 0;
+}
+.todo-anniversary-heading .todo-badge {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.todo-anniversary[data-card-style] .todo-anniversary-name {
+  height: 48px;
+  flex: 0 0 48px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+.todo-anniversary[data-card-style] .todo-anniversary-name-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.todo-anniversary[data-card-style] .todo-anniversary-distance {
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+  flex: 0 0 64px;
+}
+.todo-anniversary-distance > p {
+  margin: 0;
+}
+.todo-anniversary[data-card-style] .todo-anniversary-distance > .todo-anniversary-today {
+  color: var(--card-ink, var(--todo-accent));
+  font-size: var(--todo-heading-line-height);
+  font-weight: 600;
+  line-height: 1.35;
+  padding-block: 0;
+}
+.todo-anniversary-distance .todo-days {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.todo-anniversary[data-card-style] .todo-days small {
+  margin: 0;
+}
+.todo-anniversary-face .todo-anniversary-dates {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-height: 40px;
+  font-variant-numeric: tabular-nums;
+}
+.todo-anniversary-dates > p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+}
+.todo-anniversary[data-card-style] .todo-anniversary-details {
+  margin-top: -48px;
+  padding: 0 20px 20px;
+  min-width: 0;
+}
+.todo-anniversary-details > summary {
+  min-height: 28px;
+  line-height: 28px;
+}
+.todo-anniversary[data-card-style] .todo-anniversary-details-content {
+  margin-top: 12px;
 }
 .todo-anniversary[data-card-style] > * {
   position: relative;
   z-index: 1;
 }
 .todo-anniversary[data-card-style] h2 {
+  color: inherit;
   font-size: var(--todo-section-size);
   line-height: 1.5;
   overflow-wrap: anywhere;
+}
+.todo-anniversary[data-card-style] .todo-anniversary-title.ant-btn {
+  width: 100%;
+  border: 0;
+  color: inherit;
 }
 .todo-anniversary[data-card-style] .todo-days {
   font-size: 48px;
@@ -48,7 +151,7 @@
 }
 .todo-anniversary[data-card-style] .todo-muted,
 .todo-anniversary[data-card-style] .todo-days small {
-  color: var(--todo-ink) !important;
+  color: var(--card-ink, var(--todo-ink)) !important;
   opacity: 0.72;
 }
 .todo-anniversary[data-card-style] .todo-badge {
@@ -83,7 +186,7 @@
   border-radius: 50%;
   transform: rotate(32deg);
 }
-[data-card-style='landscape'] {
+:is(.todo-anniversary, .todo-card-style-sample)[data-card-style='landscape'] {
   background: linear-gradient(145deg, var(--card-paper), var(--todo-paper));
 }
 [data-card-style='landscape']::before {
@@ -129,7 +232,7 @@
     -35px -80px 0 -2px var(--card-pigment),
     28px 90px 0 -1px var(--card-pigment);
 }
-[data-card-style='minimal'] {
+:is(.todo-anniversary, .todo-card-style-sample)[data-card-style='minimal'] {
   background: var(--todo-paper);
 }
 [data-card-style='minimal']::before {
@@ -161,8 +264,229 @@
   height: auto;
 }
 
-@media (max-width: 640px) {
-  .todo-anniversary[data-card-style] {
-    padding: 20px;
-  }
+/* The pixel theme uses code-native shapes, keeping it crisp at every size. */
+:is(.todo-anniversary, .todo-card-style-sample)[data-card-style='pixel'] {
+  border-radius: 2px;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--card-pigment) 14%, transparent) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--card-pigment) 14%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 16px 16px;
+}
+[data-card-style='pixel']::before {
+  inset: 7px;
+  border: 2px solid var(--card-line);
+  clip-path: polygon(
+    0 8px,
+    8px 8px,
+    8px 0,
+    calc(100% - 8px) 0,
+    calc(100% - 8px) 8px,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 8px) calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 8px),
+    0 calc(100% - 8px)
+  );
+}
+[data-card-style='pixel']::after {
+  width: 10px;
+  height: 10px;
+  right: 36px;
+  bottom: 48px;
+  background: var(--card-pigment);
+  opacity: 0.22;
+  box-shadow:
+    0 -10px var(--card-pigment),
+    0 10px var(--card-pigment),
+    -10px 0 var(--card-pigment),
+    10px 0 var(--card-pigment),
+    -20px 0 var(--card-pigment),
+    20px 0 var(--card-pigment),
+    0 -20px var(--card-pigment),
+    0 20px var(--card-pigment);
+}
+.todo-anniversary[data-card-style='pixel'] .todo-days {
+  font-family: ui-monospace, 'Cascadia Mono', 'SFMono-Regular', monospace;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+.todo-anniversary[data-card-style='pixel'] .todo-badge {
+  border-radius: 2px;
+}
+
+:is(.todo-anniversary, .todo-card-style-sample)[data-card-style='postcard'] {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--card-paper), var(--card-paper)) center / calc(100% - 8px) calc(100% - 8px)
+      no-repeat,
+    repeating-linear-gradient(
+        135deg,
+        var(--card-pigment) 0 7px,
+        var(--todo-paper) 7px 14px,
+        var(--card-line) 14px 21px,
+        var(--todo-paper) 21px 28px
+      )
+      border-box;
+}
+[data-card-style='postcard']::before {
+  top: 18px;
+  right: 18px;
+  width: 38px;
+  height: 48px;
+  border: 3px dotted var(--card-line);
+  background: var(--card-art);
+  transform: rotate(9deg);
+}
+[data-card-style='postcard']::after {
+  top: 50px;
+  right: 40px;
+  width: 62px;
+  height: 26px;
+  border-block: 1px solid var(--card-line);
+  border-radius: 50%;
+  transform: rotate(-12deg);
+}
+
+:is(.todo-anniversary, .todo-card-style-sample)[data-card-style='paper'] {
+  background-image: repeating-linear-gradient(transparent 0 27px, var(--card-line) 27px 28px);
+}
+[data-card-style='paper']::before {
+  top: 0;
+  bottom: 0;
+  left: 8px;
+  border-left: 2px solid var(--card-line);
+}
+[data-card-style='paper']::after {
+  width: 70px;
+  height: 20px;
+  top: -4px;
+  right: 18px;
+  background: var(--card-art);
+  transform: rotate(8deg);
+}
+.todo-anniversary[data-card-style='paper'] .todo-days {
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+:is(.todo-anniversary, .todo-card-style-sample)[data-card-style='night'],
+:is(.todo-anniversary, .todo-card-style-sample)[data-card-style='photo'] {
+  --card-ink: #f8fafc;
+  --card-art: color-mix(in srgb, var(--card-pigment) 36%, transparent);
+  --card-line: #e4edff38;
+  background:
+    radial-gradient(
+      ellipse at 100% 0,
+      color-mix(in srgb, var(--card-pigment) 65%, #182335),
+      transparent 85%
+    ),
+    #162032;
+}
+[data-card-style='night']::before {
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 80% 28%, #ffffff80 0 1px, transparent 2px),
+    radial-gradient(circle at 65% 12%, #ffffff80 0 1px, transparent 2px),
+    radial-gradient(circle at 91% 55%, #ffffff60 0 1px, transparent 2px),
+    radial-gradient(circle at 45% 80%, #ffffff60 0 1px, transparent 2px);
+}
+[data-card-style='night']::after {
+  width: 48px;
+  height: 48px;
+  right: 28px;
+  top: 26px;
+  border-radius: 50%;
+  box-shadow: 10px -7px 0 -1px #ffffff26;
+}
+.todo-anniversary:is([data-card-style='night'], [data-card-style='photo']) .todo-badge {
+  background: #ffffff1c;
+  color: var(--card-ink);
+}
+.todo-anniversary:is([data-card-style='night'], [data-card-style='photo'])
+  :is(.todo-anniversary-today, .todo-card-today) {
+  color: var(--card-ink);
+}
+.todo-anniversary:is([data-card-style='night'], [data-card-style='photo'])
+  .todo-anniversary-details {
+  color: #e4edff;
+}
+.todo-anniversary:is([data-card-style='night'], [data-card-style='photo'])
+  .todo-anniversary-details-content {
+  color: var(--card-ink);
+  border-top-color: var(--card-line);
+}
+.todo-anniversary[data-card-style='photo'] .todo-muted,
+.todo-anniversary[data-card-style='photo'] .todo-days small {
+  opacity: 0.88;
+}
+.todo-anniversary[data-card-style='photo']
+  :is(.todo-anniversary-name, .todo-days, .todo-anniversary-dates) {
+  text-shadow: 0 1px 3px #07101a66;
+}
+.todo-anniversary-face > .todo-anniversary-art .todo-anniversary-photo-error {
+  inset: auto 12px 50px;
+}
+[data-card-style='photo']::before {
+  content: none;
+}
+[data-card-style='photo']::after {
+  inset: 10px;
+  border: 1px solid #ffffff38;
+  border-radius: 4px;
+}
+.todo-anniversary[data-card-style] .todo-anniversary-face > .todo-anniversary-art {
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  z-index: 0;
+}
+.todo-card-style-sample[data-card-style='pixel']::before {
+  inset: 5px;
+  width: auto;
+  height: auto;
+}
+.todo-card-style-sample[data-card-style='pixel']::after {
+  right: 24px;
+  bottom: 20px;
+  transform: scale(0.5);
+}
+.todo-card-style-sample[data-card-style='postcard']::before {
+  top: 6px;
+  right: 8px;
+  width: 20px;
+  height: 26px;
+}
+.todo-card-style-sample[data-card-style='postcard']::after {
+  top: 17px;
+  right: 24px;
+  width: 30px;
+  height: 12px;
+}
+.todo-card-style-sample[data-card-style='paper']::before {
+  inset: 0 auto 0 5px;
+  width: 0;
+  height: auto;
+}
+.todo-card-style-sample[data-card-style='paper']::after {
+  width: 34px;
+  height: 10px;
+  right: 10px;
+  top: -2px;
+}
+.todo-card-style-sample[data-card-style='night']::before {
+  inset: 0;
+  width: auto;
+  height: auto;
+}
+.todo-card-style-sample[data-card-style='night']::after {
+  width: 20px;
+  height: 20px;
+  top: 12px;
+  right: 16px;
 }

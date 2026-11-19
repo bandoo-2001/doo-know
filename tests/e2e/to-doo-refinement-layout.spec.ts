@@ -71,9 +71,21 @@ for (const size of [{ width: 1440, height: 900 }, { width: 1080, height: 812 }, 
       if (section === 'calendar') {
         if (await app.locator('.todo-mobile-agenda').isVisible()) await app.getByText('网格', { exact: true }).click();
         const cells = app.locator('.todo-month-day');
-        // Date grids keep every date reachable; the grid itself fits the viewport.
+        // Narrow month grids scroll so each date retains its usable touch height.
         await expect(cells).toHaveCount(42);
-        expect((await cells.last().boundingBox())!.y + (await cells.last().boundingBox())!.height).toBeLessThanOrEqual(size.height + 1);
+        const grid = app.getByRole('region', { name: '日历网格，可横向滚动', exact: true });
+        const viewport = (await grid.boundingBox())!;
+        expect(viewport.y + viewport.height).toBeLessThanOrEqual(size.height + 1);
+        const last = cells.last();
+        await last.scrollIntoViewIfNeeded();
+        const add = last.getByRole('button', { name: /^在 .* 添加任务$/ });
+        await expect(add).toBeInViewport();
+        const date = (await last.getAttribute('aria-label'))!.slice(0, 10);
+        await add.click();
+        const creation = page.getByRole('complementary', { name: '任务详情', exact: true });
+        await expect(creation.getByLabel('计划日期', { exact: true })).toHaveValue(date);
+        await creation.getByRole('button', { name: '取消', exact: true }).click();
+        await expect(creation).toBeHidden();
       } else {
         const quadrants = app.locator('.todo-quadrant');
         await expect(quadrants).toHaveCount(4);

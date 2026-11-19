@@ -56,6 +56,7 @@ export function toDooQuickFilter(
     'unscheduled',
     'includeDeleted',
     'includeArchived',
+    'taskScope',
   ] as const)
     delete filter[key];
   if (value === 'today' || value === 'upcoming') {
@@ -70,8 +71,14 @@ export function toDooQuickFilter(
   if (value === 'unscheduled') filter.unscheduled = true;
   if (value === 'done') filter.statuses = ['done'];
   if (value === 'blocked') filter.statuses = ['blocked'];
-  if (value === 'trash') filter.includeDeleted = true;
-  if (value === 'archived') filter.includeArchived = true;
+  if (value === 'trash') {
+    filter.includeDeleted = true;
+    filter.taskScope = 'trash';
+  }
+  if (value === 'archived') {
+    filter.includeArchived = true;
+    filter.taskScope = 'archived';
+  }
   return filter;
 }
 
@@ -253,8 +260,11 @@ export function toDooFilterSummary(
   if (filter.unscheduled) parts.push('仅未安排');
   if (filter.hasEvidence !== undefined)
     parts.push(filter.hasEvidence ? '有成果证据' : '无成果证据');
-  if (filter.includeDeleted) parts.push('包含回收站');
-  if (filter.includeArchived) parts.push('包含归档');
+  if (filter.taskScope) parts.push(filter.taskScope === 'trash' ? '仅回收站任务' : '仅归档任务');
+  else {
+    if (filter.includeDeleted) parts.push('包含回收站');
+    if (filter.includeArchived) parts.push('包含归档');
+  }
   if (filter.leafOnly) parts.push('仅叶子任务');
   if (filter.group?.conditions.length) {
     const describe = (

@@ -22,6 +22,7 @@ type Options = {
   authorize(write: boolean): Principal;
   access(): ToDooAgentAccess;
   canReadNote(principal: Principal, id: string): boolean | Promise<boolean>;
+  canUseAnniversaryImage?(principal: Principal, hash: string, anniversaryId: string): boolean;
 };
 const domains: Record<ToDooEntityKind, string> = {
   settings: 'settings',
@@ -194,6 +195,27 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
       fail(403, 'FORBIDDEN', 'To Doo 项目不在当前授权范围');
     return value;
   }
+  function checkAnniversaryImage(
+    kind: ToDooEntityKind,
+    entity: Record<string, any>,
+    principal: Principal,
+    access: ToDooAgentAccess,
+  ) {
+    if (kind !== 'anniversary' || !entity.appearance?.image) return;
+    const hash = entity.appearance.image.hash;
+    // A blob hash is not authority to read its bytes. In particular, a known task
+    // attachment hash must not be relabelled as a globally readable anniversary.
+    const existing = service.snapshot({ all: true, kind: 'anniversary' }).anniversaries;
+    if (
+      existing.some(
+        (item) =>
+          !item.deletedAt && item.appearance?.image?.hash === hash && allowed(kind, item, access),
+      ) ||
+      options.canUseAnniversaryImage?.(principal, hash, entity.id)
+    )
+      return;
+    fail(403, 'FORBIDDEN', '图片需要由当前授权上传，或来自可读取的纪念日');
+  }
   async function sanitize(
     value: any,
     principal: Principal,
@@ -242,7 +264,9 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
           'status',
           'listId',
           'taskId',
+          'parentId',
           'parentTaskId',
+          'icon',
           'scheduledDate',
           'due',
           'updatedAt',
@@ -557,7 +581,10 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
             fail(403, 'FORBIDDEN', '该实体需要专用的分享、集成或成果操作工具');
           const current = get(p.kind, p.entity.id);
           if (current) target(p.kind, p.entity.id);
-          prospective(p.kind, { ...current, ...p.entity });
+          const merged: Record<string, any> = { ...current, ...p.entity };
+          prospective(p.kind, merged);
+          checkAnniversaryImage(p.kind, merged, principal, access);
+          if (p.kind === 'list') target('list', merged.parentId);
           break;
         }
         case 'read_reminders':
@@ -602,6 +629,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
     }
     guardIntent();
     const related: Record<string, ToDooEntityKind> = {
+      parentId: 'list',
       parentTaskId: 'task',
       taskId: 'task',
       occurrenceId: 'occurrence',
@@ -732,8 +760,13 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
         fail(403, 'FORBIDDEN');
       const current = get(kind, entity.id);
       if (current) check(kind, current.id, access);
-      if (!allowed(kind, { ...current, ...entity }, access)) fail(403, 'FORBIDDEN');
+      const merged: Record<string, any> = { ...current, ...entity };
+      if (!allowed(kind, merged, access)) fail(403, 'FORBIDDEN');
+      checkAnniversaryImage(kind, merged, principal, access);
+      if (kind === 'list' && typeof merged.parentId === 'string')
+        check('list', merged.parentId, access);
       const related: Record<string, ToDooEntityKind> = {
+        parentId: 'list',
         parentTaskId: 'task',
         taskId: 'task',
         occurrenceId: 'occurrence',
@@ -770,8 +803,11 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
       await visit(entity);
       recheck(true, admitted);
       if (current) check(kind, current.id, options.access());
-      if (!allowed(kind, { ...get(kind, entity.id), ...entity }, options.access()))
-        fail(403, 'FORBIDDEN');
+      const latest: Record<string, any> = { ...get(kind, entity.id), ...entity };
+      if (!allowed(kind, latest, options.access())) fail(403, 'FORBIDDEN');
+      checkAnniversaryImage(kind, latest, principal, options.access());
+      if (kind === 'list' && typeof latest.parentId === 'string')
+        check('list', latest.parentId, options.access());
     },
     query,
     command,

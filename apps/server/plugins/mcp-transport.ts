@@ -77,7 +77,7 @@ export function mcpTransports(app: FastifyInstance, host: Host, auth: Awaited<Re
         reply.header('Cache-Control', 'no-store');
         if (req.method === 'OPTIONS') {
           if (req.headers['access-control-request-method'] && req.headers['access-control-request-method'] !== 'POST') fail(403, 'FORBIDDEN');
-          const headers = ['authorization', 'content-type', 'mcp-protocol-version', 'mcp-session-id', 'last-event-id'];
+          const headers = ['authorization', 'content-type', 'mcp-protocol-version', 'mcp-session-id', 'last-event-id', 'mcp-method', 'mcp-name'];
           if (String(req.headers['access-control-request-headers'] || '').split(',').map(header => header.trim().toLowerCase()).filter(Boolean).some(header => !headers.includes(header))) fail(403, 'FORBIDDEN');
           return reply.header('Access-Control-Allow-Methods', 'POST').header('Access-Control-Allow-Headers', headers.join(',')).code(204).send();
         }

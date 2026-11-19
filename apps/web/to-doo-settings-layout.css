@@ -1,4 +1,20 @@
 /* Settings is already a management destination; do not wrap each group in a card. */
+.to-doo-workspace .todo-page:has(.todo-settings) > .todo-page-heading {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+.to-doo-workspace .todo-main:has(.todo-settings) {
+  scroll-padding-block-start: calc(var(--todo-header-height) + var(--todo-space-16));
+}
+.todo-settings .todo-settings-tabs .ant-tabs-nav { margin-bottom: 0; }
+.todo-settings-simplified .todo-settings-preferences { padding-top: var(--todo-space-16); }
+.todo-settings-simplified .todo-settings-preferences-heading { padding-top: 0; }
+.todo-settings .todo-settings-preferences-heading > p {
+  margin: 0;
+  color: var(--todo-muted);
+  font-size: var(--todo-caption-size);
+}
 .todo-settings.todo-settings-simplified > .todo-panel,
 .todo-settings.todo-settings-simplified .todo-settings-structures > .todo-panel {
   border: 0;

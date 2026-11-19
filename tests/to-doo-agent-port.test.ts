@@ -8,6 +8,178 @@ import { noteService } from '../packages/core/notes';
 import { createToDooService } from '../packages/core/to-doo/service';
 import { createToDooAgentPort } from '../apps/server/to-doo/agent-port';
 
+it.each(['listIds', 'resourceListIds'] as const)(
+  'requires both sides of a list hierarchy to be writable within %s',
+  async (boundary) => {
+    const root = await mkdtemp(join(tmpdir(), 'to-doo-list-parent-policy-'));
+    const config = {
+      knowledgeRoot: join(root, 'knowledge'),
+      dataRoot: join(root, 'data'),
+      origin: 'http://localhost:3010',
+      secret: 'fixture-only-list-parent-policy-secret',
+    };
+    await mkdir(config.knowledgeRoot);
+    const db = openDatabase(config.dataRoot);
+    const service = createToDooService(config, db, noteService(config, db));
+    try {
+      const ownerCommand = (action: string, payload: unknown) =>
+        service.command({ requestId: randomUUID(), action, payload });
+      for (const id of ['allowed-list', 'private-parent'])
+        ownerCommand('save_entity', {
+          kind: 'list',
+          entity: {
+            id,
+            name: id,
+            description: 'Long description '.repeat(400),
+            criteria: 'Long criteria '.repeat(400),
+          },
+        });
+      let permitted = ['allowed-list'];
+      const port = createToDooAgentPort(service, {
+        authorize: () => ({
+          id: 'owner',
+          clientId: 'client',
+          scopes: ['to-doo:read', 'to-doo:write'],
+          allowedPrefixes: [],
+        }),
+        access: () => ({
+          listIds: boundary === 'listIds' ? permitted : [],
+          ...(boundary === 'resourceListIds' ? { resourceListIds: permitted } : {}),
+          domains: ['tasks'],
+        }),
+        canReadNote: async () => false,
+      });
+      const before = service.getEntity('list', 'allowed-list')!;
+      const attach = {
+        requestId: randomUUID(),
+        action: 'save_entity' as const,
+        payload: {
+          kind: 'list' as const,
+          expectedRevision: before.revision,
+          entity: { id: 'allowed-list', parentId: 'private-parent' },
+        },
+      };
+      await expect(port.command(attach)).rejects.toMatchObject({ statusCode: 403 });
+      await expect(port.validateEntity('list', attach.payload.entity)).rejects.toMatchObject({
+        statusCode: 403,
+      });
+      expect(service.getEntity('list', 'allowed-list')).toEqual(before);
+      expect(service.getReceipt(attach.requestId)).toBeUndefined();
+
+      // The owner may create a relation that this particular client cannot modify.
+      ownerCommand('save_entity', attach.payload);
+      const nested = service.getEntity('list', 'allowed-list')!;
+      const read = await port.query({ kind: 'list', ids: ['allowed-list'] });
+      expect(read.items.map((item) => item.entity.id)).toEqual(['allowed-list']);
+      expect(read.items[0].entity.parentId).toBe('private-parent');
+      const patch = {
+        requestId: randomUUID(),
+        action: 'save_entity' as const,
+        payload: {
+          kind: 'list' as const,
+          expectedRevision: nested.revision,
+          entity: { id: 'allowed-list', icon: '📚' },
+        },
+      };
+      await expect(port.command(patch)).rejects.toMatchObject({ statusCode: 403 });
+      await expect(port.validateEntity('list', patch.payload.entity)).rejects.toMatchObject({
+        statusCode: 403,
+      });
+      expect(service.getEntity('list', 'allowed-list')).toEqual(nested);
+      expect(service.getReceipt(patch.requestId)).toBeUndefined();
+
+      permitted = ['allowed-list', 'private-parent'];
+      await expect(port.validateEntity('list', patch.payload.entity)).resolves.toBeUndefined();
+      await expect(port.command(patch)).resolves.toMatchObject({ ids: ['allowed-list'] });
+      expect(service.getEntity('list', 'allowed-list')).toMatchObject({
+        parentId: 'private-parent',
+        icon: '📚',
+      });
+    } finally {
+      service.close();
+      db.close();
+      await rm(root, { recursive: true, force: true });
+    }
+  },
+);
+
+it.each(['command', 'validation'] as const)(
+  'rechecks the inherited list parent after asynchronous note authorization during %s',
+  async (operation) => {
+    const root = await mkdtemp(join(tmpdir(), 'to-doo-list-parent-race-'));
+    const config = {
+      knowledgeRoot: join(root, 'knowledge'),
+      dataRoot: join(root, 'data'),
+      origin: 'http://localhost:3010',
+      secret: 'fixture-only-list-parent-race-secret',
+    };
+    await mkdir(config.knowledgeRoot);
+    const db = openDatabase(config.dataRoot);
+    const service = createToDooService(config, db, noteService(config, db));
+    try {
+      const ownerCommand = (action: string, payload: unknown) =>
+        service.command({ requestId: randomUUID(), action, payload });
+      for (const id of ['allowed-parent', 'private-parent'])
+        ownerCommand('save_entity', { kind: 'list', entity: { id, name: id } });
+      ownerCommand('save_entity', {
+        kind: 'list',
+        entity: { id: 'child', name: 'Keep original name', parentId: 'allowed-parent' },
+      });
+      const before = service.getEntity('list', 'child')!;
+      let moved = false;
+      const port = createToDooAgentPort(service, {
+        authorize: () => ({
+          id: 'owner',
+          clientId: 'client',
+          scopes: ['to-doo:read', 'to-doo:write'],
+          allowedPrefixes: [],
+        }),
+        access: () => ({ listIds: ['child', 'allowed-parent'], domains: ['tasks'] }),
+        canReadNote: async () => {
+          if (!moved) {
+            moved = true;
+            ownerCommand('save_entity', {
+              kind: 'list',
+              expectedRevision: before.revision,
+              entity: { id: 'child', parentId: 'private-parent' },
+            });
+          }
+          return true;
+        },
+      });
+      const patch = {
+        requestId: randomUUID(),
+        action: 'save_entity' as const,
+        payload: {
+          kind: 'list' as const,
+          expectedRevision: before.revision,
+          entity: {
+            id: 'child',
+            name: 'Must not be saved',
+            noteRefs: [{ noteId: 'delayed-note', role: 'material' }],
+          },
+        },
+      };
+      await expect(
+        operation === 'command'
+          ? port.command(patch)
+          : port.validateEntity('list', patch.payload.entity),
+      ).rejects.toMatchObject({ statusCode: 403 });
+      expect(moved).toBe(true);
+      expect(service.getEntity('list', 'child')).toMatchObject({
+        name: 'Keep original name',
+        parentId: 'private-parent',
+        noteRefs: [],
+      });
+      expect(service.getReceipt(patch.requestId)).toBeUndefined();
+    } finally {
+      service.close();
+      db.close();
+      await rm(root, { recursive: true, force: true });
+    }
+  },
+);
+
 it('intersects selected list resources with live list access and hides unbound entities and counts', async () => {
   const root = await mkdtemp(join(tmpdir(), 'to-doo-resource-lists-'));
   const config = {

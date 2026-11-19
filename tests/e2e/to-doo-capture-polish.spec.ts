@@ -59,7 +59,7 @@ test('clearing the contextual plan in Today survives a browser reload', async ({
   const title = '明确稍后安排 ' + crypto.randomUUID();
   const input = form.getByRole('textbox', { name: '快速添加任务', exact: true });
   await input.fill(title);
-  await fillToDooDate(form.getByLabel('计划日期', { exact: true }), '');
+  await form.getByRole('button', { name: '移除计划识别', exact: true }).click();
   await expect(form.getByLabel('计划日期', { exact: true })).toHaveValue('');
   await page.reload();
   await expect(input).toHaveValue(title);

@@ -58,13 +58,12 @@ test('saved direct conditions stay inspectable in board, matrix and timeline, th
       },
     });
     await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all');
+    await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
     await page.getByRole('button', { name, exact: true }).click();
     await expect.poll(() => new URL(page.url()).searchParams.get('appSection')).toBe(mode);
-    const scope =
-      mode === 'timeline'
-        ? page.getByLabel('当前任务范围', { exact: true })
-        : page.getByLabel('附加筛选', { exact: true });
-    if (mode === 'timeline') await scope.locator('summary').click();
+    const scope = page.locator('.todo-task-scope > details.todo-scope-filters');
+    await scope.locator('summary').click();
+    await expect(scope.locator('ul')).toBeVisible();
     await expect(scope).toContainText('优先级：高');
     await expect(scope).toContainText('重要程度：重要');
     await expect(scope).toContainText('仅叶子任务');
@@ -160,6 +159,7 @@ test('task first row and board first card remain compact while tools and groupin
   expect((await card.boundingBox())!.y).toBeLessThan(450);
   await page.screenshot({ path: info.outputPath('phone-board-final.png'), animations: 'disabled' });
   await openToDooTaskTools(page);
+  await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
   await expect(page.getByRole('combobox', { name: '看板分组', exact: true })).toBeVisible();
   await expect(page.getByRole('navigation', { name: '看板列概览', exact: true })).toBeVisible();
 });

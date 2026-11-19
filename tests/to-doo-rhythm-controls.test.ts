@@ -1,3 +1,4 @@
+import * as habitInsights from '../apps/web/to-doo-habit-insights';
 import { afterEach, expect, test, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { compileScript, parse } from '@vue/compiler-sfc';
@@ -8,6 +9,7 @@ import * as clock from '../apps/web/to-doo-time';
 import * as focusSync from '../apps/web/to-doo-focus-history-sync';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as actionGuards from '../apps/web/to-doo-action-guard';
+import * as popupControls from '../apps/web/to-doo-controls';
 import * as reminders from '../apps/web/to-doo-reminders';
 import * as habits from '../shared/to-doo-habits';
 import * as habitPresentation from '../apps/web/to-doo-habit-presentation';
@@ -21,7 +23,7 @@ type Node = {
   children: Node[];
   parent?: Node;
 };
-let confirmation = false;
+let confirmation: boolean | Promise<boolean> = false;
 const cleanups: (() => void)[] = [];
 afterEach(() => {
   cleanups.splice(0).forEach((fn) => fn());
@@ -79,9 +81,10 @@ function component(name: string): Vue.Component {
       if (id === '../../to-doo-reminders') return reminders;
       if (id === '../../../../shared/to-doo-habits') return habits;
       if (id === '../../to-doo-habit-presentation') return habitPresentation;
+      if (id === '../../to-doo-habit-insights') return habitInsights;
       if (id === '../../../../shared/to-doo-anniversaries') return anniversaries;
       if (id === '../../to-doo-controls')
-        return { useToDooConfirm: () => async () => confirmation };
+        return { ...popupControls, useToDooConfirm: () => async () => confirmation };
       if (id === 'ant-design-vue')
         return {
           ...controls,
@@ -91,8 +94,10 @@ function component(name: string): Vue.Component {
         };
       if (id.endsWith('ToDooDateField.vue')) return { default: control('DateField') };
       if (id.endsWith('ToDooSelect.vue')) return { default: control('Select') };
+      if (id.endsWith('ToDooAnniversaryArt.vue')) return { default: control('AnniversaryArt') };
+      if (id.endsWith('ToDooHabitDetail.vue')) return { default: control('HabitDetail') };
       if (
-        /ToDoo(Hint|PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|Icon)\.vue$/.test(
+        /ToDoo(Hint|PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|ListIcon|Icon)\.vue$/.test(
           id,
         )
       )
@@ -505,11 +510,14 @@ test('an ordinary habit card offers a single check-in and hides quantitative inp
     onRecord: record,
   });
   expect(view.all().filter((n) => n.tag === 'InputNumber')).toHaveLength(0);
-  await view.button('打卡').props.onClick();
+  const checkin = () =>
+    view.all().find((n) => n.tag === 'Button' && n.props['aria-label'] === '打卡 早睡')!;
+  await checkin().props.onClick();
   expect(record).toHaveBeenCalledOnce();
   Object.assign(view.vm.$.props, { amount: 1, entryCount: 1 });
   await Vue.nextTick();
-  expect(view.button('已打卡').props.disabled).toBe(true);
+  expect(checkin().props.disabled).toBe(true);
+  expect(checkin().props.title).toBe('已打卡');
 });
 
 function auditHabitFixture() {
@@ -602,7 +610,10 @@ test('habit cards expose the effective local date and zone when workspace today 
   const card = view.all().find((n) => n.tag === 'article')!;
   expect(view.text(card)).toContain('2026-11-02');
   expect(view.text(card)).toContain('America/Los_Angeles');
-  await view.button('记录').props.onClick();
+  await view
+    .all()
+    .find((n) => n.tag === 'Button' && n.props['aria-label'] === '记录数量 历史阅读')!
+    .props.onClick();
   expect(value.execute).toHaveBeenCalledWith(
     expect.objectContaining({ payload: expect.objectContaining({ localDate: '2026-11-02' }) }),
     expect.any(String),
@@ -785,3 +796,359 @@ test.each([
     expect(view.text(view.dialog())).toContain('记录时区：' + zone);
   },
 );
+
+async function settleHabitAudit() {
+  for (let turn = 0; turn < 12; turn++) await Vue.nextTick();
+}
+function habitAuditDetail(view: ReturnType<typeof mount>) {
+  return view.all().find((node) => node.tag === 'HabitDetail')!;
+}
+function habitAuditQuantity(view: ReturnType<typeof mount>, name = '历史阅读') {
+  return view
+    .all()
+    .find((node) => node.tag === 'InputNumber' && node.props['aria-label'] === '记录数量 ' + name)!;
+}
+
+test('a habit ahead of workspace midnight can select its exact historical workspace-today without losing per-date quantity drafts', async () => {
+  const { value } = auditHabitFixture();
+  vi.setSystemTime(new Date('2026-11-03T23:30:00Z'));
+  value.state.snapshot.settings.timeZone = 'UTC';
+  (value.state.snapshot as any).habits[0].timeZone = 'Pacific/Kiritimati';
+  const view = mount('ToDooRhythm', { model: value, section: 'habits' });
+  await settleHabitAudit();
+  view.button('历史阅读').props.onClick();
+  await Vue.nextTick();
+  expect(habitAuditDetail(view).props.date).toBe('2026-11-04');
+  habitAuditQuantity(view).props['onUpdate:value'](5);
+  habitAuditDetail(view).props.onSelectDate('2026-11-03');
+  await settleHabitAudit();
+  expect(habitAuditDetail(view).props.date).toBe('2026-11-03');
+  habitAuditQuantity(view).props['onUpdate:value'](2);
+  habitAuditDetail(view).props.onSelectDate('2026-11-04');
+  await settleHabitAudit();
+  expect(habitAuditDetail(view).props.date).toBe('2026-11-04');
+  expect(habitAuditQuantity(view).props.value).toBe(5);
+  habitAuditDetail(view).props.onSelectDate('2026-11-03');
+  await settleHabitAudit();
+  expect(habitAuditQuantity(view).props.value).toBe(2);
+  await view
+    .all()
+    .find((node) => node.tag === 'Button' && node.props['aria-label'] === '记录数量 历史阅读')!
+    .props.onClick();
+  expect(value.execute).toHaveBeenCalledWith(
+    expect.objectContaining({
+      action: 'checkin_habit',
+      payload: expect.objectContaining({
+        localDate: '2026-11-03',
+        amount: 2,
+        expectedHabitRevision: 'h1',
+      }),
+    }),
+    expect.any(String),
+  );
+});
+
+test('a habit calendar behind workspace midnight rejects its own future day and impossible calendar dates', async () => {
+  const { value } = auditHabitFixture();
+  vi.setSystemTime(new Date('2026-11-03T00:30:00Z'));
+  (value.state.snapshot as any).habits[0].timeZone = 'America/Los_Angeles';
+  const view = mount('ToDooRhythm', { model: value, section: 'habits' });
+  await settleHabitAudit();
+  view.button('历史阅读').props.onClick();
+  await Vue.nextTick();
+  expect(habitAuditDetail(view).props.date).toBe('2026-11-02');
+  habitAuditDetail(view).props.onSelectDate('2026-11-03');
+  habitAuditDetail(view).props.onSelectDate('2026-02-31');
+  await settleHabitAudit();
+  expect(habitAuditDetail(view).props.date).toBe('2026-11-02');
+  await habitAuditDetail(view).props.onRecord('2026-11-03');
+  expect(view.dialog()).toBeUndefined();
+  expect(value.execute).not.toHaveBeenCalled();
+});
+
+test('a pending detail day shares its range request and cannot open an old habit after another habit is selected', async () => {
+  const { value } = auditHabitFixture();
+  const first = (value.state.snapshot as any).habits[0];
+  first.startDate = '2026-10-01';
+  (value.state.snapshot as any).habits.push(
+    toDooEntitySchemas.habit.parse({ ...first, id: 'writing', name: '写作' }),
+  );
+  const original = value.request;
+  type Result = Awaited<ReturnType<typeof original>>;
+  let resolve!: (value: Result) => void;
+  const pending = new Promise<Result>((done) => {
+    resolve = done;
+  });
+  let delay = false,
+    pendingReads = 0;
+  value.request = vi.fn((url) => {
+    if (delay && url.includes('kind=habitEntry')) {
+      pendingReads++;
+      return pending;
+    }
+    return original(url);
+  });
+  const view = mount('ToDooRhythm', { model: value, section: 'habits' });
+  await settleHabitAudit();
+  view.button('历史阅读').props.onClick();
+  await Vue.nextTick();
+  delay = true;
+  const opening = habitAuditDetail(view).props.onRecord('2026-10-30');
+  await settleHabitAudit();
+  expect(pendingReads).toBe(1);
+  view.button('写作').props.onClick();
+  await Vue.nextTick();
+  resolve(await original('/api/to-doo/state?kind=habitEntry'));
+  await opening;
+  await settleHabitAudit();
+  expect(habitAuditDetail(view).props.habit.id).toBe('writing');
+  expect(view.dialog()).toBeUndefined();
+  expect(value.execute).not.toHaveBeenCalled();
+});
+
+test('a changed rule cannot silently reinterpret a quantity dialog, and the original input stays available', async () => {
+  const { value, view, cell } = await openAuditHistory();
+  cell.props.onClick();
+  await Vue.nextTick();
+  const input = () =>
+    view
+      .all()
+      .find((node) => node.tag === 'InputNumber' && node.props['aria-label'] === '习惯数量')!;
+  input().props['onUpdate:value'](7);
+  const prior = (value.state.snapshot as any).habits[0];
+  (value.state.snapshot as any).habits = [
+    toDooEntitySchemas.habit.parse({ ...prior, revision: 'h2', unit: '分钟', target: 30 }),
+  ];
+  await settleHabitAudit();
+  await view.dialog().props.onOk();
+  await Vue.nextTick();
+  expect(value.execute).not.toHaveBeenCalled();
+  expect(input().props.value).toBe(7);
+  expect(view.text(view.dialog())).toContain('页');
+  expect(
+    view
+      .all()
+      .find(
+        (node) => node.tag === 'Alert' && String(node.props.message).includes('习惯规则已变化'),
+      ),
+  ).toBeDefined();
+});
+
+test('a failed quantity dialog keeps its draft, reports the failure inside the dialog and is cleared after leaving habits', async () => {
+  const { value, view, cell } = await openAuditHistory();
+  cell.props.onClick();
+  await Vue.nextTick();
+  const input = view
+    .all()
+    .find((node) => node.tag === 'InputNumber' && node.props['aria-label'] === '习惯数量')!;
+  input.props['onUpdate:value'](8);
+  value.execute.mockImplementation(async () => {
+    value.state.error = '数量暂时无法保存';
+    return false;
+  });
+  await view.dialog().props.onOk();
+  await Vue.nextTick();
+  expect(input.props.value).toBe(8);
+  expect(value.state.externalDirty).toMatchObject({ habits: true });
+  expect(
+    view.all().find((node) => node.tag === 'Alert' && node.props.message === '数量暂时无法保存'),
+  ).toBeDefined();
+  const oldSave = view.dialog().props.onOk;
+  Object.assign(view.vm.$.props, { section: 'focus' });
+  await settleHabitAudit();
+  expect(view.dialog()).toBeUndefined();
+  expect(value.state.externalDirty).toMatchObject({ habits: false });
+  await oldSave();
+  expect(value.execute).toHaveBeenCalledOnce();
+});
+
+test('a newly skipped quantity day stays read-only and keeps the typed amount until its skip is removed', async () => {
+  const { value, records, view, cell } = await openAuditHistory();
+  value.state.snapshot.habitEntries = [records[0]];
+  cell.props.onClick();
+  await Vue.nextTick();
+  const input = () =>
+    view
+      .all()
+      .find((node) => node.tag === 'InputNumber' && node.props['aria-label'] === '习惯数量');
+  input()!.props['onUpdate:value'](7);
+  for (const record of value.state.snapshot.habitEntries) {
+    record.skipped = true;
+    record.amount = 0;
+  }
+  await Vue.nextTick();
+  expect(!!input()).toBe(false);
+  expect(view.dialog().props['ok-button-props'].disabled).toBe(true);
+  await view.dialog().props.onOk();
+  await Vue.nextTick();
+  expect(value.execute).not.toHaveBeenCalled();
+  expect(
+    view
+      .all()
+      .find((node) => node.tag === 'Alert' && String(node.props.message).includes('这一天已跳过')),
+  ).toBeDefined();
+  for (const record of value.state.snapshot.habitEntries) record.deletedAt = '2026-11-03T12:00:00Z';
+  await Vue.nextTick();
+  expect(input()!.props.value).toBe(7);
+});
+
+test('a day with actual quantity records offers correction rather than a conflicting skip action', async () => {
+  const { view, cell } = await openAuditHistory();
+  cell.props.onClick();
+  await Vue.nextTick();
+  expect(view.button('跳过这一天')).toBeUndefined();
+  expect(view.button('撤销此条')).toBeDefined();
+});
+
+test('quantity submission waits for complete refreshed records while preserving its typed amount', async () => {
+  const { value, view, cell } = await openAuditHistory();
+  cell.props.onClick();
+  await Vue.nextTick();
+  const input = () =>
+    view
+      .all()
+      .find((node) => node.tag === 'InputNumber' && node.props['aria-label'] === '习惯数量')!;
+  input().props['onUpdate:value'](8);
+  const original = value.request;
+  type Result = Awaited<ReturnType<typeof original>>;
+  let resolve!: (value: Result) => void;
+  value.request = vi.fn(
+    () =>
+      new Promise<Result>((done) => {
+        resolve = done;
+      }),
+  );
+  (value.state.snapshot as any).version = 'refresh-2';
+  await settleHabitAudit();
+  expect(view.dialog().props['ok-button-props'].disabled).toBe(true);
+  await view.dialog().props.onOk();
+  expect(value.execute).not.toHaveBeenCalled();
+  expect(input().props.value).toBe(8);
+  resolve(await original('/api/to-doo/state?kind=habitEntry'));
+  await settleHabitAudit();
+  expect(view.dialog().props['ok-button-props'].disabled).toBe(false);
+  await view.dialog().props.onOk();
+  expect(value.execute).toHaveBeenCalledWith(
+    expect.objectContaining({
+      payload: expect.objectContaining({ amount: 8, expectedHabitRevision: 'h1' }),
+    }),
+    expect.any(String),
+  );
+});
+
+test('fractional daily records offer the exact decimal remainder in both quick and detailed inputs', async () => {
+  const { value, records } = auditHabitFixture();
+  Object.assign((value.state.snapshot as any).habits[0], { target: 0.3, unit: '升' });
+  records[0].amount = 0.1;
+  value.state.snapshot.habitEntries = [records[0]];
+  const view = mount('ToDooRhythm', { model: value, section: 'habits', context: 'history' });
+  await settleHabitAudit();
+  view
+    .all()
+    .find(
+      (node) =>
+        node.tag === 'button' &&
+        node.props['aria-label'] === '历史阅读 2026-11-03 打卡，当前 0.1 升',
+    )!
+    .props.onClick();
+  await Vue.nextTick();
+  expect(
+    view
+      .all()
+      .find((node) => node.tag === 'InputNumber' && node.props['aria-label'] === '习惯数量')!.props
+      .value,
+  ).toBe(0.2);
+  view.dialog().props.onCancel();
+  Object.assign(view.vm.$.props, { context: 'today' });
+  await settleHabitAudit();
+  expect(habitAuditQuantity(view).props.value).toBe(0.2);
+});
+
+test('switching data spaces closes the old quantity intent even if the new space reuses the habit id', async () => {
+  const { value } = auditHabitFixture();
+  (value.state.snapshot as any).datasetId = 'space-one';
+  const original = value.request;
+  value.request = async (url) => ({
+    ...(await original(url)),
+    datasetId: (value.state.snapshot as any).datasetId,
+  });
+  const view = mount('ToDooRhythm', { model: value, section: 'habits', context: 'history' });
+  await settleHabitAudit();
+  view
+    .all()
+    .find(
+      (node) =>
+        node.tag === 'button' &&
+        node.props['aria-label'] === '历史阅读 2026-11-03 打卡，当前 45 页',
+    )!
+    .props.onClick();
+  await Vue.nextTick();
+  view
+    .all()
+    .find((node) => node.tag === 'InputNumber' && node.props['aria-label'] === '习惯数量')!
+    .props['onUpdate:value'](8);
+  const oldSave = view.dialog().props.onOk;
+  await Vue.nextTick();
+  expect(value.state.externalDirty).toMatchObject({ habits: true });
+  (value.state.snapshot as any).datasetId = 'space-two';
+  value.state.snapshot.habitEntries = [];
+  await settleHabitAudit();
+  expect(view.dialog()).toBeUndefined();
+  expect(value.state.externalDirty).toMatchObject({ habits: false });
+  await oldSave();
+  expect(value.execute).not.toHaveBeenCalled();
+});
+
+test('a confirmation for one list cannot delete a habit record after the list context has changed', async () => {
+  const { value, view } = await openAuditHistory();
+  (value.state.snapshot as any).habits[0].listId = 'list-a';
+  Object.assign(view.vm.$.props, { listId: 'list-a' });
+  await settleHabitAudit();
+  view
+    .all()
+    .find(
+      (node) =>
+        node.tag === 'button' &&
+        node.props['aria-label'] === '历史阅读 2026-11-03 打卡，当前 45 页',
+    )!
+    .props.onClick();
+  await Vue.nextTick();
+  let approve!: (value: boolean) => void;
+  confirmation = new Promise<boolean>((resolve) => {
+    approve = resolve;
+  });
+  const removing = view.button('撤销此条').props.onClick();
+  Object.assign(view.vm.$.props, { listId: undefined });
+  await settleHabitAudit();
+  approve(true);
+  await removing;
+  expect(value.removeEntity).not.toHaveBeenCalled();
+});
+
+test('renaming a habit cannot silently change the identity of an already open quantity intent', async () => {
+  const { value, view, cell } = await openAuditHistory();
+  cell.props.onClick();
+  await Vue.nextTick();
+  const input = () =>
+    view
+      .all()
+      .find((node) => node.tag === 'InputNumber' && node.props['aria-label'] === '习惯数量')!;
+  input().props['onUpdate:value'](7);
+  const prior = (value.state.snapshot as any).habits[0];
+  (value.state.snapshot as any).habits = [
+    toDooEntitySchemas.habit.parse({ ...prior, revision: 'h2', name: '另一种阅读计划' }),
+  ];
+  await settleHabitAudit();
+  await view.dialog().props.onOk();
+  await Vue.nextTick();
+  expect(value.execute).not.toHaveBeenCalled();
+  expect(input().props.value).toBe(7);
+  expect(view.text(view.dialog())).toContain('历史阅读');
+  expect(
+    view
+      .all()
+      .some(
+        (node) => node.tag === 'Alert' && String(node.props.message).includes('习惯内容已更新'),
+      ),
+  ).toBe(true);
+});

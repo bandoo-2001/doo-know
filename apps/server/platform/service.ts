@@ -1,6 +1,18 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { join, dirname, resolve } from 'node:path';
+import {
+  existsSync,
+  readFileSync,
+  writeSync,
+  mkdirSync,
+  lstatSync,
+  realpathSync,
+  openSync,
+  closeSync,
+  ftruncateSync,
+  fchmodSync,
+  constants,
+} from 'node:fs';
+import { join, dirname, resolve, isAbsolute } from 'node:path';
 import { homedir } from 'node:os';
 import type { HostConfig } from '../../../shared/platform-contracts.js';
 import { activeDatabaseProcesses, readInstance } from './instance.js';
@@ -16,31 +28,92 @@ export function systemctl(args: string[]) {
     stdio: ['ignore', 'pipe', 'pipe'],
   });
 }
-export function assertServiceOwnership(config: HostConfig) {
-  const file = join(
+const ownershipError = '用户服务不属于此配置，拒绝控制';
+function configuredUnitFile(config: HostConfig) {
+  return resolve(
     process.env.XDG_CONFIG_HOME || join(homedir(), '.config'),
     'systemd/user',
     unitName(config),
   );
-  if (
-    !existsSync(file) ||
-    !readFileSync(file, 'utf8')
-      .split(/\r?\n/)
-      .includes('# DooKnow profile: ' + config.profileFile)
-  )
-    throw Error('用户服务不属于此配置，拒绝控制');
 }
-export function serviceActive(config: HostConfig) {
+function unitEntryExists(file: string) {
   try {
-    const active = systemctl(['is-active', unitName(config)]).trim() === 'active';
-    if (active) assertServiceOwnership(config);
-    return active;
-  } catch (e) {
-    if ((e as Error).message === '用户服务不属于此配置，拒绝控制') throw e;
-    return false;
+    lstatSync(file);
+    return true;
+  } catch (cause) {
+    if ((cause as NodeJS.ErrnoException).code === 'ENOENT') return false;
+    throw cause;
   }
 }
+function assertMarkedUnit(config: HostConfig, file: string) {
+  if (!config.profileFile) throw Error(ownershipError);
+  try {
+    if (
+      !readFileSync(file, 'utf8')
+        .split(/\r?\n/)
+        .includes('# DooKnow profile: ' + config.profileFile)
+    )
+      throw Error(ownershipError);
+    return realpathSync(file);
+  } catch {
+    throw Error(ownershipError);
+  }
+}
+/** Query the running manager, whose unit search path may differ from this CLI's XDG environment. */
+function loadedUnitFile(config: HostConfig) {
+  let output: string;
+  try {
+    output = systemctl([
+      'show',
+      unitName(config),
+      '--property=LoadState',
+      '--property=FragmentPath',
+      '--all',
+    ]);
+  } catch (cause) {
+    // systemctl can return a non-zero status for a missing unit while still
+    // supplying its machine-readable LoadState. Other failures are not absence.
+    const stdout = (cause as { stdout?: string | Buffer }).stdout;
+    output = stdout?.toString() || '';
+    if (!output.split(/\r?\n/).includes('LoadState=not-found'))
+      throw Error('无法核对用户服务信息，拒绝控制');
+  }
+  const fields = new Map<string, string>();
+  for (const line of output.split(/\r?\n/).filter(Boolean)) {
+    const separator = line.indexOf('='),
+      key = line.slice(0, separator);
+    if (separator < 1 || !['LoadState', 'FragmentPath'].includes(key) || fields.has(key))
+      throw Error('无法核对用户服务信息，拒绝控制');
+    fields.set(key, line.slice(separator + 1));
+  }
+  const state = fields.get('LoadState'),
+    file = fields.get('FragmentPath');
+  if (state === 'not-found' && file === '') return;
+  if (state !== 'loaded' || !file || !isAbsolute(file))
+    throw Error('无法核对用户服务信息，拒绝控制');
+  return file;
+}
+export function assertServiceOwnership(config: HostConfig) {
+  const configured = configuredUnitFile(config);
+  // Also guard the CLI path: uninstall must never unlink a foreign local file,
+  // even if the manager currently resolves the name to a different owned unit.
+  if (unitEntryExists(configured)) assertMarkedUnit(config, configured);
+  const loaded = loadedUnitFile(config);
+  if (!loaded) throw Error(ownershipError);
+  return assertMarkedUnit(config, loaded);
+}
+export function serviceActive(config: HostConfig) {
+  let active: boolean;
+  try {
+    active = systemctl(['is-active', unitName(config)]).trim() === 'active';
+  } catch {
+    return false;
+  }
+  if (active) assertServiceOwnership(config);
+  return active;
+}
 export function writeService(config: HostConfig, root: string, node: string) {
+  if (!config.profileFile) throw Error(ownershipError);
   const quote = (value: string) => {
     if (/[\x00-\x1f]/.test(value)) throw Error('用户服务路径不能包含控制字符');
     return (
@@ -53,19 +126,55 @@ export function writeService(config: HostConfig, root: string, node: string) {
       '"'
     );
   };
-  const unitDir = join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'systemd/user'),
-    name = unitName(config);
-  mkdirSync(unitDir, { recursive: true, mode: 0o700 });
-  const file = join(unitDir, name),
+  const configured = configuredUnitFile(config),
     marker = '# DooKnow profile: ' + config.profileFile;
-  if (existsSync(file) && !readFileSync(file, 'utf8').split(/\r?\n/).includes(marker))
+  if (
+    unitEntryExists(configured) &&
+    !readFileSync(configured, 'utf8').split(/\r?\n/).includes(marker)
+  )
     throw Error('用户服务已属于其他安装，拒绝覆盖；请指定独立的 --service-name');
-  writeFileSync(
+  const loaded = loadedUnitFile(config);
+  const file = loaded ? assertMarkedUnit(config, loaded) : configured;
+  mkdirSync(dirname(file), { recursive: true, mode: 0o700 });
+  const source = `${marker}\n[Unit]\nDescription=DooKnow personal knowledge platform\nAfter=network.target\n\n[Service]\nType=simple\nWorkingDirectory=/\nEnvironment=${quote('DOOKNOW_PROFILE=' + config.profileFile)}\nEnvironment=${quote('DOOKNOW_INSTALL_ROOT=' + config.installRoot)}\nExecStart=${quote(node)} ${quote(join(root, 'dist/server/scripts/manage.js'))} serve\nRestart=on-failure\nRestartSec=3\nTimeoutStopSec=120\nUMask=0077\nNoNewPrivileges=true\n\n[Install]\nWantedBy=default.target\n`;
+  const exists = unitEntryExists(file);
+  // New installations may race for the same name. Never truncate a file that
+  // appeared after the ownership check, or follow a replacement symlink.
+  const descriptor = openSync(
     file,
-    `${marker}\n[Unit]\nDescription=DooKnow personal knowledge platform\nAfter=network.target\n\n[Service]\nType=simple\nWorkingDirectory=/\nEnvironment=${quote('DOOKNOW_PROFILE=' + config.profileFile)}\nEnvironment=${quote('DOOKNOW_INSTALL_ROOT=' + config.installRoot)}\nExecStart=${quote(node)} ${quote(join(root, 'dist/server/scripts/manage.js'))} serve\nRestart=on-failure\nRestartSec=3\nTimeoutStopSec=120\nUMask=0077\nNoNewPrivileges=true\n\n[Install]\nWantedBy=default.target\n`,
-    { mode: 0o600 },
+    exists
+      ? constants.O_RDWR | constants.O_NOFOLLOW
+      : constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL,
+    0o600,
   );
+  try {
+    if (exists && !readFileSync(descriptor, 'utf8').split(/\r?\n/).includes(marker))
+      throw Error(ownershipError);
+    if (exists) ftruncateSync(descriptor, 0);
+    const bytes = Buffer.from(source);
+    for (let offset = 0; offset < bytes.length; ) {
+      const written = writeSync(descriptor, bytes, offset, bytes.length - offset, offset);
+      if (!written) throw Error('用户服务文件未完整写入');
+      offset += written;
+    }
+    fchmodSync(descriptor, 0o600);
+  } finally {
+    closeSync(descriptor);
+  }
+  let linkError: unknown;
+  // Register an absolute external unit before enable/start. Never use --force:
+  // a conflicting manager-side unit belongs to its existing installation.
+  try {
+    systemctl(['link', file]);
+  } catch (cause) {
+    linkError = cause;
+  }
   systemctl(['daemon-reload']);
+  const effective = loadedUnitFile(config);
+  if (!effective || assertMarkedUnit(config, effective) !== realpathSync(file)) {
+    if (linkError) throw linkError;
+    throw Error('用户服务未正确注册，拒绝继续安装');
+  }
   return file;
 }
 export function assertManagedDatabaseOwnership(config: HostConfig) {

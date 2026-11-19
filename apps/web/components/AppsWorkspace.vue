@@ -13,7 +13,13 @@ import ToDooLoadingState from './to-doo/ToDooLoadingState.vue';
 import ToDooAppLoadError from './to-doo/ToDooAppLoadError.vue';
 const ToDooWorkspace = defineAsyncComponent({
   loader: () => import('./ToDooWorkspace.vue'),
-  loadingComponent: ToDooLoadingState,
+  loadingComponent: defineComponent({
+    inheritAttrs: false,
+    setup: () => () => h(ToDooLoadingState, {
+      section: props.section as ToDooAppSection,
+      onBack: () => emit('return-app'),
+    }),
+  }),
   errorComponent: defineComponent({
     inheritAttrs: false,
     setup: () => () => h(ToDooAppLoadError, { onBack: () => emit('return-app') }),

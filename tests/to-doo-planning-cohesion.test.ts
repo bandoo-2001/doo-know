@@ -14,6 +14,8 @@ import * as anniversaries from '../shared/to-doo-anniversaries';
 import * as controls from '../apps/web/to-doo-controls';
 import * as actionGuards from '../apps/web/to-doo-action-guard';
 import * as draftValidation from '../apps/web/to-doo-draft-validation';
+import * as listTree from '../apps/web/to-doo-list-tree';
+import * as toDooContracts from '../shared/to-doo-contracts';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
 import {
   TO_DOO_COLLECTIONS,
@@ -77,6 +79,9 @@ function component(name: string): Vue.Component {
       if (id.endsWith('/to-doo-action-guard')) return actionGuards;
       if (id.endsWith('/to-doo-draft-validation')) return draftValidation;
       if (id.endsWith('/to-doo-display-preferences')) return displayPreferences;
+      if (id.endsWith('/to-doo-list-tree')) return listTree;
+      if (id.endsWith('/to-doo-contracts')) return toDooContracts;
+      if (id.endsWith('.css')) return {};
       if (id === 'ant-design-vue') return { ...toDooAntStubs, Popover: ControlledPopover };
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };

@@ -1,3 +1,5 @@
+import * as habitInsights from '../apps/web/to-doo-habit-insights';
+import * as popupControls from '../apps/web/to-doo-controls';
 import { afterEach, expect, test, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { compileScript, parse } from '@vue/compiler-sfc';
@@ -55,11 +57,12 @@ function component(name: string): Vue.Component {
       if (id === '../../to-doo-time') return clock;
       if (id === '../../../../shared/to-doo-habits') return habits;
       if (id === '../../to-doo-habit-presentation') return habitPresentation;
+      if (id === '../../to-doo-habit-insights') return habitInsights;
       if (id === '../../../../shared/to-doo-anniversaries') return anniversaries;
       if (id === '../../to-doo-focus-history-sync') return focusSync;
       if (id === '../../to-doo-workbench') return workbench;
       if (id === '../../to-doo-action-guard') return actionGuards;
-      if (id === '../../to-doo-controls') return { useToDooConfirm: () => async () => false };
+      if (id === '../../to-doo-controls') return { ...popupControls, useToDooConfirm: () => async () => false };
       if (id === 'ant-design-vue')
         return {
           ...controls,
@@ -69,8 +72,10 @@ function component(name: string): Vue.Component {
         };
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
+      if (id.endsWith('ToDooAnniversaryArt.vue')) return { default: control('AnniversaryArt') };
+      if (id.endsWith('ToDooHabitDetail.vue')) return { default: control('HabitDetail') };
       if (
-        /ToDoo(Hint|PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|Icon)\.vue$/.test(
+        /ToDoo(Hint|PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|ListIcon|Icon)\.vue$/.test(
           id,
         )
       )
@@ -94,7 +99,7 @@ function mount(name: string, initialProps: Record<string, any>) {
       return [child, child];
     },
     createElement: (tag) =>
-      Object.assign(node(tag), { style: {}, scrollIntoView: vi.fn(), focus: vi.fn() }),
+      Object.assign(node(tag), { style: {}, scrollIntoView: vi.fn(), focus: vi.fn(), querySelector: () => null }),
     createText: (text) => node('#text', text),
     createComment: () => node('#comment'),
     insert(child, parent, anchor) {
@@ -332,4 +337,73 @@ test('desktop focus navigation scrolls to a real section and leaves the timer pr
   expect(select.props.value).toBe('');
   const timer = view.all().find((n) => n.props['aria-label'] === '专注计时器')!;
   expect(view.text(timer)).toContain('阅读');
+});
+
+test('opening a project trend requests history once and retains its project scope after navigation', async () => {
+  const changes = vi.fn();
+  const view = mount('ToDooRhythm', {
+    model: model(),
+    section: 'focus',
+    context: 'projects',
+    contextualNavigation: true,
+    onContextChange: changes,
+  });
+  await settle();
+  const trend = view.all().find(node => node.tag === 'MenuItem' && view.text(node) === '时长趋势')!;
+  trend.props.onClick();
+  await settle();
+  expect(changes.mock.calls.filter(([value]) => value === 'history')).toHaveLength(1);
+  view.props.context = 'history';
+  await settle();
+  expect(view.all().find(node => node.tag === 'select' && node.props['aria-label'] === '专注记录项目')!.props.value).toBe('topic');
+  expect(view.button('收起趋势')).toBeDefined();
+});
+
+test('a habit source request selects its real focus record and can return to the full history', async () => {
+  const subject = model(3);
+  const original = subject.request;
+  subject.request = vi.fn(async (url: string) => {
+    const response = await original(url);
+    if (!url.includes('/focus/history')) return response;
+    if (!response.items) return response;
+    const query = new URL(url, 'http://fixture').searchParams;
+    const ids = query.get('ids')?.split(',');
+    if (!ids) return response;
+    const items = subject.data.sessions.filter(session => ids.includes(session.id));
+    return { ...response, items, page: { limit: 50, total: items.length, hasMore: false, nextCursor: null } };
+  });
+  const view = mount('ToDooFocus', {
+    model: subject,
+    context: 'history',
+    historyRequest: 1,
+    historySessionId: 'row-0001',
+  });
+  await settle();
+  expect(subject.request.mock.calls.some(([url]) => new URL(url, 'http://fixture').searchParams.get('ids') === 'row-0001')).toBe(true);
+  expect(view.all().filter(node => node.props['data-session-id']).map(node => node.props['data-session-id'])).toEqual(['row-0001']);
+  expect(view.button('查看全部专注记录')).toBeDefined();
+  view.button('查看全部专注记录').props.onClick();
+  await settle();
+  expect(view.all().filter(node => node.props['data-session-id'])).toHaveLength(3);
+  expect(view.button('查看全部专注记录')).toBeUndefined();
+});
+
+test('a later general history request clears a habit source scope and retains the independent timer', async () => {
+  const subject = model();
+  const view = mount('ToDooFocus', {
+    model: subject,
+    context: 'history',
+    historyRequest: 1,
+    historySessionId: 'row-0000',
+  });
+  await settle();
+  view.props.historySessionId = undefined;
+  view.props.historyRange = { from: '2026-11-01', to: '2026-11-03' };
+  view.props.historyRequest = 2;
+  await settle();
+  const query = new URL(subject.request.mock.calls.at(-1)![0], 'http://fixture').searchParams;
+  expect(query.get('ids')).toBeNull();
+  expect(query.get('from')).toBe('2026-11-01');
+  expect(query.get('to')).toBe('2026-11-03');
+  expect(view.all().some(node => node.props['aria-label'] === '专注计时器')).toBe(true);
 });

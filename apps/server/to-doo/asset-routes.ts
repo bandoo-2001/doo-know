@@ -15,6 +15,31 @@ function disposition(name: string, inline: boolean) {
   return `${inline ? 'inline' : 'attachment'}; filename="${ascii}"; filename*=UTF-8''${encoded}`;
 }
 export function registerToDooAssetRoutes(app: FastifyInstance, getAssets: () => ToDooAssets) {
+  // These routes inherit the owner-session and CSRF guards used by the private ToDoo API.
+  app.post('/api/to-doo/anniversary-images', { bodyLimit: max + 8192 }, async (req, reply) => {
+    let file: { name: string; mime: string; bytes: Buffer } | null = null;
+    for await (const part of req.parts({
+      limits: { files: 1, fields: 0, parts: 1, fileSize: max },
+    })) {
+      if (part.type !== 'file' || part.fieldname !== 'file' || file)
+        throw new HttpError(400, '每次请选择一张纪念日图片');
+      const bytes = await part.toBuffer();
+      if (part.file.truncated) throw new HttpError(413, '图片不能超过 10 MiB');
+      file = { name: part.filename, mime: part.mimetype, bytes };
+    }
+    if (!file) throw new HttpError(400, '请选择纪念日图片');
+    return reply.code(201).send(getAssets().uploadAnniversaryImage(file));
+  });
+  app.get<{ Params: { hash: string } }>('/api/to-doo/anniversary-images/:hash', (req, reply) => {
+    const asset = getAssets().getAnniversaryImage(hash.parse(req.params.hash));
+    return reply
+      .type(asset.mime)
+      .header('Content-Disposition', disposition(asset.name, true))
+      .header('X-Content-Type-Options', 'nosniff')
+      .header('Cache-Control', 'private, no-store')
+      .header('Content-Security-Policy', "default-src 'none'; sandbox; frame-ancestors 'none'")
+      .send(asset.bytes);
+  });
   app.post<{ Params: { id: string } }>(
     '/api/to-doo/tasks/:id/assets',
     { bodyLimit: max + 8192 },

@@ -61,7 +61,9 @@ test('PC list, task reader and header share readable widths across laptop, scale
       await expect(dates).toHaveCount(2);
       const firstDate = (await dates.first().boundingBox())!;
       const secondDate = (await dates.last().boundingBox())!;
-      expect(firstDate.x - input.x).toBeLessThan(input.width * .77);
+      const menu = (await task.locator('.todo-task-menu-trigger').boundingBox())!;
+      const gap = await task.evaluate(element => parseFloat(getComputedStyle(element).columnGap));
+      expect(menu.x - secondDate.x - secondDate.width).toBeCloseTo(gap, 0);
       expect(secondDate.x).toBeGreaterThanOrEqual(firstDate.x + firstDate.width);
     }
     if (width === 2560) expect(input.width).toBeGreaterThanOrEqual(1600);

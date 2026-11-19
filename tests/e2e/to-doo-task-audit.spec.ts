@@ -48,7 +48,7 @@ test('board scope remains visible and column creation saves initial status and c
   await expectToDooSelection(detail, '初始状态', '进行中');
   await expect(detail.getByLabel('计划时间', { exact: true })).toHaveValue('');
   await selectToDooOption(detail, '重复', '每天');
-  await detail.getByRole('button', { name: '＋ 添加提醒', exact: true }).click();
+  await detail.getByRole('button', { name: '添加提醒', exact: true }).click();
   await selectToDooOption(detail, '提醒依据', '计划时间');
   await detail.getByRole('button', { name: '创建任务', exact: true }).click();
   await expect(detail.getByRole('button', { name: '创建任务', exact: true })).not.toBeVisible();
@@ -88,12 +88,12 @@ test('matrix menu identifies the current classification and restores automatic u
     .filter({ has: page.getByRole('button', { name: title, exact: true }) });
   await expect(item.locator('.todo-matrix-classification')).toHaveCount(0);
   await item.getByRole('button', { name: '任务操作 ' + title, exact: true }).click();
-  await page.getByRole('menuitem', { name: '归类象限', exact: true }).click();
+  await page.getByText('归类象限', { exact: true }).filter({ visible: true }).click();
   await expect(page.getByRole('menuitem', { name: '重要不紧急 ✓', exact: true })).toBeVisible();
   await page.getByRole('menuitem', { name: '紧急不重要', exact: true }).click();
   await expect(app(page).locator('.todo-quadrant-delegate')).toContainText(title);
   await item.getByRole('button', { name: '任务操作 ' + title, exact: true }).click();
-  await page.getByRole('menuitem', { name: '归类象限', exact: true }).click();
+  await page.getByText('归类象限', { exact: true }).filter({ visible: true }).click();
   await page.getByRole('menuitem', { name: '恢复自动紧急判断 ' + title, exact: true }).click();
   await expect(app(page).locator('.todo-quadrant-later')).toContainText(title);
   const data = await (
@@ -147,8 +147,8 @@ test('mobile task tools and dates stay readable with board jumps and four visibl
     .click();
   const dates = app(page).locator('.todo-task-dates').first();
   await expect(dates).toBeVisible();
-  await expect(dates).toContainText('计划');
-  await expect(dates).toContainText('截止');
+  await expect(dates).toHaveAttribute('aria-label', /计划/);
+  await expect(dates).toHaveAttribute('aria-label', /截止/);
   await page.screenshot({
     path: info.outputPath('mobile-board.png'),
     fullPage: true,
@@ -186,6 +186,8 @@ test('completing a filtered parent discovers its hidden child and supports cance
   if (await toggle.isVisible()) await toggle.click();
   await page.getByRole('textbox', { name: '搜索任务', exact: true }).fill(title);
   await page.getByRole('button', { name: '执行搜索', exact: true }).click();
+  await page.getByRole('textbox', { name: '搜索任务', exact: true }).press('Escape');
+  await app(page).locator('.todo-main[aria-busy="false"]').waitFor({ state: 'visible' });
   await expect(app(page).locator('.todo-task-row')).toHaveCount(1);
   await app(page)
     .getByRole('button', { name: '完成 ' + title, exact: true })

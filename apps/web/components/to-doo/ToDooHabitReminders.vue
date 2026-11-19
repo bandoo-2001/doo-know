@@ -5,6 +5,7 @@ import type { ToDooTask } from '../../../../shared/to-doo-contracts';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooDisclosure from './ToDooDisclosure.vue';
 import ToDooReminders from './ToDooReminders.vue';
+import ToDooIcon from './ToDooIcon.vue';
 type Rule = ToDooTask['reminders'][number];
 const props = defineProps<{ modelValue: Rule[] }>();
 const emit = defineEmits<{ 'update:modelValue': [value: Rule[]] }>();
@@ -51,6 +52,7 @@ function add() {
       /></label>
       <AButton
         type="text"
+        class="todo-icon-button todo-habit-reminder-remove"
         :aria-label="'移除提醒时间 ' + (position + 1)"
         @click="
           emit(
@@ -58,8 +60,8 @@ function add() {
             modelValue.filter((_, i) => i !== index),
           )
         "
-        >×</AButton
-      >
+        ><ToDooIcon name="close" :size="16"
+      /></AButton>
     </div>
     <AButton
       type="link"
@@ -67,7 +69,7 @@ function add() {
       aria-label="添加提醒"
       :disabled="modelValue.length >= 20"
       @click="add"
-      >＋ 添加提醒</AButton
+      ><ToDooIcon name="plus" :size="14" />添加提醒</AButton
     >
     <ToDooDisclosure v-if="custom">
       <template #header
@@ -80,3 +82,15 @@ function add() {
     </ToDooDisclosure>
   </div>
 </template>
+
+<style scoped>
+.todo-habit-reminder-remove.ant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--todo-control-height);
+  min-width: var(--todo-control-height);
+  height: var(--todo-control-height);
+  padding: 0;
+}
+</style>

@@ -217,7 +217,15 @@ it('does not report install completion when proxy persistence precedes a failed 
     await symlink(outside, f.profile + '.download-proxy.json');
     await mkdir(bin);
     await writeFile(join(bin, 'systemctl'), `#!${process.execPath}\n` +
-      "if (process.argv.includes('start')) { console.error('fixture service startup refused'); process.exit(1); }\n",
+      `
+      const fs = require('node:fs'), path = require('node:path');
+      if (process.argv[3] === 'show') {
+        const unit = path.join(process.env.XDG_CONFIG_HOME, 'systemd/user', process.argv[4]);
+        console.log('LoadState=' + (fs.existsSync(unit) ? 'loaded' : 'not-found'));
+        console.log('FragmentPath=' + (fs.existsSync(unit) ? unit : '')); process.exit(0);
+      }
+      if (process.argv.includes('start')) { console.error('fixture service startup refused'); process.exit(1); }
+    `,
       { mode: 0o700 });
     const failure = await f.run('install', {
       HTTP_PROXY: f.proxyAddress, PATH: bin + ':' + process.env.PATH,
@@ -302,6 +310,11 @@ it('makes the install proxy available to the very first service process', async 
     // Substitute the systemd boundary, while launching the real CLI in a fresh service environment.
     await writeFile(join(bin, 'systemctl'), `#!${process.execPath}\n` + `
       const fs = require('node:fs'), { spawn } = require('node:child_process');
+      if (process.argv[3] === 'show') {
+        const unit = require('node:path').join(process.env.XDG_CONFIG_HOME, 'systemd/user', process.argv[4]);
+        console.log('LoadState=' + (fs.existsSync(unit) ? 'loaded' : 'not-found'));
+        console.log('FragmentPath=' + (fs.existsSync(unit) ? unit : '')); process.exit(0);
+      }
       if (process.argv.includes('start')) {
         const saved = ${JSON.stringify(f.profile + '.download-proxy.json')};
         if (!fs.existsSync(saved)) { console.error('download proxy unavailable at service startup'); process.exit(1); }

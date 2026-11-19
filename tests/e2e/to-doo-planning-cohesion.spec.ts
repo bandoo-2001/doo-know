@@ -47,8 +47,14 @@ test('a narrow calendar hides empty dates while keeping every date and creation 
   await agenda.getByRole('button', { name: '显示空白日期', exact: true }).click();
   await expect(agenda.locator('.todo-agenda-day')).toHaveCount(31);
   const emptyDay = agenda.locator('.todo-agenda-day[data-date="2030-01-02"]');
-  await emptyDay.getByRole('button', { name: '＋ 添加安排', exact: true }).click();
+  await emptyDay.getByRole('button', { name: '＋ 添加任务', exact: true }).click();
+  const task = page.getByRole('complementary', { name: '任务详情', exact: true });
+  await expect(task.getByLabel('计划日期', { exact: true })).toHaveValue('2030-01-02');
+  await task.getByRole('button', { name: '取消', exact: true }).click();
+  await expect(task).toBeHidden();
+  await page.getByRole('button', { name: '＋ 预留时间', exact: true }).click();
   await expect(page.getByRole('dialog', { name: '新建时间安排', exact: true })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: '新建时间安排', exact: true }).getByLabel('日期', { exact: true })).toHaveValue('2030-01-15');
   await page
     .getByRole('dialog', { name: '新建时间安排', exact: true })
     .getByRole('button', { name: '取消', exact: true })

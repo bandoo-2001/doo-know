@@ -1,3 +1,4 @@
+import { readToDooTaskContext } from '../support/to-doo-task-fixture';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -11,6 +12,7 @@ import {
   goToToDooSection,
   selectToDooList,
   selectToDooQuickView,
+  revealToDooTask,
 } from '../support/to-doo-navigation';
 
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
@@ -129,9 +131,8 @@ test('review goal progress and completion totals lead to real task destinations'
     title: '已完成的阅读行动 ' + suffix,
     listId: list.ids[0],
   });
-  const occurrence = finished.snapshot.occurrences.find(
-    (row: any) => row.taskId === finished.ids[0],
-  );
+  const finishedContext = await readToDooTaskContext(page, finished.ids[0]);
+  const occurrence = finishedContext.occurrences.find(row => row.taskId === finished.ids[0])!;
   await command(page, 'set_occurrence_status', {
     id: occurrence.id,
     expectedRevision: occurrence.revision,
@@ -176,7 +177,7 @@ test('review history links preserve the selected range when the user returns', a
   await expect(page.getByRole('radio', { name: '历史', exact: true })).toBeChecked();
   const weekday = new Date(to + 'T12:00:00Z').getUTCDay();
   const weekStart = shift(to, -((weekday - snapshot.settings.weekStartsOn + 7) % 7));
-  await expect(page.locator('.todo-calendar-toolbar h2')).toContainText(weekStart);
+  await expect(page.getByLabel('习惯历史区间', { exact: true })).toContainText(weekStart);
   await goToToDooSection(page, 'stats');
   await expect(page.locator('.todo-completion-chart')).toHaveAttribute(
     'aria-label',
@@ -250,8 +251,10 @@ test('opening an ordinary inbox task first does not discard the next review task
   });
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   await selectToDooQuickView(page, '收集箱');
+  await revealToDooTask(page, title);
   await expect(page.getByRole('button', { name: title, exact: true })).toBeVisible();
   await page.reload();
+  await revealToDooTask(page, title);
   await page.getByRole('button', { name: title, exact: true }).click();
   await expect(detail.getByLabel('任务说明', { exact: true })).toHaveValue(new RegExp(name));
 });

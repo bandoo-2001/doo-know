@@ -1,9 +1,12 @@
 import { readFile } from 'node:fs/promises';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import { expectToDooSelection } from '../support/to-doo-ant-controls';
 import { selectToDooList } from '../support/to-doo-navigation';
-import { completeToDooDetailProperty, openToDooDetailProperty } from '../support/to-doo-detail-controls';
+import {
+  completeToDooDetailProperty,
+  openToDooDetailProperty,
+} from '../support/to-doo-detail-controls';
 
 test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -21,6 +24,23 @@ async function command(page: Page, action: string, payload: Record<string, unkno
 
 const taskDetail = (page: Page) =>
   page.getByRole('complementary', { name: '任务详情', exact: true });
+async function rootListCreation(page: Page, scope: Locator, label: string) {
+  const popup = page.locator('.todo-list-tree-popup:visible');
+  if (!(await popup.isVisible())) {
+    const input = scope.getByRole('combobox', { name: label, exact: true });
+    await input
+      .locator(
+        'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " ant-select ")][1]',
+      )
+      .locator('.ant-select-selector')
+      .click();
+  }
+  await popup
+    .locator('.todo-list-tree-footer')
+    .getByRole('button', { name: '创建清单', exact: true })
+    .click();
+  return popup.getByRole('group', { name: '新建清单', exact: true });
+}
 
 test('a new task creates its list in place without submitting the task or losing input', async ({
   page,
@@ -43,13 +63,13 @@ test('a new task creates its list in place without submitting the task or losing
   const detail = taskDetail(page);
   await detail.getByLabel('任务标题', { exact: true }).fill(title);
   await detail.getByLabel('任务说明', { exact: true }).fill(description);
-  await detail.getByRole('button', { name: '在任务中创建清单', exact: true }).click();
-  const createList = detail.getByRole('group', { name: '新建清单', exact: true });
+  const createList = await rootListCreation(page, detail, '目标或清单');
   await createList.getByRole('textbox', { name: '新清单名称', exact: true }).fill('暂不创建');
   await createList.getByRole('button', { name: '取消', exact: true }).click();
+  await expect(page.locator('.todo-list-tree-popup:visible')).toBeHidden();
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
   await expect(detail.getByLabel('任务说明', { exact: true })).toHaveValue(description);
-  await detail.getByRole('button', { name: '在任务中创建清单', exact: true }).click();
+  await rootListCreation(page, detail, '目标或清单');
   await createList.getByRole('textbox', { name: '新清单名称', exact: true }).fill(listName);
   await createList.getByRole('textbox', { name: '新清单名称', exact: true }).press('Enter');
   await expect(createList).toHaveCount(0);
@@ -88,9 +108,9 @@ test('an existing task keeps unsaved edits while creating and selecting a new li
     .getByLabel('任务说明', { exact: true })
     .fill('这段尚未保存的内容不能因新建清单而丢失。');
   const lists = await openToDooDetailProperty(page, 'list');
-  await lists.getByRole('button', { name: '在任务中创建清单', exact: true }).click();
-  await lists.getByRole('textbox', { name: '新清单名称', exact: true }).fill(listName);
-  await lists.getByRole('button', { name: '创建清单', exact: true }).click();
+  const createList = await rootListCreation(page, lists, '所属目标或清单');
+  await createList.getByRole('textbox', { name: '新清单名称', exact: true }).fill(listName);
+  await createList.getByRole('button', { name: '创建清单', exact: true }).click();
   await expectToDooSelection(lists, '所属目标或清单', listName);
   await completeToDooDetailProperty(page);
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(edited);
@@ -103,6 +123,7 @@ test('an existing task keeps unsaved edits while creating and selecting a new li
     listId: null,
   });
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
+  await detail.locator('.todo-detail-save .ant-btn-loading-icon').waitFor({ state: 'detached' });
   await expect(detail.getByText('已保存', { exact: true })).toBeVisible();
   await page.reload();
   await expect(taskDetail(page).getByLabel('任务标题', { exact: true })).toHaveValue(edited);
@@ -130,10 +151,10 @@ test('retrying a list creation with a lost response does not create a second lis
   await page.getByLabel('新建任务', { exact: true }).click();
   const detail = taskDetail(page);
   await detail.getByLabel('任务标题', { exact: true }).fill('有待整理 ' + suffix);
-  await detail.getByRole('button', { name: '在任务中创建清单', exact: true }).click();
-  await detail.getByRole('textbox', { name: '新清单名称', exact: true }).fill(listName);
-  await detail.getByRole('button', { name: '创建清单', exact: true }).click();
-  const retry = detail.getByRole('button', { name: '重试创建清单', exact: true });
+  const createList = await rootListCreation(page, detail, '目标或清单');
+  await createList.getByRole('textbox', { name: '新清单名称', exact: true }).fill(listName);
+  await createList.getByRole('button', { name: '创建清单', exact: true }).click();
+  const retry = createList.getByRole('button', { name: '重试创建清单', exact: true });
   await expect(retry).toBeEnabled();
   await retry.click();
   await expectToDooSelection(detail, '目标或清单', listName);

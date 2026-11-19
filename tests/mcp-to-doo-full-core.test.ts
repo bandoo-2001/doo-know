@@ -317,6 +317,103 @@ it('exports only authorized lists and content domains through real opaque transf
   }
 });
 
+it('rejects a limited JSON update that attaches its selected list to a private parent', async () => {
+  const { createMcpTransferStore } = await import('../apps/server/plugins/mcp-transfers');
+  const { createToDooInterop, exportPortableJson } =
+    await import('../packages/core/to-doo/interop');
+  const { createHash } = await import('node:crypto');
+  const { canonical, toDooHash } = await import('../packages/core/to-doo/store');
+  const f = await pluginRuntimeFixture();
+  const todo = f.platform.get().toDoo;
+  const interop = createToDooInterop(todo, { db: f.db, dataRoot: f.config.dataRoot });
+  try {
+    for (const id of ['allowed-list', 'private-parent'])
+      todo.command({
+        requestId: 'hierarchy-seed-' + id,
+        action: 'save_entity',
+        payload: { kind: 'list', entity: { id, name: id } },
+      });
+    const original = todo.getEntity('list', 'allowed-list')!;
+    const privateParent = todo.getEntity('list', 'private-parent')!;
+    const p = {
+      ...f.principal,
+      scopes: [...f.principal.scopes, 'to-doo:read', 'to-doo:write', 'to-doo:integrations'],
+    };
+    const transfers = createMcpTransferStore(f.config, f.db);
+    const port = createToDooToolPort({
+      config: f.config,
+      db: f.db,
+      runtime: { ...f.platform.get(), toDooInterop: interop },
+      authorize(scopes) {
+        for (const scope of scopes) requireScope(p, scope);
+        return p;
+      },
+      toDooAccess: () => ({ listIds: ['allowed-list'], domains: ['tasks'] }),
+      transfers,
+    });
+    async function previewUpdate(key: string, parentId: string | null) {
+      const state = todo.snapshot({ all: true });
+      const payload = JSON.parse(
+        exportPortableJson(
+          {
+            ...state,
+            lists: [
+              { ...state.lists.find((list) => list.id === 'allowed-list')!, parentId, name: key },
+            ],
+          },
+          { includeSettings: false },
+        ),
+      );
+      // A package author controls its public integrity hashes. Do not rely on our
+      // export helper's treatment of an omitted parent to validate an import.
+      const item = payload.entities.find((entry: any) => entry.kind === 'list');
+      item.entity.parentId = parentId;
+      item.sha256 = toDooHash(canonical(item.entity));
+      const { inventoryHash: _inventoryHash, ...inventory } = payload;
+      payload.inventoryHash = toDooHash(canonical(inventory));
+      const content = Buffer.from(JSON.stringify(payload));
+      const upload: any = await port.call('begin_to_doo_import', {
+        requestId: key + '-upload',
+        bytes: content.length,
+        sha256: createHash('sha256').update(content).digest('hex'),
+        listId: 'allowed-list',
+      });
+      transfers.append(p, {
+        transferId: upload.transferId,
+        offset: 0,
+        base64: content.toString('base64'),
+      });
+      return port.call('preview_to_doo_import', {
+        requestId: key + '-preview',
+        transferId: upload.transferId,
+        format: 'json',
+        mergeMode: 'update',
+        listId: 'allowed-list',
+      });
+    }
+    await expect(previewUpdate('unauthorized-parent', 'private-parent')).rejects.toMatchObject({
+      statusCode: 403,
+    });
+    expect(todo.getEntity('list', 'allowed-list')).toEqual(original);
+    expect(todo.getEntity('list', 'private-parent')).toEqual(privateParent);
+    expect(f.db.prepare('SELECT count(*) AS n FROM to_doo_mcp_imports').get()).toEqual({ n: 0 });
+    const safe: any = await previewUpdate('safe-list-update', null);
+    await port.call('manage_to_doo_import', {
+      requestId: 'safe-list-update-apply',
+      previewId: safe.previewId,
+      action: 'apply',
+    });
+    expect(todo.getEntity('list', 'allowed-list')).toMatchObject({
+      name: 'safe-list-update',
+      parentId: null,
+    });
+    expect(todo.getEntity('list', 'private-parent')).toEqual(privateParent);
+  } finally {
+    await interop.close();
+    await f.close();
+  }
+});
+
 it('rechecks bounded import scope before apply and every background batch, and supports cancel/resume/status without caching progress', async () => {
   const { createMcpTransferStore } = await import('../apps/server/plugins/mcp-transfers');
   const { createToDooInterop } = await import('../packages/core/to-doo/interop');

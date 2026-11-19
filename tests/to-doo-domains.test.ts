@@ -207,6 +207,14 @@ it('applies a single-instance exception without altering other repeat dates', ()
 it('corrects focus totals without cancelling a finished session and invalidates an old controller on takeover', () => {
   const id = c('start_focus', { mode: 'pomodoro', at: '2026-10-29T10:00:00.000Z' }).ids[0];
   let session = s.snapshot().focusSessions[0];
+  expect(() =>
+    c('control_focus', {
+      id,
+      expectedRevision: session.revision,
+      operation: 'correct',
+      correctedMinutes: 12,
+    }),
+  ).toThrow(/先结束专注/);
   c('control_focus', {
     id,
     expectedRevision: session.revision,
@@ -238,6 +246,49 @@ it('corrects focus totals without cancelling a finished session and invalidates 
   });
   expect(s.snapshot().focusSessions[0].status).toBe('finished');
   expect(s.snapshot().statistics.focusMinutes).toBe(12);
+});
+it('keeps active timing separate from corrections and preserves corrected interrupted history', () => {
+  const id = c('start_focus', { mode: 'stopwatch', at: '2026-10-29T10:00:00.000Z' }).ids[0];
+  let session = s.getEntity('focusSession', id)!;
+  expect(() =>
+    c('control_focus', {
+      id,
+      expectedRevision: session.revision,
+      operation: 'pause',
+      correctedMinutes: 0,
+    }),
+  ).toThrow(/不能同时修正/);
+  c('control_focus', {
+    id,
+    expectedRevision: session.revision,
+    operation: 'pause',
+    at: '2026-10-29T10:10:00.000Z',
+  });
+  session = s.getEntity('focusSession', id)!;
+  expect(() =>
+    c('control_focus', {
+      id,
+      expectedRevision: session.revision,
+      operation: 'correct',
+      correctedMinutes: 0,
+    }),
+  ).toThrow(/先结束专注/);
+  c('save_entity', {
+    kind: 'focusSession',
+    expectedRevision: session.revision,
+    entity: { ...session, status: 'interrupted', correctedMinutes: 3 },
+  });
+  session = s.getEntity('focusSession', id)!;
+  expect(() =>
+    c('control_focus', {
+      id,
+      expectedRevision: session.revision,
+      operation: 'resume',
+    }),
+  ).toThrow(/已修正的记录不能继续/);
+  expect(s.getEntity('focusSession', id)).toEqual(session);
+  const next = c('start_focus', { mode: 'stopwatch' }).ids[0];
+  expect(next).not.toBe(id);
 });
 it('reports period statistics independently of pagination and excludes other completion dates', () => {
   for (const date of ['2026-10-28', '2026-10-29']) {

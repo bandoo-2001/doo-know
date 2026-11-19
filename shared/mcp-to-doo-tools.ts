@@ -4,6 +4,7 @@ import {
   toDooEntitySchemas,
   toDooId,
   toDooDate,
+  toDooAnniversaryImageSchema,
   type ToDooEntityKind,
 } from './to-doo-contracts.js';
 
@@ -188,6 +189,40 @@ export const toDooFullToolSchemas = {
       until: z.string().datetime().optional(),
     })
     .strict(),
+  begin_to_doo_anniversary_image: z
+    .object({
+      ...write,
+      anniversaryId: toDooId.optional(),
+      expectedRevision: toDooId.optional(),
+      bytes: z
+        .number()
+        .int()
+        .min(1)
+        .max(10 * 1024 * 1024),
+      sha256: hash,
+    })
+    .strict()
+    .refine(
+      (value) => !!value.anniversaryId === !!value.expectedRevision,
+      'anniversaryId and expectedRevision must be supplied together',
+    ),
+  finish_to_doo_anniversary_image: z
+    .object({
+      ...write,
+      ...transfer,
+      anniversaryId: toDooId.optional(),
+      expectedRevision: toDooId.optional(),
+      name: z.string().min(1).max(256),
+      mime: z.enum(['image/png', 'image/jpeg', 'image/webp']),
+    })
+    .strict()
+    .refine(
+      (value) => !!value.anniversaryId === !!value.expectedRevision,
+      'anniversaryId and expectedRevision must be supplied together',
+    ),
+  read_to_doo_anniversary_image: z
+    .object({ ...write, anniversaryId: toDooId, ...version })
+    .strict(),
   begin_to_doo_attachment: z
     .object({
       ...write,
@@ -339,6 +374,26 @@ export const toDooFullToolMetadata: Record<
     readOnly: false,
     description:
       'Mark read, restore unread, acknowledge, dismiss or snooze an authorized reminder with expected revision and stable request identity. Acknowledging only confirms the reminder; it does not complete the source task or habit. Restoring unread clears snooze without a new delivery generation or reversing source completion.',
+  },
+  begin_to_doo_anniversary_image: {
+    scope: 'to-doo:write',
+    additionalScopes: ['to-doo:read'],
+    readOnly: false,
+    description:
+      'Begin a SHA-256 and size-bound PNG/JPEG/WebP image upload (10 MiB maximum). To replace an existing anniversary image supply anniversaryId and expectedRevision together; omit both only for a new draft under unrestricted anniversary access. Append with generic transfer chunk tools, then finish_to_doo_anniversary_image.',
+  },
+  finish_to_doo_anniversary_image: {
+    scope: 'to-doo:write',
+    additionalScopes: ['to-doo:read'],
+    readOnly: false,
+    description:
+      'Validate and stage an uploaded anniversary image through the shared private image engine. Preserve the begin anniversaryId/expectedRevision binding when present. Returns immutable hash/name/mime/size; apply it as appearance.image with x/y/zoom through a version-checked anniversary save. Finish replays do not change the anniversary.',
+  },
+  read_to_doo_anniversary_image: {
+    scope: 'to-doo:read',
+    readOnly: true,
+    description:
+      'Read the image referenced by an authorized anniversary at expectedRevision through a bounded download transfer. No arbitrary hash or filesystem read is accepted; access and revision are rechecked when reading chunks.',
   },
   begin_to_doo_attachment: {
     scope: 'to-doo:write',
@@ -570,6 +625,13 @@ export const toDooFullToolOutputs: Record<ToDooFullToolName, z.ZodType> = {
   manage_to_doo_feed: generalManagement,
   manage_to_doo_notifications: generalManagement,
   act_on_to_doo_reminder: receipt,
+  begin_to_doo_anniversary_image: transferInfo,
+  finish_to_doo_anniversary_image: toDooAnniversaryImageSchema.omit({
+    x: true,
+    y: true,
+    zoom: true,
+  }),
+  read_to_doo_anniversary_image: transferInfo,
   begin_to_doo_attachment: transferInfo,
   finish_to_doo_attachment: receipt,
   read_to_doo_attachment: transferInfo,

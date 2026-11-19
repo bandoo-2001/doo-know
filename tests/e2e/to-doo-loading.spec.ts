@@ -2,7 +2,7 @@ import { openToDooTaskTools } from '../support/to-doo-navigation';
 import type { Locator, Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
-import { showMainMenu, closeSidebar } from '../support/settings-navigation';
+import { closeSidebar } from '../support/settings-navigation';
 
 const tasksUrl = '/?view=apps&app=to-doo&appSection=tasks';
 const initialLabel = '正在载入 To Doo…';
@@ -229,11 +229,7 @@ test('returning during a cold To Doo download is safe and its late completion pr
     await page.goto(tasksUrl, { waitUntil: 'domcontentloaded' });
     await requested.promise;
     await expect(status(page, initialLabel)).toBeVisible();
-    await showMainMenu(page);
-    await page
-      .locator('.workspace-footer.workspace-main-menu')
-      .getByRole('button', { name: '返回 DooKnow', exact: true })
-      .click();
+    await page.getByRole('button', { name: '返回 DooKnow', exact: true }).click();
     // Navigation calls the exposed leave guard while the ref still points at the fallback.
     await page.evaluate(
       () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),

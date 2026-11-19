@@ -48,7 +48,7 @@ test('blog manual publication keeps the original and public snapshots independen
   await page.goto('/?view=apps');
   await expect(page.getByRole('heading', { name: '应用', exact: true })).toBeVisible();
   await page.screenshot({
-    path: `logs.local/blog-feature-20261026/web/${info.project.name}-apps.jpg`,
+    path: `.local/browser-evidence/blog-feature-20261026/web/${info.project.name}-apps.jpg`,
     type: 'jpeg',
     quality: 65,
     fullPage: true,
@@ -60,7 +60,7 @@ test('blog manual publication keeps the original and public snapshots independen
     page.getByText('站点尚未开启。你可以先准备文章，开启后已发布内容才会公开。'),
   ).toBeVisible();
   await page.screenshot({
-    path: `logs.local/blog-feature-20261026/web/${info.project.name}-overview.jpg`,
+    path: `.local/browser-evidence/blog-feature-20261026/web/${info.project.name}-overview.jpg`,
     type: 'jpeg',
     quality: 65,
     fullPage: true,
@@ -105,7 +105,7 @@ test('blog manual publication keeps the original and public snapshots independen
   await expect(visitor.locator('body')).not.toContainText(note.id);
   await expect(visitor.locator('img').first()).toBeVisible();
   await visitor.screenshot({
-    path: `logs.local/blog-feature-20261026/web/${info.project.name}-public.jpg`,
+    path: `.local/browser-evidence/blog-feature-20261026/web/${info.project.name}-public.jpg`,
     type: 'jpeg',
     quality: 65,
     fullPage: true,
@@ -155,7 +155,7 @@ test('blog manual publication keeps the original and public snapshots independen
     .click();
   await expect(page.locator('.blog-post-option')).toHaveCount(1);
   await page.screenshot({
-    path: `logs.local/blog-feature-20261026/web/${info.project.name}-articles.jpg`,
+    path: `.local/browser-evidence/blog-feature-20261026/web/${info.project.name}-articles.jpg`,
     type: 'jpeg',
     quality: 65,
     fullPage: true,
@@ -167,7 +167,7 @@ test('blog manual publication keeps the original and public snapshots independen
   });
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.screenshot({
-    path: `logs.local/blog-feature-20261026/web/${info.project.name}-dark.jpg`,
+    path: `.local/browser-evidence/blog-feature-20261026/web/${info.project.name}-dark.jpg`,
     type: 'jpeg',
     quality: 65,
     fullPage: true,

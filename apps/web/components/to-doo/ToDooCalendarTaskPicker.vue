@@ -6,10 +6,11 @@ import {
   Empty as AEmpty,
   Modal as AModal,
 } from 'ant-design-vue';
-import type { ToDooCommandResult, ToDooSnapshot } from '../../../../shared/to-doo-contracts';
+import type { ToDooCommandResult, ToDooFilter, ToDooSnapshot } from '../../../../shared/to-doo-contracts';
 import type { ToDooWorkbench } from '../../to-doo-workbench';
 import { guardToDooTaskAction } from '../../to-doo-action-guard';
 import { useToDooConfirm } from '../../to-doo-controls';
+import { hydrateCalendarTaskPickerPage } from '../../to-doo-calendar-task-projection';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
 const props = defineProps<{ model: ToDooWorkbench; date: string }>();
@@ -24,6 +25,19 @@ const date = ref(props.date),
 const snapshot = ref<ToDooSnapshot>();
 const cursor = ref<string>();
 const prepared = ref<ToDooCommandResult['preview']>();
+let controlEscape: KeyboardEvent | undefined;
+function captureControlEscape(event: KeyboardEvent) {
+  if (event.key !== 'Escape' || !(event.target instanceof Element) ||
+    !event.target.closest('.ant-select, .ant-picker')) return;
+  const popups = document.querySelectorAll<HTMLElement>('.ant-select-dropdown, .ant-picker-dropdown');
+  if ([...popups].some(popup => popup.getClientRects().length && getComputedStyle(popup).visibility === 'visible'))
+    controlEscape = event;
+}
+function controlKeydown(event: KeyboardEvent) {
+  if (event !== controlEscape) return;
+  controlEscape = undefined;
+  event.stopPropagation();
+}
 let epoch = 0;
 onBeforeUnmount(() => {
   epoch++;
@@ -66,21 +80,29 @@ async function load(append = false) {
   loading.value = true;
   error.value = '';
   const ticket = ++epoch;
+  const datasetId = state.snapshot?.datasetId;
+  const filter: ToDooFilter = {
+    statuses: ['todo', 'doing', 'blocked'],
+    unscheduled: true,
+    ...(state.filter.listIds?.length ? { listIds: [...state.filter.listIds] } : {}),
+  };
+  const scope = JSON.stringify(state.filter.listIds);
+  const current = () => ticket === epoch && state.snapshot?.datasetId === datasetId &&
+    JSON.stringify(state.filter.listIds) === scope;
   const query = new URLSearchParams({
     view: 'tasks',
-    filter: JSON.stringify({
-      statuses: ['todo', 'doing', 'blocked'],
-      unscheduled: true,
-      ...(state.filter.listIds?.length ? { listIds: state.filter.listIds } : {}),
-    }),
+    kind: 'occurrence',
+    filter: JSON.stringify(filter),
     limit: '200',
   });
   if (append && cursor.value) query.set('cursor', cursor.value);
   try {
-    const data = (await props.model.request('/api/to-doo/state?' + query)) as ToDooSnapshot;
-    if (ticket !== epoch) return;
-    if (data.datasetId !== state.snapshot?.datasetId)
+    const page = (await props.model.request('/api/to-doo/state?' + query)) as ToDooSnapshot;
+    if (!current()) return;
+    if (page.datasetId !== datasetId)
       throw Error('资料库已变化，请重新打开安排任务');
+    const data = await hydrateCalendarTaskPickerPage(page, props.model.request, filter, current);
+    if (!data || !current()) return;
     if (append && snapshot.value) {
       data.tasks = mergeRows(snapshot.value.tasks, data.tasks);
       data.occurrences = mergeRows(snapshot.value.occurrences, data.occurrences);
@@ -89,7 +111,7 @@ async function load(append = false) {
     snapshot.value = data;
     cursor.value = data.page.nextCursor || undefined;
   } catch (cause) {
-    if (ticket === epoch)
+    if (current())
       error.value = cause instanceof Error ? cause.message : '任务暂时无法读取，请重试';
   } finally {
     if (ticket === epoch) loading.value = false;
@@ -244,7 +266,7 @@ async function schedule() {
     wrap-class-name="todo-ant-modal todo-calendar-task-picker"
     @cancel="close"
   >
-    <div class="todo-calendar-pick-fields">
+    <div class="todo-calendar-pick-fields" @keydown.capture="captureControlEscape" @keydown="controlKeydown">
       <AAlert v-if="error" type="error" :message="error" show-icon />
       <label
         >安排日期<ToDooDateField
@@ -256,7 +278,8 @@ async function schedule() {
       /></label>
       <label v-if="options.length || loading"
         >待安排任务<ToDooSelect
-          v-model="selected"
+          :value="selected || undefined"
+          @change="selected = $event || ''"
           aria-label="待安排任务"
           placeholder="选择一个待办任务"
           :options="options"

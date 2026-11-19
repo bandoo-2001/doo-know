@@ -1,3 +1,5 @@
+import * as habitInsights from '../apps/web/to-doo-habit-insights';
+import * as popupControls from '../apps/web/to-doo-controls';
 import { afterEach, expect, test, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { compileScript, parse } from '@vue/compiler-sfc';
@@ -74,8 +76,9 @@ function component(name: string): Vue.Component {
       if (id === '../../to-doo-reminders') return reminders;
       if (id === '../../../../shared/to-doo-habits') return habits;
       if (id === '../../to-doo-habit-presentation') return habitPresentation;
+      if (id === '../../to-doo-habit-insights') return habitInsights;
       if (id === '../../../../shared/to-doo-anniversaries') return anniversaries;
-      if (id === '../../to-doo-controls') return { useToDooConfirm: () => async () => false };
+      if (id === '../../to-doo-controls') return { ...popupControls, useToDooConfirm: () => async () => false };
       if (id === 'ant-design-vue')
         return {
           ...controls,
@@ -85,8 +88,10 @@ function component(name: string): Vue.Component {
         };
       if (id.endsWith('ToDooDateField.vue')) return { default: control('DateField') };
       if (id.endsWith('ToDooSelect.vue')) return { default: control('Select') };
+      if (id.endsWith('ToDooAnniversaryArt.vue')) return { default: control('AnniversaryArt') };
+      if (id.endsWith('ToDooHabitDetail.vue')) return { default: control('HabitDetail') };
       if (
-        /ToDoo(Hint|PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|Icon)\.vue$/.test(
+        /ToDoo(Hint|PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|ListIcon|Icon)\.vue$/.test(
           id,
         )
       )

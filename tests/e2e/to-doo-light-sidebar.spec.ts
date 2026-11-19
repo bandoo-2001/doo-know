@@ -1,7 +1,9 @@
+import { readToDooTaskContext } from '../support/to-doo-task-fixture';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import type { ToDooCommandResult, ToDooSnapshot } from '../../shared/to-doo-contracts';
 import { test, expect } from '../support/browser-test';
+import { revealToDooTask } from '../support/to-doo-navigation';
 import { fillToDooDate } from '../support/to-doo-ant-controls';
 import { openToDooDetailProperty, completeToDooDetailProperty } from '../support/to-doo-detail-controls';
 
@@ -101,7 +103,7 @@ test('explicit save preserves failed title and description edits and retries the
   await save.click();
   const failed = await rejected;
   expect(failed.status()).toBe(503);
-  await expect(app.getByRole('alert')).toContainText('侧栏保存暂时不可用');
+  await expect(app.getByRole('alert').filter({ hasText: '侧栏保存暂时不可用' })).toBeVisible();
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(nextTitle);
   await expect(detail.getByLabel('任务说明', { exact: true })).toHaveValue(description);
   await expect(detail).toContainText('未保存的更改');
@@ -118,8 +120,8 @@ test('explicit save preserves failed title and description edits and retries the
   expect(response.request().postDataJSON().requestId).toBe(
     failed.request().postDataJSON().requestId,
   );
-  const receipt = (await response.json()) as ToDooCommandResult;
-  expect(receipt.snapshot.tasks.find((task) => task.id === taskId)).toMatchObject({
+  const receipt = await (await page.request.get('/api/to-doo/state?taskIds=' + taskId)).json() as ToDooSnapshot;
+  expect(receipt.tasks.find((task) => task.id === taskId)).toMatchObject({
     title: nextTitle,
     description,
   });
@@ -144,7 +146,8 @@ test('deadline editing updates the summary and stays closed after reopening or c
   const otherTitle = '保留阅读状态 ' + suffix;
   await command(page, 'create_task', { title: otherTitle, listId: list.ids[0] });
   const taskId = created.ids[0];
-  const occurrenceId = created.snapshot.occurrences.find((item) => item.taskId === taskId)!.id;
+  const createdContext = await readToDooTaskContext(page, taskId);
+  const occurrenceId = createdContext.occurrences.find(item => item.taskId === taskId)!.id;
   await page.goto(
     '/?view=apps&app=to-doo&appSection=tasks&list=' + list.ids[0] + '&task=' + taskId,
   );
@@ -159,7 +162,8 @@ test('deadline editing updates the summary and stays closed after reopening or c
   const response = await saved;
   expect(response.ok()).toBe(true);
   const receipt = (await response.json()) as ToDooCommandResult;
-  expect(receipt.snapshot.occurrences.find((item) => item.id === occurrenceId)?.due).toMatchObject({
+  const persistedContext = await readToDooTaskContext(page, taskId);
+  expect(persistedContext.occurrences.find(item => item.id === occurrenceId)?.due).toMatchObject({
     date: '2031-04-19',
     time: '14:35',
   });
@@ -199,7 +203,8 @@ test('completion saves pending description after confirmation and later edits ke
   const title = '保留完成时的草稿 ' + info.project.name + '-' + crypto.randomUUID();
   const created = await command(page, 'create_task', { title, description: '原说明' });
   const taskId = created.ids[0];
-  const occurrenceId = created.snapshot.occurrences.find((item) => item.taskId === taskId)!.id;
+  const createdContext = await readToDooTaskContext(page, taskId);
+  const occurrenceId = createdContext.occurrences.find(item => item.taskId === taskId)!.id;
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all&task=' + taskId);
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   const detail = app.getByRole('complementary', { name: '任务详情', exact: true });
@@ -216,9 +221,10 @@ test('completion saves pending description after confirmation and later edits ke
   expect(completion.ok()).toBe(true);
   const completionReceipt = (await completion.json()) as ToDooCommandResult;
   expect(
-    completionReceipt.snapshot.occurrences.find((item) => item.id === occurrenceId)?.status,
+    (await readToDooTaskContext(page, taskId)).occurrences.find(item => item.id === occurrenceId)?.status,
   ).toBe('done');
-  expect(completionReceipt.snapshot.tasks.find((task) => task.id === taskId)?.description).toBe(
+  const persisted = await (await page.request.get('/api/to-doo/state?taskIds=' + taskId)).json();
+  expect(persisted.tasks.find((task: { id: string }) => task.id === taskId)?.description).toBe(
     description,
   );
   await expect(detail.getByRole('button', { name: '重新打开', exact: true })).toBeVisible();
@@ -230,6 +236,7 @@ test('completion saves pending description after confirmation and later edits ke
   await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
   await page.getByRole('checkbox', { name: '显示已完成任务', exact: true }).check();
   await page.keyboard.press('Escape');
+  await revealToDooTask(page, title);
   await app.getByRole('button', { name: title, exact: true }).click();
   await expect(detail.getByLabel('任务说明', { exact: true })).toHaveValue(description);
   const completedDescription = description + '\n补充完成后的记录。';

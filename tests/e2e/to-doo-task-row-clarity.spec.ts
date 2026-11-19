@@ -63,8 +63,8 @@ test('the opened recurring occurrence is active independently of batch selection
   ).toHaveAttribute('aria-current', 'true');
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   await openToDooTaskTools(page);
-  await app.getByRole('button', { name: '任务管理', exact: true }).click();
-  await page.getByRole('menuitem', { name: '多选', exact: true }).click();
+  await app.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  await page.getByRole('menuitem', { name: '选择任务', exact: true }).click();
   const other = app.locator('.todo-task-row').filter({
     has: page.getByRole('button', { name: otherTitle, exact: true }),
   });

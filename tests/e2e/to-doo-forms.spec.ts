@@ -64,6 +64,7 @@ test('a short habit form saves its optional settings and retains them when reope
   const id = result.ids[0];
   await expect(editor).not.toBeVisible();
   await page.getByRole('button', { name, exact: true }).click();
+  await page.getByRole('region', { name: '习惯详情 ' + name, exact: true }).getByRole('button', { name: '编辑习惯', exact: true }).click();
   const reopened = page.getByRole('dialog', { name: '编辑习惯', exact: true });
   await expect(reopened.getByLabel('说明', { exact: true })).not.toBeVisible();
   await reopened.getByRole('button', { name: '保存', exact: true }).click();
@@ -179,7 +180,7 @@ test('invalid Gregorian input stays visible and cannot silently save the previou
   await date.click();
   await date.fill('2026-02-30');
   await date.press('Tab');
-  await editor.getByText('新建纪念日', { exact: true }).click();
+  await expect(date).toHaveAttribute('aria-invalid', 'true');
   let writes = 0;
   page.on('request', (request) => {
     if (request.method() === 'POST' && request.url().endsWith('/api/to-doo/commands')) writes++;
@@ -296,8 +297,8 @@ test('task settings shortcuts open the existing editors with one click', async (
   const detail = page.getByRole('complementary', { name: '任务详情' });
   await detail.getByRole('button', { name: '编辑任务提醒', exact: true }).click();
   const reminders = page.getByRole('dialog', { name: '任务提醒', exact: true });
-  await expect(reminders.getByRole('button', { name: '＋ 添加提醒', exact: true })).toBeInViewport();
-  await reminders.getByRole('button', { name: '＋ 添加提醒', exact: true }).click();
+  await expect(reminders.getByRole('button', { name: '添加提醒', exact: true })).toBeInViewport();
+  await reminders.getByRole('button', { name: '添加提醒', exact: true }).click();
   await expect(reminders.getByRole('combobox', { name: '提醒依据', exact: true })).toBeVisible();
   await reminders.getByRole('button', { name: '取消本次设置', exact: true }).click();
   await expect(reminders).not.toBeVisible();
@@ -320,7 +321,7 @@ test('task settings shortcuts open the existing editors with one click', async (
   await expect(repeat).not.toBeVisible();
   await detail.getByRole('button', { name: '编辑关联资料', exact: true }).click();
   const resources = page.getByRole('dialog', { name: '关联资料', exact: true });
-  await expect(resources.getByRole('button', { name: '+ 关联资料', exact: true })).toBeInViewport();
+  await expect(resources.getByRole('button', { name: '关联资料', exact: true })).toBeInViewport();
 });
 
 test('preference groups preserve folded values while saving a common setting', async ({ page }) => {
@@ -405,44 +406,50 @@ for (const restoreOriginal of [false, true]) {
     async ({ page }) => {
       const before = await (await page.request.get('/api/to-doo/state')).json();
       const nextValue = restoreOriginal ? before.settings.defaultDurationMinutes : 47;
-      await page.goto('/?view=apps&app=to-doo&appSection=settings');
-      const field = page.getByRole('spinbutton', { name: '默认安排分钟', exact: true });
-      await field.fill('43');
-      let release!: () => void;
-      const gate = new Promise<void>((resolve) => {
-        release = resolve;
-      });
-      await page.route('**/api/to-doo/commands', async (route) => {
-        const body = route.request().postDataJSON();
-        if (body.action === 'save_entity' && body.payload.kind === 'settings') await gate;
-        await route.continue();
-      });
-      const pending = page.waitForRequest(
-        (request) =>
-          request.url().endsWith('/api/to-doo/commands') &&
-          request.postDataJSON()?.payload.kind === 'settings',
-      );
-      await page.getByRole('button', { name: '保存偏好', exact: true }).click();
-      await pending;
+      const submitted = before.settings.defaultDurationMinutes === 43 ? 44 : 43;
+      let release = () => {};
       try {
-        await field.fill(String(nextValue));
+        await page.goto('/?view=apps&app=to-doo&appSection=settings');
+        const field = page.getByRole('spinbutton', { name: '默认安排分钟', exact: true });
+        await field.fill(String(submitted));
+        const gate = new Promise<void>((resolve) => {
+          release = resolve;
+        });
+        await page.route('**/api/to-doo/commands', async (route) => {
+          const body = route.request().postDataJSON();
+          if (body.action === 'save_entity' && body.payload.kind === 'settings') await gate;
+          await route.continue();
+        });
+        const pending = page.waitForRequest(
+          (request) =>
+            request.url().endsWith('/api/to-doo/commands') &&
+            request.postDataJSON()?.payload.kind === 'settings',
+        );
+        await page.getByRole('button', { name: '保存偏好', exact: true }).click();
+        await pending;
+        try {
+          await field.fill(String(nextValue));
+        } finally {
+          release();
+        }
+        await expect(page.getByRole('status').filter({ hasText: '偏好已保存' })).toBeVisible();
+        await expect(field).toHaveValue(String(nextValue));
+        expect(
+          (await (await page.request.get('/api/to-doo/settings')).json()).defaultDurationMinutes,
+        ).toBe(submitted);
+        await page.getByRole('button', { name: '保存偏好', exact: true }).click();
+        await expect(page.getByText('有未保存的更改', { exact: true })).not.toBeVisible();
+        const saved = await (await page.request.get('/api/to-doo/settings')).json();
+        expect(saved.defaultDurationMinutes).toBe(nextValue);
       } finally {
         release();
+        const saved = await (await page.request.get('/api/to-doo/settings')).json();
+        await command(page, 'save_entity', {
+          kind: 'settings',
+          entity: before.settings,
+          expectedRevision: saved.revision,
+        });
       }
-      await expect(page.getByRole('status')).toContainText('偏好已保存');
-      await expect(field).toHaveValue(String(nextValue));
-      expect(
-        (await (await page.request.get('/api/to-doo/settings')).json()).defaultDurationMinutes,
-      ).toBe(43);
-      await page.getByRole('button', { name: '保存偏好', exact: true }).click();
-      await expect(page.getByText('有未保存的更改', { exact: true })).not.toBeVisible();
-      const saved = await (await page.request.get('/api/to-doo/settings')).json();
-      expect(saved.defaultDurationMinutes).toBe(nextValue);
-      await command(page, 'save_entity', {
-        kind: 'settings',
-        entity: before.settings,
-        expectedRevision: saved.revision,
-      });
     },
   );
 }

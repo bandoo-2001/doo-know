@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { Form as AForm } from 'ant-design-vue';
 import { useMutationObserver } from '@vueuse/core';
+import { createToDooPopupEscapeBoundary } from '../../to-doo-controls';
 
 defineProps<{ busy?: boolean }>();
 const emit = defineEmits<{
@@ -12,6 +13,7 @@ const emit = defineEmits<{
 const form = ref<InstanceType<typeof AForm>>();
 const element = computed<HTMLFormElement | undefined>(() => form.value?.$el);
 const hasInvalidInput = () => !!element.value?.querySelector('[aria-invalid="true"]');
+const popupEscape = createToDooPopupEscapeBoundary();
 useMutationObserver(element, () => emit('validity-change', hasInvalidInput()), {
   subtree: true,
   attributes: true,
@@ -35,6 +37,8 @@ defineExpose({ element, hasInvalidInput, requestSubmit: () => element.value?.req
     :aria-busy="busy || undefined"
     @submit="submit"
     @invalid.capture="emit('invalid', $event)"
+    @keydown.capture="popupEscape.capture"
+    @keydown="popupEscape.bubble"
   >
     <fieldset class="todo-form-fields" :disabled="busy"><slot /></fieldset>
     <footer v-if="$slots.actions" class="todo-actions todo-form-footer">

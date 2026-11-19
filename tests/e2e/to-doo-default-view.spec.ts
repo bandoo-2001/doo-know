@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
-import { goToToDooSection } from '../support/to-doo-navigation';
+import { goToToDooSection, returnFromToDoo } from '../support/to-doo-navigation';
 import { showMainMenu, closeSidebar } from '../support/settings-navigation';
 
 test('saved default view applies to a fresh opening while explicit navigation and return memory win', async ({
@@ -30,11 +30,7 @@ test('saved default view applies to a fresh opening while explicit navigation an
       fresh.locator('.todo-page-heading').getByRole('heading', { name: '所有任务', exact: true }),
     ).toBeVisible();
     await goToToDooSection(fresh, 'habits');
-    await showMainMenu(fresh);
-    await fresh
-      .locator('.workspace-footer')
-      .getByRole('button', { name: '返回 DooKnow', exact: true })
-      .click();
+    await returnFromToDoo(fresh);
     await showMainMenu(fresh);
     await fresh
       .getByRole('navigation', { name: '工作区', exact: true })

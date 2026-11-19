@@ -14,7 +14,9 @@ import {
   Tabs as ATabs,
 } from 'ant-design-vue';
 import ToDooDateField from './ToDooDateField.vue';
+import { createToDooPopupEscapeBoundary } from '../../to-doo-controls';
 import ToDooIcon from './ToDooIcon.vue';
+import ToDooListIcon from './ToDooListIcon.vue';
 import { createToDooReminderController } from '../../to-doo-reminders';
 import ToDooPageToolbar from './ToDooPageToolbar.vue';
 import ToDooSectionHeader from './ToDooSectionHeader.vue';
@@ -86,6 +88,16 @@ const listProgress = (id: string) => {
   const item = state.snapshot?.statistics.byList[id];
   return item?.total ? Math.min(100, Math.round((item.completed / item.total) * 100)) : 0;
 };
+const goalTotals = computed(() => lists.value.reduce((total, list) => {
+  const progress = state.snapshot?.statistics.byList[list.id];
+  total.actions += progress?.total || 0;
+  total.completed += progress?.completed || 0;
+  return total;
+}, { actions: 0, completed: 0 }));
+function goalRemaining(id: string) {
+  const progress = state.snapshot?.statistics.byList[id];
+  return Math.max(0, (progress?.total || 0) - (progress?.completed || 0));
+}
 const ATabPane = ATabs.TabPane,
   AMenuItem = AMenu.Item;
 const reminderController = createToDooReminderController(props.model.request);
@@ -132,12 +144,13 @@ async function notificationFiltersChanged(open: boolean) {
 }
 function notificationFilterKeydown(event: KeyboardEvent) {
   if (event.key !== 'Escape' || event.defaultPrevented) return;
-  // Give the nested calendar its first Escape before closing the filter host.
-  if (typeof document !== 'undefined' && document.querySelector('.ant-picker-dropdown:not(.ant-picker-dropdown-hidden)')) return;
+  notificationEscape.bubble(event);
+  if (event.cancelBubble) return;
   event.preventDefault();
   event.stopPropagation();
   closeNotificationFilters(true);
 }
+const notificationEscape = createToDooPopupEscapeBoundary();
 watch(
   () => state.query.filter?.query,
   (value) => {
@@ -187,22 +200,11 @@ async function clearNotificationFilters() {
   notificationTo.value = '';
   await applyNotificationFilters();
 }
-const statisticsOverview = ref<HTMLElement>();
-const statisticsGoals = ref<HTMLElement>();
-const statisticsReviews = ref<HTMLElement>();
+const statisticsSurface = ref<HTMLElement>();
 async function scrollStatisticsContext() {
-  if (props.section !== 'stats' || props.context === undefined) return;
+  if (props.section !== 'stats' || !props.contextualNavigation || props.context === undefined) return;
   await nextTick();
-  const target =
-    props.context === 'goals'
-      ? statisticsGoals.value
-      : props.context === 'reviews'
-        ? statisticsReviews.value
-        : statisticsOverview.value;
-  target?.scrollIntoView?.({
-    block: props.context === 'goals' || props.context === 'reviews' ? 'start' : 'nearest',
-    behavior: 'auto',
-  });
+  statisticsSurface.value?.scrollIntoView?.({ block: 'start', behavior: 'auto' });
 }
 watch(
   () => [props.section, props.context, props.contextualNavigation],
@@ -329,6 +331,25 @@ const trendDescription = computed(
 );
 const reviews = computed(() => state.snapshot?.reviews.filter((r) => !r.deletedAt) || []);
 const outcomes = computed(() => state.snapshot?.outcomes.filter((r) => !r.deletedAt) || []);
+function reviewSummary(review: ToDooEntityMap['review']) {
+  const content = review.content.split('\n')
+    .map(line => line.replace(/^\s*(?:#{1,6}\s+|[-*>]\s+|\d+[.)]\s+)/, '').trim())
+    .filter(line => line && !['本期收获', '遇到的阻碍', '下一步行动'].includes(line))
+    .join(' ');
+  return content ? content.slice(0, 240) + (content.length > 240 ? '…' : '') : '尚未填写正文，打开后记录收获与下一步。';
+}
+function reviewCapturedDate(review: ToDooEntityMap['review']) {
+  const date = new Date(review.capturedAt);
+  return Number.isFinite(date.getTime()) ? toDooLocalDate(date, state.snapshot?.settings.timeZone) : '';
+}
+function reviewMetrics(review: ToDooEntityMap['review']) {
+  return [
+    { key: 'completed', label: '完成行动', unit: '项' },
+    { key: 'focusMinutes', label: '专注时长', unit: '分钟' },
+    { key: 'outcomes', label: '沉淀成果', unit: '份' },
+  ].filter(item => typeof review.metrics?.[item.key] === 'number')
+    .map(item => ({ ...item, value: Math.round(review.metrics[item.key]) }));
+}
 async function range() {
   if (!from.value || !to.value) {
     state.error = '请选择开始日期和结束日期';
@@ -471,13 +492,18 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
       <ATabPane key="goals" tab="目标进展" />
       <ATabPane key="reviews" tab="历史复盘" />
     </ATabs>
+    <div ref="statisticsSurface" class="todo-review-result-surface" role="region" aria-label="统计结果" :data-view="statisticsView">
+    <h2 v-if="contextualNavigation" class="todo-review-current-title">{{ { overview: '概览', goals: '目标进展', reviews: '历史复盘' }[statisticsView] }}</h2>
     <ToDooPageToolbar
+      v-show="statisticsView !== 'goals'"
       tag="form"
-      class="todo-calendar-toolbar"
+      class="todo-calendar-toolbar todo-review-period-toolbar"
       aria-label="统计区间"
+      :aria-controls="'to-doo-stats-' + statisticsView"
       @submit.prevent="range"
     >
       <div class="todo-actions">
+        <span class="todo-review-range-label">{{ statisticsView === 'reviews' ? '复盘覆盖区间' : '统计区间' }}</span>
         <ASegmented
           :value="periodPreset"
           :options="[
@@ -508,11 +534,12 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
           ><AButton type="default" html-type="submit" class="todo-button">查看区间</AButton>
         </div>
       </div>
+      <span class="todo-review-applied-range">{{ appliedFrom }} — {{ appliedTo }}</span>
+      <span v-if="statisticsView === 'reviews'" class="todo-review-result-count">当前区间 {{ reviews.length }} 篇复盘</span>
     </ToDooPageToolbar>
     <div
       v-show="statisticsView === 'overview'"
       id="to-doo-stats-overview"
-      ref="statisticsOverview"
       class="todo-review-statistics todo-review-anchor"
       role="group"
       aria-label="区间统计"
@@ -564,43 +591,61 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
       <section
         v-show="statisticsView === 'goals'"
         id="to-doo-stats-goals"
-        ref="statisticsGoals"
         class="todo-panel todo-review-goals todo-review-anchor"
         aria-label="目标进展"
       >
-        <ToDooSectionHeader title="目标进展"><small>累计</small></ToDooSectionHeader>
+        <div class="todo-review-goal-tools">
+          <p class="todo-review-goal-scope">查看目标内行动的累计完成情况，不受概览日期区间影响。重复任务按每次执行计数。</p>
+          <span class="todo-review-scope-pill">累计进度</span>
+          <AButton v-if="lists.length" html-type="button" aria-label="添加目标" @click="emit('edit', 'list', undefined, { kind: 'goal' })"><ToDooIcon name="plus" :size="14" />新建目标</AButton>
+        </div>
+        <div v-if="lists.length" class="todo-goal-summary" aria-label="当前目标汇总">
+          <div><span>当前目标</span><strong>{{ lists.length }}<small>个</small></strong></div>
+          <div><span>已完成行动</span><strong>{{ goalTotals.completed }}<small>项</small></strong></div>
+          <div><span>待完成行动</span><strong>{{ Math.max(0, goalTotals.actions - goalTotals.completed) }}<small>项</small></strong></div>
+        </div>
+        <div class="todo-goal-progress-list">
         <div v-for="l in lists" :key="l.id" class="todo-progress-row">
-          <div class="todo-between">
+          <div class="todo-between todo-review-goal-heading">
             <AButton
               type="link"
               class="todo-review-goal-link"
               :aria-label="'查看目标任务 ' + l.name"
               @click="emit('list', l.id)"
-              >{{ l.name }}</AButton
-            ><span
+              ><ToDooListIcon :list="l" :size="18" /><span>{{ l.name }}</span></AButton
+            ><span class="todo-review-goal-count"
+              :aria-label="'已完成 ' + (state.snapshot?.statistics.byList[l.id]?.completed || 0) + ' 项，共 ' + (state.snapshot?.statistics.byList[l.id]?.total || 0) + ' 项'"
               >{{ state.snapshot?.statistics.byList[l.id]?.completed || 0 }}/{{
                 state.snapshot?.statistics.byList[l.id]?.total || 0
               }}</span
             >
           </div>
+          <p v-if="l.description" class="todo-review-goal-description">{{ l.description }}</p>
+          <div class="todo-review-goal-progress-meta">
+            <span>{{ state.snapshot?.statistics.byList[l.id]?.total ? '已完成 ' + listProgress(l.id) + '%' : '尚未添加行动' }}</span>
+            <span v-if="state.snapshot?.statistics.byList[l.id]?.total">剩余 {{ goalRemaining(l.id) }} 项</span>
+          </div>
           <AProgress
             :percent="listProgress(l.id)"
             :show-info="false"
+            :stroke-color="l.color"
             :aria-label="l.name + '完成进度'"
           />
         </div>
-        <AEmpty v-if="!lists.length" class="todo-empty" description="还没有目标">
-          <AButton @click="emit('edit', 'list', undefined, { kind: 'goal' })">新建目标</AButton>
+        </div>
+        <AEmpty v-if="!lists.length" class="todo-empty todo-review-explained-empty" description="还没有目标">
+          <p>目标是用来持续推进一件事的清单，例如「完成一门课程」。<br />普通清单不会出现在这里；创建目标并加入行动后，就能看到进度。</p>
+          <AButton type="primary" @click="emit('edit', 'list', undefined, { kind: 'goal' })">新建目标</AButton>
         </AEmpty>
       </section>
       <section
         v-show="statisticsView === 'reviews'"
         id="to-doo-stats-reviews"
-        ref="statisticsReviews"
         class="todo-panel todo-review-records todo-review-anchor"
         aria-label="历史复盘"
       >
-        <ToDooSectionHeader title="复盘与成果" />
+        <p class="todo-review-scope-help">显示复盘日期与 {{ appliedFrom }} — {{ appliedTo }} 相交的记录；指标保留保存时的快照。</p>
+        <div class="todo-review-entry-list">
         <article
           v-for="r in reviews"
           :key="r.id"
@@ -614,25 +659,39 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
             @click="emit('edit', 'review', r)"
           >
             <span
-              ><strong>{{ r.name }}</strong
-              ><small>{{ r.from }} — {{ r.to }}</small>
-              <p>{{ r.content.slice(0, 160) }}</p></span
-            ><span>↗</span>
+              class="todo-review-entry-copy"><strong>{{ r.name }}</strong
+              ><small class="todo-review-entry-range"><ToDooIcon name="calendar" :size="14" />复盘区间 {{ r.from }} — {{ r.to }}</small>
+              <p>{{ reviewSummary(r) }}</p></span
+            ><ToDooIcon name="chevron" :size="16" />
           </AButton>
+          <div v-if="reviewMetrics(r).length" class="todo-review-snapshot" aria-label="保存时的统计快照">
+            <span class="todo-review-snapshot-label">保存时</span>
+            <span v-for="metric in reviewMetrics(r)" :key="metric.key">{{ metric.label }} <strong>{{ metric.value }}</strong> {{ metric.unit }}</span>
+          </div>
+          <div class="todo-review-entry-footer">
+          <small v-if="reviewCapturedDate(r)" class="todo-review-captured-date">保存于 {{ reviewCapturedDate(r) }}</small>
           <AButton
             type="link"
             class="todo-review-next-task"
+            aria-label="＋ 添加下一步任务"
             :disabled="state.busy"
             @click="createNextTask(r)"
-            >＋ 添加下一步任务</AButton
+            ><ToDooIcon name="plus" :size="14" />添加下一步任务</AButton
           >
+          </div>
         </article>
+        </div>
         <AEmpty
           v-if="!reviews.length && !outcomes.length"
-          class="todo-empty"
+          class="todo-empty todo-review-explained-empty"
           description="还没有复盘记录"
         >
+          <p>复盘用于记录一段时间内做对的事、遇到的阻碍和下一步。<br />完成任务或专注计时不会自动生成复盘，可以先写下这一期的收获。</p>
+          <AButton type="primary" html-type="button" @click="createReview">写第一篇复盘</AButton>
         </AEmpty>
+        <section v-if="outcomes.length" class="todo-review-outcomes" aria-label="成果与证据">
+        <ToDooSectionHeader title="成果与证据"><small>{{ outcomes.length }} 份已保存成果</small></ToDooSectionHeader>
+        <p class="todo-review-scope-help">成果与复盘分别保存，可打开查看交付内容和关联证据。</p>
         <AButton
           type="text"
           v-for="o in outcomes"
@@ -655,11 +714,13 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
                 · {{ o.evidenceRefs.length }} 份证据</template
               ></small
             ></span
-          ></AButton
-        ><AButton type="link" class="todo-link todo-pad" @click="emit('edit', 'record')">
-          ＋ 新增推进记录
+          ></AButton>
+        </section>
+        <AButton type="link" class="todo-link todo-pad" aria-label="＋ 新增推进记录" @click="emit('edit', 'record')">
+          <ToDooIcon name="plus" :size="14" />新增推进记录
         </AButton>
       </section>
+    </div>
     </div>
   </div>
   <div v-else class="todo-review">
@@ -705,6 +766,7 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
               class="todo-notification-filter-form todo-form"
               aria-label="通知筛选"
               @submit.prevent="applyNotificationFilters"
+              @keydown.capture="notificationEscape.capture"
               @keydown="notificationFilterKeydown"
             >
               <AAlert v-if="notificationFilterError" type="error" :message="notificationFilterError" show-icon />
@@ -892,6 +954,11 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
   font-size: var(--todo-font-size);
 }
 .todo-review-goal-link.ant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--todo-space-8);
+  min-width: 0;
   height: auto;
   min-height: 0;
   padding: 0;
@@ -900,6 +967,27 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
   white-space: normal;
   text-align: left;
   overflow-wrap: anywhere;
+}
+.todo-review-goal-link > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.todo-review-goal-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: var(--todo-space-12);
+}
+.todo-review-goal-count {
+  white-space: nowrap;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.todo-progress-row :deep(.ant-progress-line) {
+  display: block;
+  margin-inline-end: 0;
+}
+.todo-review-entry .todo-saved-row > svg {
+  flex: 0 0 auto;
 }
 .todo-review-entry {
   min-width: 0;

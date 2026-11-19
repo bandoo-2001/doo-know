@@ -1,3 +1,4 @@
+import { readToDooTaskContext } from '../support/to-doo-task-fixture';
 import { selectToDooContext } from '../support/to-doo-navigation';
 import { readFile } from 'node:fs/promises';
 import type { Locator, Page, Request } from '@playwright/test';
@@ -98,9 +99,8 @@ test('period statistics and progress follow real seven-day, thirty-day and custo
     listId: list.ids[0],
     due: { date: today, timeZone: initial.settings.timeZone },
   });
-  const occurrence = created.snapshot.occurrences.find(
-    (item: any) => item.taskId === created.ids[0],
-  );
+  const createdContext = await readToDooTaskContext(page, created.ids[0]);
+  const occurrence = createdContext.occurrences.find(item => item.taskId === created.ids[0])!;
   await command(page, 'set_occurrence_status', {
     id: occurrence.id,
     expectedRevision: occurrence.revision,
@@ -117,17 +117,21 @@ test('period statistics and progress follow real seven-day, thirty-day and custo
     .filter({ hasText: '完成行动' })
     .locator('.ant-statistic-content-value');
   await expect(completedMetric).toHaveText(/[1-9][\d,]*/);
+  await app.getByRole('tab', { name: '目标进展', exact: true }).click();
   const progress = app.locator('.todo-progress-row').filter({ hasText: name });
   await expect(progress).toContainText('1/2');
   await expect(
     progress.getByRole('progressbar', { name: name + '完成进度', exact: true }),
   ).toBeVisible();
-  const hasPeriodRecords = [...initialPeriod.reviews, ...initialPeriod.outcomes].some(
+  await app.getByRole('tab', { name: '概览', exact: true }).click();
+  const hasPeriodRecords = initialPeriod.reviews.some(
     (item: any) => !item.deletedAt,
   );
-  await expect(
-    app.locator('.ant-empty').filter({ hasText: '写下做对的事与下一次调整' }),
-  ).toHaveCount(hasPeriodRecords ? 0 : 1);
+  await app.getByRole('tab', { name: '历史复盘', exact: true }).click();
+  const emptyReviews = app.locator('#to-doo-stats-reviews .ant-empty');
+  await expect(emptyReviews).toHaveCount(hasPeriodRecords ? 0 : 1);
+  if (!hasPeriodRecords) await expect(emptyReviews).toContainText('还没有复盘记录');
+  await app.getByRole('tab', { name: '概览', exact: true }).click();
   const month = statsResponse(page, shift(today, -29), today);
   await app.getByText('近 30 天', { exact: true }).click();
   expect((await month).ok()).toBe(true);
@@ -179,6 +183,7 @@ test('Ant review modal preserves a canceled discard and saves a fresh local-date
   const content = '保留判断依据，再明确下一步行动。';
   await app.getByRole('button', { name: '＋ 写一篇复盘', exact: true }).click();
   const editor = page.getByRole('dialog', { name: '新建复盘', exact: true });
+  const initialContent = await editor.getByLabel('复盘内容', { exact: true }).inputValue();
   await editor.getByLabel('名称', { exact: true }).fill(name);
   await editor.getByLabel('复盘内容', { exact: true }).fill(content);
   await editor.getByRole('button', { name: '取消', exact: true }).click();
@@ -195,7 +200,7 @@ test('Ant review modal preserves a canceled discard and saves a fresh local-date
   await expect(editor).not.toBeVisible();
   expect((await snapshot(page)).reviews.some((item: any) => item.name === name)).toBe(false);
   await app.getByRole('button', { name: '＋ 写一篇复盘', exact: true }).click();
-  await expect(editor.getByLabel('复盘内容', { exact: true })).toHaveValue('');
+  await expect(editor.getByLabel('复盘内容', { exact: true })).toHaveValue(initialContent);
   await editor.getByLabel('名称', { exact: true }).fill(name);
   await editor.getByLabel('复盘内容', { exact: true }).fill(content);
   // These straddle a DST transition; the persisted fields must remain calendar strings.
@@ -231,7 +236,8 @@ test('Ant review modal preserves a canceled discard and saves a fresh local-date
     '2026-03-10',
   );
   await app.getByRole('button', { name: '查看区间', exact: true }).click();
-  await expect(app.getByRole('button').filter({ hasText: name })).toBeVisible();
+  await app.getByRole('tab', { name: '历史复盘', exact: true }).click();
+  await expect(app.getByRole('button', { name: '打开复盘 ' + name, exact: true })).toBeVisible();
 });
 
 test('focus and habit quantity modals cancel without writes and persist explicit numeric receipts', async ({
@@ -242,7 +248,8 @@ test('focus and habit quantity modals cancel without writes and persist explicit
     today = dateInZone(initial.settings.timeZone);
   const name = 'Ant 数字记录 ' + info.project.name + '-' + crypto.randomUUID();
   const task = await command(page, 'create_task', { title: name });
-  const occurrence = task.snapshot.occurrences.find((item: any) => item.taskId === task.ids[0]);
+  const taskContext = await readToDooTaskContext(page, task.ids[0]);
+  const occurrence = taskContext.occurrences.find(item => item.taskId === task.ids[0])!;
   const now = new Date().toISOString();
   const session = await command(page, 'save_entity', {
     kind: 'focusSession',
@@ -331,7 +338,7 @@ test('focus and habit quantity modals cancel without writes and persist explicit
   expect(new URL(page.url()).searchParams.get('appPage')).toBe('history');
   await expect(
     app.getByRole('button', { name: name + ' ' + today + ' 打卡，当前 2.5 页', exact: true }),
-  ).toHaveText('✓');
+  ).toContainText('✓');
   const persisted = await snapshot(page, '?kind=habitEntry&limit=500');
   expect(
     persisted.habitEntries.filter((item: any) => item.habitId === habit.ids[0] && !item.deletedAt),

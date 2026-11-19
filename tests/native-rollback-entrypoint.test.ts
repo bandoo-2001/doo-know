@@ -81,7 +81,10 @@ describe.skipIf(!nativeRequested && (!existsSync(legacyArchive) || !existsSync(c
   const fakeService = join(root, 'fake-service.cjs');
   await writeFile(fakeService, `const fs=require('node:fs'); const action=process.argv[3],state=${JSON.stringify(stateFile)};
    if(action==='is-active'){const active=fs.readFileSync(state,'utf8');console.log(active);process.exit(active==='active'?0:3);}
-   if(action==='show')console.log(${process.pid});
+   if(action==='show'){
+    if(process.argv.includes('--property=FragmentPath')){ console.log('LoadState=loaded'); console.log('FragmentPath='+${JSON.stringify(join(configHome, 'systemd/user', config.serviceName))}); }
+    else console.log(${process.pid});
+   }
    if(action==='stop'){fs.writeFileSync(state,'inactive');const DB=require(${JSON.stringify(join(installRoot, 'releases', newVersion, 'node_modules/better-sqlite3'))});const db=new DB(${JSON.stringify(join(dataRoot, 'app.sqlite'))});db.prepare('DELETE FROM platform_instance').run();db.close();}
    if(action==='start'){fs.writeFileSync(state,'active');const DB=require(${JSON.stringify(join(installRoot, 'releases', newVersion, 'node_modules/better-sqlite3'))});const db=new DB(${JSON.stringify(join(dataRoot, 'app.sqlite'))});db.prepare('INSERT OR REPLACE INTO platform_instance(id,pid,process_start,token,profile_file,version) VALUES(@id,@pid,@process_start,@token,@profile_file,@version)').run(${JSON.stringify(instanceRow)});db.close();}
    fs.appendFileSync(${JSON.stringify(join(root, 'service-actions'))},action+'\\n');

@@ -1,6 +1,35 @@
 import type { ToDooEntityMap, ToDooHabitRule } from './to-doo-contracts.js';
 type Habit = ToDooEntityMap['habit'];
 type Entry = ToDooEntityMap['habitEntry'];
+/** Add stored decimal quantities without accumulating binary floating-point noise.
+ * Each number keeps its canonical decimal representation; only the final sum is
+ * converted back to Number. Negative terms are supported for remaining amounts.
+ */
+export function sumHabitAmounts(values: Iterable<number>): number {
+  let coefficient = 0n,
+    power = 0;
+  for (const value of values) {
+    if (!Number.isFinite(value)) throw new RangeError('Habit quantities must be finite');
+    if (value === 0) continue;
+    const match = /^(-?)(\d+)(?:\.(\d+))?(?:e([+-]?\d+))?$/.exec(String(value))!;
+    const fraction = match[3] || '';
+    let term = BigInt(match[1]! + match[2]! + fraction);
+    const termPower = Number(match[4] || 0) - fraction.length;
+    if (coefficient === 0n) {
+      coefficient = term;
+      power = termPower;
+      continue;
+    }
+    if (termPower < power) {
+      coefficient *= 10n ** BigInt(power - termPower);
+      power = termPower;
+    } else term *= 10n ** BigInt(termPower - power);
+    coefficient += term;
+  }
+  const amount = coefficient === 0n ? 0 : Number(`${coefficient}e${power}`);
+  if (!Number.isFinite(amount)) throw new RangeError('Habit quantity total is too large');
+  return amount;
+}
 export const getHabitGoalMode = (rule: { goalMode?: 'checkin' | 'quantity' }) =>
   rule.goalMode ?? 'quantity';
 const dayMs = 86400000;
@@ -97,7 +126,7 @@ export function summarizeHabitPeriod(
   const amount =
       getHabitGoalMode(period.rule) === 'checkin'
         ? new Set(recorded.filter((e) => e.amount > 0).map((e) => e.localDate)).size
-        : recorded.reduce((sum, e) => sum + e.amount, 0),
+        : sumHabitAmounts(recorded.map((entry) => entry.amount)),
     skipDates = new Set(selected.filter((e) => e.skipped).map((e) => e.localDate));
   let status: ToDooHabitPeriodSummary['status'];
   if (

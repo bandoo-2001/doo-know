@@ -232,6 +232,52 @@
     max-width: calc(100vw - var(--todo-space-24));
     overflow-x: auto;
   }
+  /* Calendar panels fit the viewport; combined date/time panels stack vertically. */
+  .todo-ant-popup .ant-picker-panel-container:not(:has(.ant-picker-panel > .ant-picker-time-panel)) {
+    width: min(364px, calc(100vw - var(--todo-space-24)));
+    max-height: calc(100dvh - var(--todo-space-24));
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .todo-ant-popup .ant-picker-panel-container:not(:has(.ant-picker-panel > .ant-picker-time-panel)) .ant-picker-panel,
+  .todo-ant-popup .ant-picker-panel-container :is(.ant-picker-datetime-panel, .ant-picker-date-panel, .ant-picker-month-panel, .ant-picker-year-panel, .ant-picker-decade-panel) {
+    width: 100%;
+    min-width: 0;
+  }
+  .todo-ant-popup .ant-picker-datetime-panel {
+    flex-direction: column;
+  }
+  .todo-ant-popup .ant-picker-panel-container .ant-picker-panel table.ant-picker-content {
+    width: 100%;
+    table-layout: fixed;
+  }
+  .todo-ant-popup .ant-picker-panel-container .ant-picker-panel table.ant-picker-content th {
+    width: auto;
+  }
+  .todo-ant-popup .ant-picker-datetime-panel .ant-picker-time-panel {
+    width: 100%;
+    border-inline-start: 0;
+    border-top: 1px solid var(--todo-line);
+  }
+  .todo-ant-popup .ant-picker-datetime-panel .ant-picker-time-panel .ant-picker-content {
+    height: calc(var(--todo-touch-target) * 4);
+  }
+  .todo-ant-popup .ant-picker-datetime-panel .ant-picker-time-panel-column {
+    flex: 1;
+    width: 0;
+    overflow-y: auto;
+  }
+  .todo-ant-popup .ant-picker-datetime-panel .ant-picker-time-panel-column > li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner {
+    width: auto;
+    padding-inline: 0;
+    text-align: center;
+  }
+  .todo-ant-popup .ant-picker-panel-container:has(.ant-picker-datetime-panel) .ant-picker-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    background: var(--todo-paper);
+  }
 }
 @media (pointer: coarse) {
   :is(.to-doo-workspace, .todo-ant-modal, .todo-ant-popup) :is(.ant-btn, .ant-input, .ant-picker, .ant-input-number, .ant-select-single .ant-select-selector, .ant-dropdown-menu-item) {

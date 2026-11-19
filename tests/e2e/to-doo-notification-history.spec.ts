@@ -63,9 +63,13 @@ test('recent notifications and mark-all include unread records beyond the first 
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   await expect(app.locator('.todo-notification').first()).toContainText(prefix + '-latest');
   const directory = await openToDooDirectory(page);
-  await expect(
-    directory.getByRole('button', { name: '通知', exact: true }).locator('small'),
-  ).toHaveText(String(unreadBefore + 206));
+  const badge = directory.getByRole('button', { name: '通知', exact: true }).locator('small, .todo-module-unread');
+  await expect(badge).toBeVisible();
+  const unreadCount = unreadBefore + 206;
+  if ((await badge.getAttribute('class'))?.includes('todo-module-unread')) {
+    await expect(badge).toHaveText(unreadCount > 99 ? '99+' : String(unreadCount));
+    await expect(badge).toHaveAttribute('aria-label', unreadCount + ' 条未读');
+  } else await expect(badge).toHaveText(String(unreadCount));
   await closeToDooDirectory(page);
   await app.getByRole('button', { name: '全部标为已读', exact: true }).click();
   await expect
@@ -94,8 +98,9 @@ test('recent notifications and mark-all include unread records beyond the first 
   await page.getByRole('menuitem', { name: '忽略提醒', exact: true }).click();
   await app.getByRole('button', { name: '其他通知状态', exact: true }).click();
   await page.getByRole('menuitem', { name: '忽略', exact: true }).click();
-  await expect(app.locator('.todo-notification')).toHaveCount(1);
-  await expect(app.locator('.todo-notification')).toContainText(prefix + '-latest');
+  const ownedIgnored = app.locator('.todo-notification').filter({ hasText: prefix });
+  await expect(ownedIgnored).toHaveCount(1);
+  await expect(ownedIgnored).toContainText(prefix + '-latest');
   const ignored = await (
     await page.request.get('/api/to-doo/state?kind=reminderEvent&ids=' + prefix + '-latest')
   ).json();

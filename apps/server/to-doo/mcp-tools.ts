@@ -19,6 +19,7 @@ import {
   toDooCommandSchema,
   TO_DOO_COLLECTIONS,
   type ToDooEntityKind,
+  type ToDooEntityMap,
   type ToDooSnapshot,
   type ToDooCommandResult,
   type ToDooService,
@@ -37,6 +38,43 @@ import { mcpResultFrameSize, mcpMaximumFrameBytes } from '../../../shared/mcp-fr
 import { createOutcomeNoteService } from './outcome-note.js';
 
 const digest = (value: unknown) => createHash('sha256').update(canonical(value)).digest('hex');
+const actionOwner = (p: Principal) => digest([p.id, p.clientId]);
+const actionPolicy = (p: Principal, access: unknown) =>
+  digest([
+    p.id,
+    p.clientId,
+    p.grantId,
+    p.grantVersion,
+    p.scopes,
+    p.allowedPrefixes,
+    p.permissionPolicy,
+    p.permissionCeiling,
+    access,
+  ]);
+/** Both the compact and full MCP adapters must enforce the same staged-image authority. */
+export function canUseMcpAnniversaryImage(
+  context: McpDomainContext,
+  p: Principal,
+  hash: string,
+  anniversaryId: string,
+  options?: ServiceCallOptions,
+) {
+  if (!context.db.prepare("SELECT 1 FROM sqlite_master WHERE name='to_doo_mcp_actions'").get())
+    return false;
+  const rows = context.db
+    .prepare(
+      `SELECT targets FROM to_doo_mcp_actions
+       WHERE owner=? AND tool='finish_to_doo_anniversary_image' AND scope=?
+       AND json_extract(result,'$.hash')=?`,
+    )
+    .all(actionOwner(p), actionPolicy(p, context.toDooAccess(options)), hash) as {
+    targets: string;
+  }[];
+  return rows.some((row) => {
+    const target = JSON.parse(row.targets) as { anniversaryId?: string };
+    return !target.anniversaryId || target.anniversaryId === anniversaryId;
+  });
+}
 const allDomains = [
   'tasks',
   'records',
@@ -115,19 +153,9 @@ export function createToDooToolPort(context: McpDomainContext): McpManagedDomain
       CREATE TABLE IF NOT EXISTS to_doo_mcp_export_access(binding_id TEXT NOT NULL,owner TEXT NOT NULL,transfer_id TEXT NOT NULL,note_ids TEXT NOT NULL,note_paths TEXT NOT NULL,expires_at INTEGER NOT NULL,PRIMARY KEY(binding_id,owner));`);
     initialized = true;
   }
-  const owner = (p: Principal) => digest([p.id, p.clientId]);
+  const owner = actionOwner;
   const policyKey = (p: Principal, options?: ServiceCallOptions) =>
-    digest([
-      p.id,
-      p.clientId,
-      p.grantId,
-      p.grantVersion,
-      p.scopes,
-      p.allowedPrefixes,
-      p.permissionPolicy,
-      p.permissionCeiling,
-      context.toDooAccess(options),
-    ]);
+    actionPolicy(p, context.toDooAccess(options));
   function principal(scopes: readonly string[], options?: ServiceCallOptions) {
     return context.authorize(scopes, options);
   }
@@ -136,6 +164,8 @@ export function createToDooToolPort(context: McpDomainContext): McpManagedDomain
       authorize: (write) =>
         principal(write ? ['to-doo:read', 'to-doo:write'] : ['to-doo:read'], options),
       access: () => context.toDooAccess(options),
+      canUseAnniversaryImage: (p, hash, anniversaryId) =>
+        canUseMcpAnniversaryImage(context, p, hash, anniversaryId, options),
       canReadNote: async (_p, id) => {
         try {
           await runtime.knowledge.info(principal(['knowledge:read'], options), id);
@@ -200,6 +230,31 @@ export function createToDooToolPort(context: McpDomainContext): McpManagedDomain
       fail(409, 'VERSION_CONFLICT', 'To Doo 内容版本已变化，请重新读取');
     return entity;
   }
+  function imageAnniversary(
+    id: string,
+    expectedRevision: string | undefined,
+    options?: ServiceCallOptions,
+  ) {
+    const entity = agent(options).inspect('anniversary', id) as ToDooEntityMap['anniversary'];
+    if (entity.deletedAt) fail(403, 'FORBIDDEN');
+    if (expectedRevision && entity.revision !== expectedRevision) fail(409, 'VERSION_CONFLICT');
+    return entity;
+  }
+  function imageResult<T>(work: () => T): T {
+    try {
+      return work();
+    } catch (error) {
+      const status = (error as { statusCode?: number }).statusCode;
+      const codes: Record<number, string> = {
+        400: 'INVALID_INPUT',
+        404: 'NOT_FOUND',
+        409: 'VERSION_CONFLICT',
+        413: 'REQUEST_TOO_LARGE',
+      };
+      if (status && codes[status]) fail(status, codes[status]);
+      throw error;
+    }
+  }
   async function memo(
     p: Principal,
     requestId: string,
@@ -226,7 +281,7 @@ export function createToDooToolPort(context: McpDomainContext): McpManagedDomain
       return JSON.parse(previous.result) as Record<string, unknown>;
     }
     const targets = Object.fromEntries(
-      ['sourceId', 'deviceId', 'id', 'taskId', 'listIds', 'previewId']
+      ['sourceId', 'deviceId', 'id', 'taskId', 'listIds', 'previewId', 'anniversaryId']
         .filter((field) => input[field] !== undefined)
         .map((field) => [field, input[field]]),
     );
@@ -267,6 +322,26 @@ export function createToDooToolPort(context: McpDomainContext): McpManagedDomain
     state?: McpTransferInfo['state'],
   ) {
     if (binding.domain !== 'to-doo') fail(403, 'FORBIDDEN');
+    if (binding.kind === 'anniversary-image-upload') {
+      const p = principal(['to-doo:read', 'to-doo:write'], options);
+      domainAccess('anniversaries', options);
+      if (binding.metadata?.scope !== policyKey(p, options))
+        fail(403, 'FORBIDDEN', '图片上传授权范围已变化');
+      if (binding.metadata?.draft === true) domainAccess('anniversaries', options, true);
+      else if (state === 'completed') imageAnniversary(binding.id, undefined, options);
+      else imageAnniversary(binding.id, need(binding.revision, 'revision'), options);
+      return p;
+    }
+    if (binding.kind === 'anniversary-image') {
+      const p = principal(['to-doo:read'], options);
+      const anniversary = imageAnniversary(binding.id, need(binding.revision, 'revision'), options);
+      if (
+        !anniversary.appearance?.image ||
+        anniversary.appearance.image.hash !== binding.metadata?.hash
+      )
+        fail(403, 'FORBIDDEN');
+      return p;
+    }
     if (binding.kind === 'attachment') {
       const p = principal(write ? ['to-doo:read', 'to-doo:write'] : ['to-doo:read'], options);
       if (state === 'completed') agent(options).inspect('task', binding.id);
@@ -370,6 +445,21 @@ export function createToDooToolPort(context: McpDomainContext): McpManagedDomain
         .map((entity: any) => sanitize(entity, p))
         .filter(Boolean);
     }
+    const exportedListIds = new Set(selected.lists.map((list) => list.id));
+    let detachedParents = false;
+    selected.lists = selected.lists.map((list) => {
+      if (!list.parentId || exportedListIds.has(list.parentId)) return list;
+      detachedParents = true;
+      return { ...list, parentId: null };
+    });
+    if (detachedParents)
+      selected.warnings = [
+        ...selected.warnings,
+        {
+          code: 'LIST_PARENT_OUTSIDE_EXPORT',
+          message: '部分上级清单未包含在导出范围，相关清单已作为顶层清单导出。',
+        },
+      ];
     return selected;
   }
   function importGuard(
@@ -434,6 +524,7 @@ export function createToDooToolPort(context: McpDomainContext): McpManagedDomain
       if (typeof value.noteId === 'string' && !canReadNote(current, value.noteId))
         fail(403, 'FORBIDDEN', '导入资料引用需要知识库读取授权');
       const related: Record<string, string> = {
+        parentId: 'list',
         taskId: 'task',
         parentTaskId: 'task',
         occurrenceId: 'occurrence',
@@ -854,7 +945,10 @@ export function createToDooToolPort(context: McpDomainContext): McpManagedDomain
           JSON.stringify([...notePaths]),
           Date.parse(download.expiresAt),
         );
-        return download as unknown as Record<string, unknown>;
+        const warnings = snapshot.warnings
+          .filter((warning) => warning.code === 'LIST_PARENT_OUTSIDE_EXPORT')
+          .map((warning) => warning.message);
+        return { ...download, ...(warnings.length ? { warnings } : {}) };
       }
       case 'begin_to_doo_import': {
         if (a.fullDataset) fullAccess(options);
@@ -1175,6 +1269,81 @@ export function createToDooToolPort(context: McpDomainContext): McpManagedDomain
           checkVersion('reminderEvent', a.id, a.expectedRevision, options);
           return brief(runtime.toDooNotifications.action(a.id, a));
         });
+      }
+      case 'begin_to_doo_anniversary_image': {
+        domainAccess('anniversaries', options, !a.anniversaryId);
+        if (a.anniversaryId) imageAnniversary(a.anniversaryId, a.expectedRevision, options);
+        return transfers.beginUpload(p, {
+          requestId: a.requestId,
+          binding: {
+            domain: 'to-doo',
+            kind: 'anniversary-image-upload',
+            id: a.anniversaryId || a.requestId,
+            ...(a.anniversaryId ? { revision: a.expectedRevision } : {}),
+            metadata: { scope: policyKey(p, options), draft: !a.anniversaryId },
+          },
+          name: 'anniversary-image',
+          mime: 'application/octet-stream',
+          totalBytes: a.bytes,
+          sha256: a.sha256,
+        }) as unknown as Record<string, unknown>;
+      }
+      case 'finish_to_doo_anniversary_image': {
+        const info = transfers.info(p, a.transferId),
+          binding = info.binding;
+        if (
+          binding.domain !== 'to-doo' ||
+          binding.kind !== 'anniversary-image-upload' ||
+          (binding.metadata?.draft === true
+            ? a.anniversaryId !== undefined
+            : a.anniversaryId !== binding.id) ||
+          a.expectedRevision !== binding.revision
+        )
+          fail(403, 'FORBIDDEN');
+        authorizeTransfer(binding, true, options, info.state);
+        const upload = transfers.readUpload(p, a.transferId, binding, a.requestId);
+        const result = await memo(
+          p,
+          a.requestId,
+          name,
+          a,
+          () => {
+            authorizeTransfer(binding, true, options, info.state);
+            return imageResult(() =>
+              createToDooAssets(todo, {
+                knowledgeRoot: context.config.knowledgeRoot,
+                db,
+              }).uploadAnniversaryImage({ name: a.name, mime: a.mime, bytes: upload.bytes }),
+            );
+          },
+          options,
+        );
+        transfers.complete(p, a.transferId, a.requestId, result);
+        return result;
+      }
+      case 'read_to_doo_anniversary_image': {
+        const anniversary = imageAnniversary(a.anniversaryId, a.expectedRevision, options);
+        const image = anniversary.appearance?.image;
+        if (!image) fail(404, 'NOT_FOUND');
+        const asset = imageResult(() =>
+          createToDooAssets(todo, {
+            knowledgeRoot: context.config.knowledgeRoot,
+            db,
+          }).getAnniversaryImage(image.hash),
+        );
+        return transfers.createDownload(p, {
+          requestId: a.requestId,
+          binding: {
+            domain: 'to-doo',
+            kind: 'anniversary-image',
+            id: anniversary.id,
+            revision: anniversary.revision,
+            metadata: { hash: image.hash },
+          },
+          name: image.name,
+          mime: asset.mime,
+          bytes: asset.bytes,
+        }) as unknown as Record<string, unknown>;
       }
       case 'begin_to_doo_attachment': {
         checkVersion('task', a.taskId, a.expectedRevision, options);

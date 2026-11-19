@@ -6,7 +6,8 @@ import {
   openToDooDirectory,
   returnFromToDoo,
 } from '../support/to-doo-navigation';
-import { expandToDooGroup, expectToDooSelection } from '../support/to-doo-ant-controls';
+import { expectToDooSelection, selectToDooOption } from '../support/to-doo-ant-controls';
+import { openToDooDetailProperty, completeToDooDetailProperty } from '../support/to-doo-detail-controls';
 
 async function command(
   page: import('@playwright/test').Page,
@@ -47,7 +48,9 @@ test('one app navigation exposes task destinations, lists and tools consistently
     await expect(directory.getByRole('button', { name: label, exact: true })).toBeVisible();
   await expect(directory.getByRole('button', { name: '四象限', exact: true })).toHaveCount(0);
   await closeToDooDirectory(page);
+  await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
   await expectToDooSelection(page, '任务展示方式', '列表');
+  await page.keyboard.press('Escape');
   await goToToDooSection(page, 'habits');
   await expect(page).toHaveURL(/appSection=habits/);
   await expect(page.getByRole('heading', { name: '习惯', exact: true })).toBeVisible();
@@ -67,8 +70,8 @@ test('matrix uses four distinguishable surfaces and explains each action without
   await expect(quadrants).toHaveCount(4);
   await expect(page.locator('aside.todo-sidebar:not(.todo-drawer-sidebar)')).toHaveCount(1);
   await expect(page.locator('.todo-topbar').getByText('To Doo', { exact: true })).toBeVisible();
-  for (const action of ['立即行动', '安排计划', '协调处理', '留待以后'])
-    await expect(page.getByText(action, { exact: true })).toBeVisible();
+  for (const heading of ['重要且紧急', '重要不紧急', '紧急不重要', '不紧急不重要'])
+    await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   const colors = await quadrants.evaluateAll((elements) =>
     elements.map((element) => {
       const header = element.querySelector('.todo-panel-header')!;
@@ -101,7 +104,9 @@ test('matrix uses four distinguishable surfaces and explains each action without
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);
+  await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
   await expectToDooSelection(page, '任务展示方式', '四象限');
+  await page.keyboard.press('Escape');
   const nav = await openToDooDirectory(page);
   await expect(nav.getByRole('button', { name: '所有任务', exact: true })).toHaveAttribute(
     'aria-current',
@@ -202,6 +207,7 @@ test('priority edits persist independently from visible matrix classification an
   const url = '/?view=apps&app=to-doo&appSection=matrix&list=' + list.ids[0];
   await page.goto(url);
   const quadrants = page.locator('.todo-quadrant');
+  const priorityColors: string[] = [];
   for (const [index, title] of [
     '提交产品方案',
     '梳理下周迭代计划',
@@ -211,24 +217,30 @@ test('priority edits persist independently from visible matrix classification an
     const row = quadrants.nth(index).locator('.todo-task-row').filter({ hasText: title });
     await expect(row).toBeVisible();
     await expect(row.locator('.todo-task-deadline')).toBeVisible();
-    if (index === 3) await expect(row.locator('.todo-priority-label')).toHaveCount(0);
-    else await expect(row.locator('.todo-priority-label')).toBeVisible();
+    const priority = ['high', 'normal', 'low', 'none'][index];
+    await expect(row).toHaveClass(new RegExp('todo-priority-' + priority));
+    const checkbox = row.getByRole('button', { name: '完成 ' + title, exact: true });
+    await expect(checkbox).toBeVisible();
+    priorityColors.push(await checkbox.locator('.todo-check-indicator').evaluate(element => getComputedStyle(element).borderColor));
   }
+  expect(new Set(priorityColors).size).toBe(4);
   await page.screenshot({
     path: `.local/to-doo-visible-workspace/${info.project.name}-matrix-populated.png`,
     animations: 'disabled',
   });
   await quadrants.first().getByRole('button', { name: '提交产品方案', exact: true }).click();
   const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
-  await expandToDooGroup(detail, '四象限归类');
-  await expect(detail.getByLabel('重要程度', { exact: true })).toBeVisible();
-  await expect(detail.getByLabel('紧急程度', { exact: true })).toBeVisible();
-  await detail.locator('.todo-priority-select').click();
-  await page.locator('.todo-priority-popup').getByText('低优先级', { exact: true }).click();
+  const classification = await openToDooDetailProperty(page, 'classification');
+  await expectToDooSelection(classification, '重要程度', '重要');
+  await expectToDooSelection(classification, '紧急程度', '设为紧急');
+  await completeToDooDetailProperty(page);
+  const priority = await openToDooDetailProperty(page, 'priority');
+  await selectToDooOption(priority, '优先级', '低优先级');
+  await completeToDooDetailProperty(page);
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('任务已保存');
   await page.reload();
-  await expect(detail.locator('.todo-priority-select')).toContainText('低优先级');
+  await expect(detail.getByRole('button', { name: '编辑优先级', exact: true })).toContainText('低优先级');
   const snapshot = await (
     await page.request.get('/api/to-doo/state?listIds=' + list.ids[0])
   ).json();

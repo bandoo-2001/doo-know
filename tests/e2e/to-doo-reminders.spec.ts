@@ -1,7 +1,8 @@
-import { openToDooDirectory, closeToDooDirectory } from '../support/to-doo-navigation';
+import { openToDooDirectory, closeToDooDirectory, revealToDooTask } from '../support/to-doo-navigation';
 import { expandToDooGroup } from '../support/to-doo-ant-controls';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
+import type { ToDooEntityMap, ToDooSnapshot } from '../../shared/to-doo-contracts';
 import { test, expect } from '../support/browser-test';
 import {
   notificationPlans,
@@ -9,7 +10,14 @@ import {
   type ReminderPlan,
 } from '../../packages/core/to-doo/notifications';
 
-const seededReminders = new WeakMap<Page, Map<string, ReminderPlan>>();
+type OwnedReminder = {
+  sourceId: string;
+  habit: boolean;
+  ruleId: string;
+  plannedAt: Date;
+  plan?: ReminderPlan;
+};
+const seededReminders = new WeakMap<Page, Map<string, OwnedReminder>>();
 
 test.use({ sourceEditorPreference: true });
 test.beforeEach(async ({ context }) => {
@@ -30,37 +38,153 @@ async function command(page: Page, action: string, payload: Record<string, unkno
   expect(response.ok(), await response.text()).toBe(true);
   return response.json();
 }
-test.afterEach(async ({ page }) => {
-  const owned = seededReminders.get(page);
-  if (!owned?.size) return;
-  // Only retire this case's events, after its UI and generation assertions finish.
-  const response = await page.request.get(
-    '/api/to-doo/state?kind=reminderEvent&ids=' + [...owned.keys()].join(','),
-  );
+async function state(page: Page, query: URLSearchParams): Promise<ToDooSnapshot> {
+  const response = await page.request.get('/api/to-doo/state?' + query);
   expect(response.ok(), await response.text()).toBe(true);
-  for (const event of (await response.json()).reminderEvents) {
-    const plan = owned.get(event.id);
-    expect(plan).toBeTruthy();
-    expect(event).toMatchObject({ ...plan, id: reminderEventId(plan!), deletedAt: null });
-    if (event.userState !== 'unread' && event.userState !== 'snoozed') continue;
-    const closed = await page.request.post('/api/to-doo/reminders/' + event.id + '/action', {
+  return response.json();
+}
+async function sourceState(page: Page, source: Pick<OwnedReminder, 'sourceId' | 'habit'>) {
+  return state(
+    page,
+    new URLSearchParams(
+      source.habit
+        ? { kind: 'habit', ids: source.sourceId, limit: '1' }
+        : { kinds: 'task,occurrence', taskIds: source.sourceId, limit: '10' },
+    ),
+  );
+}
+async function readPlan(page: Page, source: OwnedReminder) {
+  const snapshot = await sourceState(page, source);
+  const plan = notificationPlans(snapshot, source.plannedAt).find(
+    (candidate) => candidate.sourceId === source.sourceId && candidate.ruleId === source.ruleId,
+  );
+  expect(plan).toBeTruthy();
+  return plan!;
+}
+async function readEvent(page: Page, id: string) {
+  return (
+    await state(page, new URLSearchParams({ kind: 'reminderEvent', ids: id }))
+  ).reminderEvents.find((event) => event.id === id);
+}
+async function ensureEvent(page: Page, plan: ReminderPlan) {
+  const id = reminderEventId(plan);
+  let event = await readEvent(page, id);
+  if (!event) {
+    // The scheduler may create this same event between the read and command.
+    const created = await page.request.post('/api/to-doo/commands', {
+      headers: await headers(page),
+      data: {
+        requestId: crypto.randomUUID(),
+        action: 'save_entity',
+        payload: {
+          kind: 'reminderEvent',
+          entity: { ...plan, id, firstRaisedAt: new Date().toISOString() },
+        },
+      },
+    });
+    if (!created.ok())
+      expect({ status: created.status(), body: await created.json() }).toEqual({
+        status: 400,
+        body: { error: '修改既有实体需要预期版本', code: 'TO_DOO_CONFLICT' },
+      });
+    event = await readEvent(page, id);
+  }
+  expect(event).toBeTruthy();
+  return event!;
+}
+async function retireEvent(page: Page, id: string) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const event = await readEvent(page, id);
+    expect(event).toBeTruthy();
+    if (event!.userState !== 'unread' && event!.userState !== 'snoozed') return;
+    const closed = await page.request.post('/api/to-doo/reminders/' + id + '/action', {
       headers: await headers(page),
       data: {
         action: 'read',
         requestId: crypto.randomUUID(),
-        expectedRevision: event.revision,
+        expectedRevision: event!.revision,
       },
     });
+    if (closed.status() === 409 && attempt < 2) continue;
     expect(closed.ok(), await closed.text()).toBe(true);
     expect(await closed.json()).toMatchObject({
-      ...plan,
-      id: event.id,
+      id,
+      sourceType: event!.sourceType,
+      sourceId: event!.sourceId,
+      occurrenceKey: event!.occurrenceKey,
+      scheduleRevision: event!.scheduleRevision,
+      ruleId: event!.ruleId,
+      scheduledAt: event!.scheduledAt,
+      title: event!.title,
+      message: event!.message,
       userState: 'read',
       snoozedUntil: null,
-      deliveryGeneration: event.deliveryGeneration,
+      deliveryGeneration: event!.deliveryGeneration,
     });
+    return;
   }
-  seededReminders.delete(page);
+}
+test.afterEach(async ({ page }) => {
+  const owned = seededReminders.get(page);
+  if (!owned?.size) return;
+  const failures: unknown[] = [];
+  try {
+    for (const source of owned.values()) {
+      const events = new Map<string, ToDooEntityMap['reminderEvent']>();
+      try {
+        source.plan ??= await readPlan(page, source);
+        const event = await ensureEvent(page, source.plan);
+        events.set(event.id, event);
+        expect(event).toMatchObject({
+          ...source.plan,
+          id: reminderEventId(source.plan),
+          deletedAt: null,
+        });
+      } catch (error) {
+        failures.push(error);
+      } finally {
+        try {
+          // Recover only this source's events if seeding failed before its plan was registered.
+          const query = new URLSearchParams({
+            kind: 'reminderEvent',
+            limit: '100',
+            filter: JSON.stringify({ query: source.sourceId }),
+          });
+          const visited = new Set<string>();
+          for (;;) {
+            const snapshot = await state(page, query);
+            for (const event of snapshot.reminderEvents) {
+              if (
+                event.sourceId === source.sourceId &&
+                event.ruleId === source.ruleId &&
+                event.sourceType === (source.habit ? 'habit' : 'task') &&
+                event.id === reminderEventId(event)
+              )
+                events.set(event.id, event);
+            }
+            const next = snapshot.page.nextCursor;
+            if (!next) break;
+            expect(visited.has(next), 'Owned reminder pagination must make progress').toBe(false);
+            visited.add(next);
+            query.set('cursor', next);
+          }
+        } catch (error) {
+          failures.push(error);
+        }
+        for (const event of events.values()) {
+          try {
+            await retireEvent(page, event.id);
+          } catch (error) {
+            failures.push(error);
+          }
+        }
+      }
+    }
+  } finally {
+    seededReminders.delete(page);
+  }
+  if (failures.length)
+    throw new AggregateError(failures, 'Owned reminder validation or cleanup failed');
 });
 
 async function seedReminder(page: Page, habit = false, minutesAgo = 1) {
@@ -80,42 +204,18 @@ async function seedReminder(page: Page, habit = false, minutesAgo = 1) {
         },
       })
     : await command(page, 'create_task', { title, reminders });
-  const snapshot = await (
-    await page.request.get(
-      '/api/to-doo/state?kinds=task,occurrence,habit,habitEntry,anniversary&limit=1000',
-    )
-  ).json();
-  const plan = notificationPlans(snapshot, new Date()).find((p) => p.sourceId === saved.ids[0]);
-  expect(plan).toBeTruthy();
-  const id = reminderEventId(plan!);
-  const owned = seededReminders.get(page) ?? new Map<string, ReminderPlan>();
-  owned.set(id, plan!);
+  const source: OwnedReminder = {
+    sourceId: saved.ids[0],
+    habit,
+    ruleId: reminders[0].id,
+    plannedAt: new Date(),
+  };
+  const owned = seededReminders.get(page) ?? new Map<string, OwnedReminder>();
+  owned.set(source.sourceId, source);
   seededReminders.set(page, owned);
-  // The live scheduler can create this same event after a missing read.
-  const url = '/api/to-doo/reminders/' + id;
-  let persisted = await page.request.get(url);
-  if (!persisted.ok()) {
-    expect(persisted.status(), await persisted.text()).toBe(404);
-    const created = await page.request.post('/api/to-doo/commands', {
-      headers: await headers(page),
-      data: {
-        requestId: crypto.randomUUID(),
-        action: 'save_entity',
-        payload: {
-          kind: 'reminderEvent',
-          entity: { ...plan, id, firstRaisedAt: new Date().toISOString() },
-        },
-      },
-    });
-    if (!created.ok())
-      expect({ status: created.status(), body: await created.json() }).toEqual({
-        status: 400,
-        body: { error: '修改既有实体需要预期版本', code: 'TO_DOO_CONFLICT' },
-      });
-    persisted = await page.request.get(url);
-  }
-  expect(persisted.ok(), await persisted.text()).toBe(true);
-  const { event } = await persisted.json();
+  const plan = (source.plan = await readPlan(page, source));
+  const id = reminderEventId(plan);
+  const event = await ensureEvent(page, plan);
   expect(event).toMatchObject({
     ...plan,
     id,
@@ -125,8 +225,9 @@ async function seedReminder(page: Page, habit = false, minutesAgo = 1) {
     deliveryGeneration: 0,
   });
   expect(event.revision).toBeTruthy();
-  expect(Date.parse(event.firstRaisedAt)).toBeGreaterThanOrEqual(Date.parse(plan!.scheduledAt));
-  expect(Date.parse(event.firstRaisedAt)).toBeLessThanOrEqual(Date.now());
+  expect(event.firstRaisedAt).toEqual(expect.any(String));
+  expect(Date.parse(event.firstRaisedAt!)).toBeGreaterThanOrEqual(Date.parse(plan!.scheduledAt));
+  expect(Date.parse(event.firstRaisedAt!)).toBeLessThanOrEqual(Date.now());
   return { id, title, sourceId: saved.ids[0] };
 }
 const cards = (page: Page) => page.getByRole('region', { name: '到点提醒', exact: true });
@@ -178,14 +279,19 @@ test('older reminder summaries leave the phone document body available for editi
   });
   expect(created.status()).toBe(201);
   await page.goto('/?note=' + (await created.json()).id);
-  await page.getByRole('button', { name: '文档编辑', exact: true }).click();
+  await expect(page.locator('.mode-row')).toBeVisible();
+  const documentMode = page.getByRole('button', { name: '文档编辑', exact: true });
+  if (await documentMode.isVisible()) await documentMode.click();
   const summary = page.locator('.reminder-missed');
   await expect(summary).toBeVisible();
   await expect(summary).toHaveAccessibleName(/还有 \d+ 条较早提醒，查看通知中心/);
   const bounds = (await summary.boundingBox())!;
   expect(bounds.x).toBeGreaterThan(page.viewportSize()!.width / 2);
-  const editor = page.getByRole('textbox', { name: '文档正文', exact: true });
-  await editor.locator('p').last().click();
+  const document = page.getByRole('textbox', { name: '文档正文', exact: true });
+  const rich = await document.isVisible();
+  const editor = rich ? document : page.getByRole('textbox', { name: 'Markdown 正文', exact: true });
+  await expect(editor).toBeVisible();
+  await editor.locator(rich ? 'p' : '.cm-line').last().click();
   await page.keyboard.press('End');
   await page.keyboard.type('仍可输入');
   await expect(editor).toContainText('仍可输入');
@@ -332,13 +438,27 @@ test('cold notification links open the right habit and record the entered amount
   const card = cards(page);
   await expect(card.getByRole('heading', { name: reminder.title })).toBeVisible();
   await card.getByRole('spinbutton', { name: '本次打卡数量', exact: true }).fill('3');
+  const completed = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === '/api/to-doo/reminders/' + reminder.id + '/complete' &&
+      response.request().method() === 'POST',
+  );
   await card.getByRole('button', { name: '打卡', exact: true }).click();
+  expect((await completed).ok()).toBe(true);
   await expect(card.getByRole('heading', { name: reminder.title })).not.toBeVisible();
-  const state = await (
-    await page.request.get('/api/to-doo/state?kind=habitEntry&limit=1000')
-  ).json();
+  // Habit completion returns the event, rather than entry IDs. Its unique source
+  // UUID scopes the normal query before paging; retain the exact habitId assertion.
+  const entries = await state(
+    page,
+    new URLSearchParams({
+      kind: 'habitEntry',
+      limit: '10',
+      filter: JSON.stringify({ query: reminder.sourceId }),
+    }),
+  );
+  expect(entries.page.nextCursor).toBeNull();
   expect(
-    state.habitEntries
+    entries.habitEntries
       .filter((e: any) => e.habitId === reminder.sourceId)
       .map((e: any) => e.amount),
   ).toEqual([3]);
@@ -364,7 +484,9 @@ test('switching from an exact reminder occurrence to another task clears the old
   const first = await (await page.request.get('/api/to-doo/reminders/' + reminder.id)).json();
   const title = '切换后的任务 ' + crypto.randomUUID();
   const second = await command(page, 'create_task', { title });
-  const target = second.snapshot.occurrences.find((o: any) => o.taskId === second.ids[0]);
+  const snapshot = await sourceState(page, { sourceId: second.ids[0], habit: false });
+  const target = snapshot.occurrences.find((o) => o.taskId === second.ids[0]);
+  expect(target).toBeTruthy();
   await page.goto(
     '/?view=apps&app=to-doo&appSection=tasks&task=' +
       reminder.sourceId +
@@ -373,15 +495,16 @@ test('switching from an exact reminder occurrence to another task clears the old
   );
   await closeReminder(page, reminder);
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
+  const detail = page.getByRole('complementary', { name: '任务详情' });
   if (info.project.name === 'mobile') {
     // Mobile task details cover the list; use its close control before selecting another task.
-    await app.getByRole('button', { name: '关闭任务详情', exact: true }).click();
+    await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
     expect(new URL(page.url()).searchParams.has('occurrence')).toBe(false);
   }
+  await revealToDooTask(page, title);
   await app.getByRole('button', { name: title, exact: true }).click();
-  await expect.poll(() => new URL(page.url()).searchParams.get('occurrence')).toBe(target.id);
+  await expect.poll(() => new URL(page.url()).searchParams.get('occurrence')).toBe(target!.id);
   await page.reload();
-  const detail = app.getByRole('complementary', { name: '任务详情' });
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   expect(new URL(page.url()).searchParams.has('occurrence')).toBe(false);

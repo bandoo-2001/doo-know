@@ -3,14 +3,15 @@ import { Input, InputNumber as AInputNumber, Segmented as ASegmented } from 'ant
 import type { ToDooEntityMap } from '../../../../shared/to-doo-contracts';
 import ToDooSelect from './ToDooSelect.vue';
 const ATextarea = Input.TextArea;
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   active: ToDooEntityMap['focusSession'] | null;
   taskOptions: { value: string; label: string }[];
   note: string;
   focusMinutes: number;
   breakMinutes: number;
   breakKind?: 'short' | 'long';
-}>();
+  showTask?: boolean;
+}>(), { showTask: true });
 const mode = defineModel<'pomodoro' | 'stopwatch' | 'break'>('mode', { required: true });
 const target = defineModel<number | ''>('target', { required: true });
 const chosen = defineModel<string>('chosen', { required: true });
@@ -34,7 +35,7 @@ function changeMode(value: string | number) {
       ]"
       @change="changeMode"
     />
-    <label v-if="!active" class="todo-focus-task-link"
+    <label v-if="!active && showTask" class="todo-focus-task-link"
       >关联行动<ToDooSelect
         :value="chosen"
         aria-label="关联行动"
@@ -42,17 +43,18 @@ function changeMode(value: string | number) {
         @change="chosen = $event"
     /></label>
     <label v-if="!active && mode !== 'stopwatch'" class="todo-focus-target"
-      >{{ mode === 'break' ? (breakKind === 'long' ? '长休息' : '短休息') : '本次时长'
-      }}<AInputNumber
+      ><span class="todo-focus-target-label">{{ mode === 'break' ? (breakKind === 'long' ? '长休息' : '短休息') : '本次时长'
+      }}</span><AInputNumber
         :value="target"
         :min="mode === 'break' ? 0 : 1"
         :max="1440"
         aria-label="本次时长"
+        addon-after="分钟"
         @update:value="
           target = $event === null || $event === '' ? '' : Number($event);
           emit('target-edited');
         "
-      />分钟</label
+      /></label
     >
     <label v-if="active" class="todo-focus-note"
       >本次专注记录<ATextarea

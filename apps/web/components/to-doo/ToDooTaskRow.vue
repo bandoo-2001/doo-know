@@ -11,6 +11,8 @@ import {
 } from '../../to-doo-workbench';
 import { toDooDateLabel } from '../../to-doo-presentation';
 import ToDooIcon from './ToDooIcon.vue';
+import ToDooListIcon from './ToDooListIcon.vue';
+import ToDooTaskValueLabel from './ToDooTaskValueLabel.vue';
 const props = withDefaults(
   defineProps<{
     item: ToDooItem;
@@ -18,6 +20,7 @@ const props = withDefaults(
     selected?: boolean;
     selecting?: boolean;
     hideList?: boolean;
+    parentTitle?: string;
     displayFields?: Partial<ToDooDisplayFields>;
     readOnly?: boolean;
     listNavigation?: boolean;
@@ -72,11 +75,12 @@ function openRowActions(event: MouseEvent | KeyboardEvent) {
 const hasMetadata = computed(() => {
   const { item, hideList } = props;
   return (
+    !!props.parentTitle ||
     (props.displayFields?.priority !== false && item.task.priority !== 'none') ||
     (props.displayFields?.list !== false && !!item.list && !hideList) ||
     (props.displayFields?.resources !== false && item.task.noteRefs.length > 0) ||
     (props.displayFields?.recurrence !== false && !!item.task.recurrence) ||
-    ['blocked', 'cancelled', 'skipped'].includes(item.status) ||
+    ['doing', 'blocked', 'done', 'cancelled', 'skipped'].includes(item.status) ||
     item.status === 'unavailable'
   );
 });
@@ -108,6 +112,12 @@ const dates = computed(() => {
       (date.overdue ? '（已逾期）' : ''),
   }));
 });
+const dateRange = computed(() => {
+  const [start, end] = dates.value;
+  if (!start || !end || start.value.date !== end.value.date || !start.value.time || !end.value.time) return undefined;
+  return { compact: true };
+});
+const dateDescription = computed(() => dates.value.map(date => date.description).join('；'));
 </script>
 <template>
   <div
@@ -154,24 +164,26 @@ const dates = computed(() => {
     >
       <span class="todo-task-name" :title="item.title">{{ item.title }}</span>
       <small v-if="hasMetadata" :id="rowId + '-meta'" class="todo-task-meta">
+        <span v-if="parentTitle" class="todo-row-parent" role="note"
+          :title="'父任务：' + parentTitle" :aria-label="'子任务，父任务：' + parentTitle">子任务</span>
         <ATag
           v-if="displayFields?.priority !== false && item.task.priority !== 'none'"
           class="todo-priority-label"
           :aria-label="'优先级：' + toDooPriorityLabels[item.task.priority]"
           >{{ toDooPriorityLabels[item.task.priority] }}优先级</ATag
         >
-        <span v-if="displayFields?.list !== false && item.list && !hideList" class="todo-row-list" :title="item.list.name"><span>{{ item.list.name }}</span></span>
+        <span v-if="displayFields?.list !== false && item.list && !hideList" class="todo-row-list" :title="item.list.name"><ToDooListIcon :list="item.list.icon ? item.list : { color: item.list.color, icon: 'dot' }" :size="13" /><span>{{ item.list.name }}</span></span>
         <span v-if="displayFields?.resources !== false && item.task.noteRefs.length" class="todo-row-symbol" role="img" :aria-label="'关联资料 ' + item.task.noteRefs.length + ' 份'"><ToDooIcon name="attachment" :size="14" />{{ item.task.noteRefs.length }}</span>
         <span v-if="displayFields?.recurrence !== false && item.task.recurrence" class="todo-row-symbol" role="img" title="重复任务" aria-label="重复任务"><ToDooIcon name="repeat" :size="14" /></span>
-        <span v-if="item.status === 'blocked'">受阻</span>
-        <span v-if="item.status === 'cancelled'">已取消</span>
-        <span v-if="item.status === 'skipped'">已跳过</span>
+        <ToDooTaskValueLabel v-if="['doing', 'blocked', 'done', 'cancelled', 'skipped'].includes(item.status)"
+          kind="status" :value="item.status" />
         <span v-if="item.status === 'unavailable'">执行记录尚未载入</span>
       </small>
     </AButton>
-    <span v-if="dates.length" :id="rowId + '-dates'" class="todo-task-dates">
+    <span v-if="dates.length" :id="rowId + '-dates'" class="todo-task-dates"
+      :class="{ 'is-range': !!dateRange }" :title="dateDescription" :aria-label="dateDescription">
       <span
-        v-for="date in dates"
+        v-for="(date, index) in dates"
         :key="date.kind"
         class="todo-task-date"
         :class="{
@@ -183,10 +195,12 @@ const dates = computed(() => {
         :title="date.description"
         :aria-label="date.description"
       >
-        <span class="todo-task-date-kind">{{ date.label }}</span>
+        <span v-if="dateRange && index > 0" class="todo-task-date-separator" aria-hidden="true">–</span>
+        <span v-if="!dateRange" class="todo-task-date-kind">{{ date.label }}</span>
         <span class="todo-task-date-value"
-          >{{ toDooDateLabel(date.value.date, today)
-          }}<small v-if="date.value.time">{{ date.value.time }}</small></span
+          :class="{ 'todo-range-time-only': dateRange?.compact && index > 0 }"
+          ><template v-if="!dateRange?.compact || index === 0">{{ toDooDateLabel(date.value.date, today) }}</template
+          ><small v-if="date.value.time">{{ date.value.time }}</small></span
         >
       </span>
     </span>
@@ -204,6 +218,24 @@ const dates = computed(() => {
   </div>
 </template>
 <style scoped>
+.todo-row-parent {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: 5px;
+  border: 1px solid var(--todo-line);
+  border-radius: var(--todo-tag-radius);
+  color: var(--todo-muted);
+  font-size: var(--todo-caption-size);
+  line-height: var(--todo-caption-line-height);
+}
+</style>
+<style scoped>
+.todo-task-dates.is-range { gap: 3px 4px; }
+.todo-task-dates.is-range > .todo-task-date { flex-wrap: nowrap; gap: 4px; }
+.todo-task-date-separator { align-self: center; flex: 0 0 8px; width: 8px; height: 1px; overflow: hidden; background: var(--todo-muted); opacity: .55; font-size: 0; line-height: 0; }
+.todo-task-dates.is-range .todo-task-date-value { min-width: 0; white-space: normal; }
+.todo-task-row > .todo-task-dates.is-range .todo-range-time-only small { margin-left: 0; }
+.todo-task-dates.is-range .todo-task-date-value small { white-space: nowrap; }
 .todo-task-row {
   cursor: pointer;
 }
@@ -217,5 +249,14 @@ const dates = computed(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.todo-row-list {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.todo-row-list > .todo-list-icon {
+  flex-shrink: 0;
+  overflow: visible;
 }
 </style>

@@ -96,9 +96,23 @@ try {
   }
   execFileSync(
     'npm',
-    ['ci', '--offline', '--omit=dev', '--ignore-scripts', '--no-audit', '--no-fund'],
+    [
+      'ci',
+      '--offline',
+      '--omit=dev',
+      '--omit=optional',
+      '--ignore-scripts',
+      '--no-audit',
+      '--no-fund',
+    ],
     { cwd: stage, stdio: 'inherit' },
   );
+  // Optional peers of runtime packages can otherwise pull the development
+  // toolchain back into an --omit=dev install (for example Better Auth's Vitest
+  // peer). The published server must not include that unused execution surface.
+  for (const name of ['vite', 'vitest', 'picomatch', 'tinyglobby', 'fdir'])
+    if (existsSync(join(stage, 'node_modules', name)))
+      throw Error('发行包包含非运行时依赖：' + name);
   execFileSync(
     join(stage, 'runtime/node/bin/node'),
     [
@@ -154,8 +168,9 @@ try {
     builtAt: new Date().toISOString(),
     sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     dirty: !!execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim(),
-    // Older releases cannot safely write the migrated storage namespaces.
-    databaseCompatibility: 6,
+    // Legacy To Doo writers reject list hierarchy/icons and anniversary themes/images.
+    // Refuse code-only rollback before it can stop the current service or touch data.
+    databaseCompatibility: 7,
   };
   writeFileSync(join(stage, 'release.json'), JSON.stringify(release, null, 2) + '\n');
   const name = `dooknow-${version}-linux-x64.tar.gz`;
@@ -163,9 +178,15 @@ try {
   renameSync(join(output, name + '.part'), join(output, name));
   const sha256 = digest(join(output, name));
   writeFileSync(join(output, 'release.txt'), `${version} ${name} ${sha256}\n`);
-  const script = renderInstaller(readFileSync('deploy/install.sh', 'utf8'), readFileSync('deploy/github-fetch.sh', 'utf8'), {
-    source, version, nodeSha256: digest(join(stage, 'runtime/node/bin/node')),
-  });
+  const script = renderInstaller(
+    readFileSync('deploy/install.sh', 'utf8'),
+    readFileSync('deploy/github-fetch.sh', 'utf8'),
+    {
+      source,
+      version,
+      nodeSha256: digest(join(stage, 'runtime/node/bin/node')),
+    },
+  );
   writeFileSync(join(output, 'install.sh'), script, { mode: 0o700 });
   writeFileSync(
     join(output, `release-${version}.json`),

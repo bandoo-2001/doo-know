@@ -78,6 +78,7 @@ import '../to-doo.css';
 import '../to-doo-tokens.css';
 import '../to-doo-priority.css';
 import '../to-doo-task-detail.css';
+import '../to-doo-task-popups.css';
 import '../to-doo-navigation.css';
 const props = withDefaults(
   defineProps<{
@@ -112,17 +113,37 @@ function asyncPage<T extends Component>(
     }),
   });
 }
-const ToDooCalendar = asyncPage('calendar', () => import('./to-doo/ToDooCalendar.vue'));
-const ToDooRhythm = asyncPage('rhythm', () => import('./to-doo/ToDooRhythm.vue'));
-const ToDooReview = asyncPage('review', () => import('./to-doo/ToDooReview.vue'));
-const ToDooSettings = asyncPage('settings', () => import('./to-doo/ToDooSettings.vue'));
+const pageLoaders = {
+  calendar: () => import('./to-doo/ToDooCalendar.vue'),
+  rhythm: () => import('./to-doo/ToDooRhythm.vue'),
+  review: () => import('./to-doo/ToDooReview.vue'),
+  settings: () => import('./to-doo/ToDooSettings.vue'),
+};
+const ToDooCalendar = asyncPage('calendar', pageLoaders.calendar);
+const ToDooRhythm = asyncPage('rhythm', pageLoaders.rhythm);
+const ToDooReview = asyncPage('review', pageLoaders.review);
+const ToDooSettings = asyncPage('settings', pageLoaders.settings);
+function preloadSection(section: ToDooAppSection) {
+  const key = ['calendar', 'timeline'].includes(section) ? 'calendar'
+    : ['focus', 'habits', 'anniversaries'].includes(section) ? 'rhythm'
+    : ['stats', 'notifications'].includes(section) ? 'review'
+    : section === 'settings' ? 'settings' : undefined;
+  // Start the selected module alongside its data request; the async view still
+  // owns error display and retry, so a failed warm-up must not reject loading.
+  if (key) void pageLoaders[key]().catch(() => undefined);
+}
 const ownerId = inject<Ref<string> | undefined>('dooknow.owner-id', undefined);
-const model = createToDooWorkbench(api, { recoveryScope: ownerId?.value }),
+const detailOpen = ref(false);
+const focusContextPending = ref(false);
+const model = createToDooWorkbench(api, {
+  recoveryScope: ownerId?.value,
+  taskContextVisible: () => detailOpen.value || !!props.selection.task ||
+    props.section === 'focus' && focusContextPending.value,
+}),
   state = model.state,
   creating = ref(false),
   parentId = ref<string>(),
   creatingListId = ref<string>(),
-  detailOpen = ref(false),
   focusOccurrence = ref(''),
   density = ref<ToDooDensity>(readDensity());
 function readDensity(): ToDooDensity {
@@ -179,6 +200,8 @@ onBeforeUnmount(() => { clearTimeout(noticeTimer); clearTimeout(completionTimer)
 const focusHistoryRequest = ref(0),
   habitHistoryRequest = ref(0);
 const focusHistoryRange = ref<{ from: string; to: string }>();
+const focusHistorySessionId = ref<string>();
+let habitFocusLinkEpoch = 0;
 const habitHistoryDate = ref<string>();
 const reviewRange = ref<{ from: string; to: string }>();
 watch(
@@ -292,10 +315,14 @@ const automaticCondensedNavigation = computed(() => detailOpen.value && !detailO
     toDooUiScale.detailMinWidth + toDooUiScale.listMinWidth + 3 * toDooUiScale.pagePadding);
 const condensedNavigation = computed(() => hasTaskDirectory.value &&
   (directoryCollapsed.value || automaticCondensedNavigation.value));
-watch(() => [props.section, props.selection.list, props.selection.taskFilter, props.selection.appPage], () => {
-  const main = workspaceRef.value?.querySelector?.<HTMLElement>('.todo-main');
-  if (main) main.scrollTop = 0;
-}, { flush: 'post' });
+watch(
+  [() => props.section, () => props.selection.list, () => props.selection.taskFilter, () => props.selection.appPage],
+  () => {
+    const main = workspaceRef.value?.querySelector?.<HTMLElement>('.todo-main');
+    if (main) main.scrollTop = 0;
+  },
+  { flush: 'post' },
+);
 let detailOpener: HTMLElement | undefined;
 let lastSidebarControl: HTMLElement | undefined;
 function rememberSidebarFocus(event: FocusEvent) {
@@ -419,35 +446,16 @@ function focusNavigationStart() {
   if (dialog && !dialog.contains(document.activeElement))
     dialog.querySelector<HTMLElement>('button:not([disabled])')?.focus({ preventScroll: true });
 }
+let detailSelectionIntent = 0;
 async function selectLinkedTask(id: string, occurrenceId?: string) {
-  await model.ensureTask(id);
-  if (props.selection.task !== id || props.selection.occurrence !== occurrenceId) return false;
-  if (
-    occurrenceId &&
-    !state.snapshot?.occurrences.some((o) => o.id === occurrenceId && o.taskId === id)
-  ) {
-    try {
-      const data = await model.request(
-        '/api/to-doo/state?kind=occurrence&ids=' + encodeURIComponent(occurrenceId),
-      );
-      if (props.selection.task !== id || props.selection.occurrence !== occurrenceId) return false;
-      if (
-        !data.occurrences.some(
-          (o: { id: string; taskId: string }) => o.id === occurrenceId && o.taskId === id,
-        )
-      ) {
-        state.error = '对应的任务执行记录已变化，请在通知中心核对';
-        return false;
-      }
-      model.acceptSnapshot(data, true);
-    } catch (cause) {
-      state.error = cause instanceof Error ? cause.message : String(cause);
-      return false;
-    }
-  }
+  const intent = ++detailSelectionIntent;
+  const current = () => intent === detailSelectionIntent && props.selection.task === id &&
+    props.selection.occurrence === occurrenceId;
+  const execution = occurrenceId || (state.selectedTaskId === id ? state.selectedOccurrenceId : undefined);
+  if (!await model.ensureTaskContext(id, execution, current, true) || !current()) return false;
   model.selectTask(
     id,
-    occurrenceId || (state.selectedTaskId === id ? state.selectedOccurrenceId : undefined),
+    execution,
   );
   detailOpen.value = true;
   return true;
@@ -620,6 +628,11 @@ function changeTaskView(section: ToDooAppSection) {
 }
 function chooseDestination(section: ToDooAppSection) {
   if (!allowDetailTransition()) return;
+  if (section === 'focus' && focusHistorySessionId.value) {
+    focusHistorySessionId.value = undefined;
+    focusHistoryRange.value = undefined;
+    focusHistoryRequest.value++;
+  }
   state.filter = {};
   navigate(section);
 }
@@ -632,6 +645,7 @@ function openActivityHistory(section: 'focus' | 'habits', range: { from: string;
   if (!allowDetailTransition()) return;
   if (section === 'focus') {
     focusOccurrence.value = '';
+    focusHistorySessionId.value = undefined;
     focusHistoryRange.value = range;
     focusHistoryRequest.value++;
   } else {
@@ -639,6 +653,33 @@ function openActivityHistory(section: 'focus' | 'habits', range: { from: string;
     habitHistoryRequest.value++;
   }
   chooseDestination(section);
+}
+async function openHabitFocusSession(id: string) {
+  if (!allowDetailTransition() || state.busy || props.section !== 'habits') return;
+  state.error = '';
+  const token = ++habitFocusLinkEpoch;
+  const datasetId = state.snapshot?.datasetId;
+  const selection = JSON.stringify(props.selection);
+  const current = () => token === habitFocusLinkEpoch && props.section === 'habits' &&
+    state.snapshot?.datasetId === datasetId && JSON.stringify(props.selection) === selection;
+  try {
+    const snapshot = await model.request('/api/to-doo/state?kind=focusSession&ids=' + encodeURIComponent(id));
+    if (!current()) return;
+    const session = snapshot.focusSessions.find((entry: ToDooEntityMap['focusSession']) => entry.id === id && !entry.deletedAt);
+    if (!session) {
+      state.error = '这条来源专注记录暂不可用。';
+      return;
+    }
+    if (!allowDetailTransition() || state.busy) return;
+    focusOccurrence.value = '';
+    focusHistoryRange.value = undefined;
+    focusHistorySessionId.value = session.id;
+    focusHistoryRequest.value++;
+    state.filter = {};
+    navigate('focus', { appPage: 'history' });
+  } catch (cause) {
+    if (current()) state.error = cause instanceof Error ? cause.message : String(cause);
+  }
 }
 async function searchAllTasks() {
   if (!allowDetailTransition()) return;
@@ -907,7 +948,11 @@ async function stepDetail(direction: 'previous' | 'next') {
 }
 async function selectTask(id: string, occurrence?: string) {
   if ((id !== state.selectedTaskId || occurrence !== state.selectedOccurrenceId) && !allowDetailTransition()) return;
-  if (!state.snapshot?.tasks.some((t) => t.id === id)) await model.ensureTask(id);
+  const intent = ++detailSelectionIntent, section = props.section;
+  const routeTask = props.selection.task, routeOccurrence = props.selection.occurrence;
+  const current = () => intent === detailSelectionIntent && props.section === section &&
+    props.selection.task === routeTask && props.selection.occurrence === routeOccurrence;
+  if (!await model.ensureTaskContext(id, occurrence, current) || !current() || !allowDetailTransition()) return;
   model.selectTask(id, occurrence);
   creating.value = false;
   detailOpen.value = true;
@@ -950,8 +995,13 @@ function closeDetail() {
 function startTaskFocus(occurrenceId?: string) {
   if (!allowDetailTransition()) return;
   focusOccurrence.value = occurrenceId || '';
+  focusContextPending.value = !!occurrenceId;
   detailOpen.value = false;
   chooseDestination('focus');
+}
+function consumeFocusTaskContext() {
+  focusOccurrence.value = '';
+  if (!state.loading) focusContextPending.value = false;
 }
 function openReminderSource(source: ToDooReminderSource) {
   navigate(source.section, {
@@ -1231,26 +1281,28 @@ function currentDateRange(): Pick<ToDooQuery, 'from' | 'to'> {
     : {};
 }
 watch(
-  () => [
-    props.section,
-    props.selection.date,
-    props.selection.list,
-    props.selection.calendarView,
-    props.selection.taskFilter,
-  ],
+  [
+    () => props.section,
+    () => props.selection.date,
+    () => props.selection.list,
+    () => props.selection.calendarView,
+    () => props.selection.taskFilter,
+  ] as const,
   async (_current, previous, onCleanup) => {
     let live = true;
     onCleanup(() => {
       live = false;
     });
     const initialRange = currentDateRange();
-    if (!previous || previous[4] !== props.selection.taskFilter)
+    if (props.section !== 'focus') focusContextPending.value = false;
+    preloadSection(props.section);
+    if (!previous.length || previous[4] !== props.selection.taskFilter)
       state.filter = toDooQuickFilter(
         state.filter,
         quickView.value,
         toDooLocalDate(new Date(), state.snapshot?.settings.timeZone),
       );
-    if (!previous || previous[2] !== props.selection.list)
+    if (!previous.length || previous[2] !== props.selection.list)
       state.filter.listIds = props.selection.list ? [props.selection.list] : [];
     await model.load({
       view: props.section,
@@ -1263,6 +1315,7 @@ watch(
         : undefined,
     });
     if (!live) return;
+    if (props.section === 'focus') focusContextPending.value = false;
     const resolvedRange = currentDateRange();
     if (
       state.query.view === props.section &&
@@ -1456,6 +1509,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         'todo-page-matrix': section === 'matrix',
         'todo-page-tasks': section === 'tasks',
         'todo-page-focus': section === 'focus',
+        'todo-page-habits': section === 'habits',
       }">
         <ToDooPageHeader :title="showTaskScope ? scopeTitle : title">
           <template v-if="section === 'tasks'" #title>
@@ -1505,6 +1559,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
                 !['done', 'archived', 'trash'].includes(quickView)
               "
               class="todo-task-create-actions"
+              role="group"
+              aria-label="新建任务与草稿"
               :class="{
                 'todo-has-drafts': showTaskScope && (retainedTaskDrafts.length || retainedEdits.length || state.legacyRecoveryAvailable) && !creating,
                 'todo-task-list-create': section === 'tasks',
@@ -1512,7 +1568,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             >
               <AButton
                 :type="section === 'tasks' ? 'default' : 'primary'"
-                class="todo-button"
+                class="todo-button todo-task-create-primary"
                 :class="{ 'todo-primary': section !== 'tasks' }"
                 aria-label="新建任务"
                 @click="createPageTask()"
@@ -1720,12 +1776,15 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               :history-request="section === 'focus' ? focusHistoryRequest : habitHistoryRequest"
               :history-date="habitHistoryDate"
               :history-range="focusHistoryRange"
+              :history-session-id="focusHistorySessionId"
               :context="pageContext"
               @context-change="changePageContext"
               @edit="edit"
               @list="chooseList"
+              @open-note="emit('open-note', $event)"
+              @focus-session="openHabitFocusSession"
               @all-habits="chooseDestination('habits')"
-              @task-context-consumed="focusOccurrence = ''"
+              @task-context-consumed="consumeFocusTaskContext"
               @task="selectTask" /><ToDooReview
               v-else-if="section === 'stats' || section === 'notifications'"
               :key="'review:' + pageAttempts.review"

@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
+import { revealToDooTask } from '../support/to-doo-navigation';
 import { expandToDooGroup, fillToDooDate, selectToDooOption } from '../support/to-doo-ant-controls';
 import { completeToDooDetailProperty, openToDooDetailProperty } from '../support/to-doo-detail-controls';
 
@@ -45,6 +46,9 @@ test('moving a task to another list clears its old section and saves successfull
   await selectToDooOption(listsProperty, '所属目标或清单', '新清单 ' + suffix);
   await completeToDooDetailProperty(page);
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
+  await detail
+    .locator('.todo-detail-save .ant-btn-loading-icon')
+    .waitFor({ state: 'detached' });
   await expect(
     page.getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('status'),
   ).toContainText('任务已保存');
@@ -71,7 +75,12 @@ test('invalid typed deadline prevents saving an unrelated title change', async (
   await date.click();
   await date.fill('2026-99-99');
   await date.press('Tab');
-  await deadline.locator('.ant-modal-close').click();
+  // Moving focus dismisses the date panel without Escape canceling the invalid text.
+  const close = deadline.locator('.ant-modal-close');
+  if (info.project.name === 'mobile') {
+    await close.focus();
+    await close.press('Enter');
+  } else await close.click();
   await expect(deadline).not.toBeVisible();
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await expect(deadline).toBeVisible();
@@ -81,6 +90,9 @@ test('invalid typed deadline prevents saving an unrelated title change', async (
   await fillToDooDate(date, '2026-11-13');
   await completeToDooDetailProperty(page);
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
+  await detail
+    .locator('.todo-detail-save .ant-btn-loading-icon')
+    .waitFor({ state: 'detached' });
   await expect(
     page.getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('status'),
   ).toContainText('任务已保存');
@@ -109,6 +121,9 @@ test('input composition does not submit a task through the save shortcut', async
   await expect(detail).toContainText('未保存的更改');
   expect(writes).toEqual([]);
   await input.press('Control+Enter');
+  await detail
+    .locator('.todo-detail-save .ant-btn-loading-icon')
+    .waitFor({ state: 'detached' });
   await expect(
     page.getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('status'),
   ).toContainText('任务已保存');
@@ -212,6 +227,7 @@ test('narrow task detail contains keyboard focus and Escape keeps its draft', as
   const result = await command(page, 'create_task', { title });
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all');
   const open = page.getByRole('button', { name: title, exact: true });
+  await revealToDooTask(page, title);
   await open.click();
   const dialog = page.getByRole('dialog', { name: '任务编辑', exact: true });
   await expect(dialog).toBeVisible();

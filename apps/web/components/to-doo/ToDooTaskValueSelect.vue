@@ -1,0 +1,115 @@
+<script setup lang="ts">
+import { computed, h, onMounted, onUpdated, useAttrs, useId } from 'vue';
+import { Select as ASelect } from 'ant-design-vue';
+import {
+  isToDooTaskValue,
+  toDooTaskValueOptions,
+  type ToDooTaskValueKind,
+} from '../../to-doo-task-values';
+import ToDooTaskValueLabel from './ToDooTaskValueLabel.vue';
+import { createToDooPopupEscapeBoundary } from '../../to-doo-controls';
+
+defineOptions({ inheritAttrs: false });
+const props = withDefaults(
+  defineProps<{
+    kind: ToDooTaskValueKind;
+    modelValue?: string;
+    value?: string;
+    disabled?: boolean;
+    showSearch?: boolean;
+    required?: boolean;
+    emptyLabel?: string;
+  }>(),
+  { showSearch: true, disabled: undefined },
+);
+const emit = defineEmits<{
+  'update:modelValue': [value: string];
+  'update:value': [value: string];
+  change: [value: string];
+}>();
+const attrs = useAttrs();
+const popupEscape = createToDooPopupEscapeBoundary();
+const generatedId = 'todo-task-value-' + useId();
+const inputId = computed(() => String(attrs.id || generatedId));
+const selected = computed(() => (props.modelValue !== undefined ? props.modelValue : props.value));
+const options = computed(() => [
+  ...(props.emptyLabel
+    ? [
+        {
+          value: '',
+          label: props.emptyLabel,
+          title: props.emptyLabel,
+          selectedLabel: h('span', props.emptyLabel),
+        },
+      ]
+    : []),
+  ...toDooTaskValueOptions(props.kind).map((option) => ({
+    ...option,
+    title: option.label,
+    selectedLabel: h(ToDooTaskValueLabel, { kind: props.kind, value: option.value }),
+  })),
+]);
+function selectAttrs() {
+  const result = { ...attrs };
+  for (const key of ['aria-label', 'aria-labelledby', 'aria-describedby', 'aria-required'])
+    delete result[key];
+  return result;
+}
+function syncAccessibility() {
+  const input = document.getElementById(inputId.value);
+  if (!input) return;
+  let label = String(attrs['aria-label'] || '');
+  if (!label) {
+    const container = input.closest('label');
+    if (container) {
+      const copy = container.cloneNode(true) as HTMLElement;
+      copy.querySelectorAll('.ant-select').forEach((control) => control.remove());
+      label = (copy.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+  }
+  if (label) input.setAttribute('aria-label', label);
+  for (const key of ['aria-labelledby', 'aria-describedby'])
+    if (attrs[key]) input.setAttribute(key, String(attrs[key]));
+  input.setAttribute(
+    'aria-required',
+    String(props.required || attrs['aria-required'] === true || attrs['aria-required'] === 'true'),
+  );
+}
+onMounted(syncAccessibility);
+onUpdated(syncAccessibility);
+function change(value: unknown) {
+  if (
+    props.disabled ||
+    !(isToDooTaskValue(props.kind, value) || (props.emptyLabel && value === ''))
+  )
+    return;
+  emit('update:modelValue', value);
+  emit('update:value', value);
+  emit('change', value);
+}
+</script>
+
+<template>
+  <ASelect
+    v-bind="selectAttrs()"
+    :id="inputId"
+    class="todo-ant-select todo-task-value-select"
+    :value="selected"
+    :options="options"
+    :disabled="disabled"
+    :show-search="showSearch"
+    option-filter-prop="label"
+    option-label-prop="selectedLabel"
+    :aria-required="required || undefined"
+    popup-class-name="todo-ant-popup todo-task-values-popup"
+    @click.prevent
+    @keydown.capture="popupEscape.capture"
+    @keydown="popupEscape.bubble"
+    @change="change"
+  >
+    <template #option="option"
+      ><span v-if="option.value === ''">{{ emptyLabel }}</span
+      ><ToDooTaskValueLabel v-else :kind="kind" :value="option.value"
+    /></template>
+  </ASelect>
+</template>

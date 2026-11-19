@@ -9,11 +9,13 @@ import {
   Textarea as ATextarea,
 } from 'ant-design-vue';
 import ToDooSelect from './ToDooSelect.vue';
+import ToDooListTreeSelect from './ToDooListTreeSelect.vue';
+import ToDooIcon from './ToDooIcon.vue';
 import ToDooDateField from './ToDooDateField.vue';
 import { computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue';
 import lunar from 'lunar-javascript';
 import type { TreeEntry } from '../../../../shared/contracts';
-import type { ToDooEntityKind } from '../../../../shared/to-doo-contracts';
+import type { ToDooAnniversaryImage, ToDooEntityKind } from '../../../../shared/to-doo-contracts';
 import { shiftToDooDate, toDooLocalDate, type ToDooWorkbench } from '../../to-doo-workbench';
 import ToDooNotes from './ToDooNotes.vue';
 import { useToDooConfirm } from '../../to-doo-controls';
@@ -24,6 +26,8 @@ import ToDooFormLayout from './ToDooFormLayout.vue';
 import ToDooHabitFields from './ToDooHabitFields.vue';
 import ToDooTimeBlockFields from './ToDooTimeBlockFields.vue';
 import ToDooAnniversaryAppearance from './ToDooAnniversaryAppearance.vue';
+import ToDooListAppearance from './ToDooListAppearance.vue';
+import '../../to-doo-list-editor.css';
 import { saveTaskSection } from '../../to-doo-task-groups';
 import { guardToDooTaskAction } from '../../to-doo-action-guard';
 const props = defineProps<{
@@ -45,6 +49,8 @@ const defaults: Record<string, any> = {
     criteria: '',
     noteRefs: [],
     color: '#647be8',
+    parentId: null,
+    icon: null,
   },
   focusTopic: { name: '', description: '', color: '#4566c6', listId: null, archivedAt: null },
   tag: { name: '', color: '#647be8' },
@@ -146,6 +152,8 @@ function setLunarPart(index: number, value: number | string | null) {
 }
 const completeOutcome = ref(false);
 const savingOutcome = ref(false);
+const appearanceBusy = ref(false);
+const appearanceEditing = ref(false);
 let editorAlive = true;
 onBeforeUnmount(() => { editorAlive = false; });
 const outcomeOccurrenceBaseline = {
@@ -173,6 +181,7 @@ const baseline = JSON.stringify(form),
 const initialTemplateLines = templateLines.value;
 const hasUnsavedInput = () =>
   JSON.stringify(form) !== baseline ||
+  appearanceEditing.value ||
   completeOutcome.value ||
   templateLines.value !== initialTemplateLines ||
   !!formLayout.value?.hasInvalidInput();
@@ -251,8 +260,16 @@ const extraSummary = computed(
       .join(' · ') || '选填',
 );
 async function close() {
+  if (appearanceBusy.value) return;
   if (hasUnsavedInput() && !(await confirm('表单尚未保存，确定关闭并放弃这些输入？'))) return;
   emit('close');
+}
+async function uploadAnniversaryImage(file: File) {
+  const body = new FormData();
+  body.append('file', file);
+  return props.model.request(
+    '/api/to-doo/anniversary-images', 'POST', body,
+  ) as Promise<Pick<ToDooAnniversaryImage, 'hash' | 'name' | 'mime' | 'size'>>;
 }
 async function saveNewOutcome() {
   if (savingOutcome.value) return;
@@ -314,6 +331,11 @@ async function saveNewOutcome() {
   }
 }
 async function save() {
+  if (appearanceBusy.value || appearanceEditing.value) return;
+  if (props.kind === 'anniversary' && form.appearance?.style === 'photo' && !form.appearance.image) {
+    validationError.value = '请选择图片并确认取景，或切换其他卡片主题。';
+    return;
+  }
   if (props.kind === 'anniversary' && form.calendar === 'lunar') {
     try {
       if (!/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|30)$/.test(form.date)) throw Error();
@@ -346,7 +368,7 @@ async function save() {
         estimateMinutes: null,
         noteRefs: [],
       }));
-  for (const key of ['listId', 'goalDate', 'endDate']) if (form[key] === '') form[key] = null;
+  for (const key of ['listId', 'parentId', 'goalDate', 'endDate']) if (form[key] === '') form[key] = null;
   if (props.kind === 'record' && form.occurredAt.length === 16)
     form.occurredAt = new Date(form.occurredAt).toISOString();
   if (props.kind === 'habit' && form.target) form.target = Number(form.target);
@@ -389,6 +411,7 @@ async function save() {
   if (result) emit('close');
 }
 async function remove() {
+  if (appearanceBusy.value) return;
   if (
     !props.entity ||
     !(await confirm('将这条记录移入回收站？相关内容会保留以供恢复。', { danger: true }))
@@ -407,41 +430,46 @@ defineExpose({
     :footer="null"
     :mask-closable="false"
     :closable="false"
-    :width="600"
-    wrap-class-name="todo-ant-modal todo-entity-modal"
-    :title="
-      (entity ? '编辑' : '新建') +
-      (kind === 'list' ? (form.kind === 'goal' ? '目标' : '清单') : label[kind] || '记录')
-    "
+    :width="kind === 'anniversary' ? 960 : 600"
+    :wrap-class-name="'todo-ant-modal todo-entity-modal' + (kind === 'list' ? ' todo-list-modal' : kind === 'anniversary' ? ' todo-anniversary-modal' : '')"
     @cancel="close"
   >
+    <template #title>
+      <div v-if="kind === 'list'" class="todo-list-modal-heading">
+        <strong>{{ entity ? '编辑' : '新建' }}{{ form.kind === 'goal' ? '目标' : '清单' }}</strong>
+        <span aria-hidden="true">归拢相关的事，按自己的方式安排。</span>
+      </div>
+      <span v-else>{{ (entity ? '编辑' : '新建') + (label[kind] || '记录') }}</span>
+    </template>
     <AButton
       class="ant-modal-close"
       type="text"
       html-type="button"
       aria-label="关闭编辑"
+      :disabled="appearanceBusy"
       @click="close"
-      >×</AButton
+      ><ToDooIcon name="close" :size="16" /></AButton
     >
 
     <ToDooFormLayout
       ref="formLayout"
       class="todo-entity-form"
       :class="{ 'todo-habit-form': kind === 'habit' }"
-      :busy="model.state.busy"
+      :busy="model.state.busy || appearanceBusy"
       @submit="save"
       @invalid="revealInvalid"
       @input="validationError = ''"
     >
-      <label v-if="hasName && kind !== 'habit'"
+      <label v-if="hasName && kind !== 'habit'" :class="{ 'todo-list-name-field': kind === 'list' }"
         >名称<AInput
           v-model:value="form.name"
           required
           :maxlength="256"
           autofocus
+          :aria-label="kind === 'list' ? '清单名称' : undefined"
           :placeholder="kind === 'anniversary' ? '例如：家人的生日' : '起个简短的名字'"
       /></label>
-      <div v-if="kind === 'list'" class="todo-form-grid">
+      <div v-if="kind === 'list'" class="todo-form-grid todo-list-structure">
         <div class="todo-form-field">
           <span>类型</span
           ><ASegmented
@@ -453,11 +481,16 @@ defineExpose({
             ]"
           />
         </div>
+        <label>上级清单<ToDooListTreeSelect v-model="form.parentId" aria-label="上级清单"
+          :model="model" parent-mode :exclude-id="form.id" :allow-create="false"
+        /></label>
         <label v-if="form.kind === 'goal'"
           >目标日期<ToDooDateField v-model="form.goalDate" type="date"
         /></label>
       </div>
-      <label v-if="['list', 'tag', 'focusTopic'].includes(kind)"
+      <ToDooListAppearance v-if="kind === 'list'" v-model:icon="form.icon" v-model:color="form.color"
+        :name="form.name" :kind="form.kind" />
+      <label v-if="['tag', 'focusTopic'].includes(kind)"
         >颜色
         <span class="todo-entity-color-control">
           <input
@@ -470,20 +503,15 @@ defineExpose({
         </span>
       </label>
       <label v-if="kind === 'section'"
-        >关联目标或清单<ToDooSelect v-model="form.listId" aria-required="true"
-          ><option :value="null">请选择目标或清单</option>
-          <option
-            v-for="l in model.state.snapshot?.lists.filter((l) => !l.deletedAt)"
-            :key="l.id"
-            :value="l.id"
-          >
-            {{ l.name }}
-          </option></ToDooSelect
-        ></label
+        >关联目标或清单<ToDooListTreeSelect :model-value="form.listId || null"
+          @update:model-value="form.listId = $event" :model="model" :allow-create="false"
+          :include-inbox="false" placeholder="请选择目标或清单" aria-required="true" aria-label="关联目标或清单"
+        /></label
       >
       <ToDooHabitFields
         v-if="kind === 'habit'"
         :form="form"
+        :model="model"
         :rule-changed="habitRuleChanged"
         :lists="model.taskLists()"
       />
@@ -561,7 +589,9 @@ defineExpose({
             >农历闰月</ACheckbox
           >
         </div>
-        <ToDooAnniversaryAppearance v-model="form.appearance" :entity="form" :today="today" />
+        <ToDooAnniversaryAppearance v-model="form.appearance" :entity="form" :today="today"
+          :upload="uploadAnniversaryImage" @busy-change="appearanceBusy = $event"
+          @editing-change="appearanceEditing = $event" />
       </template>
       <template v-if="kind === 'review'">
         <div class="todo-form-grid">
@@ -753,16 +783,9 @@ defineExpose({
             >
           </template>
           <label v-if="['focusTopic', 'record', 'review'].includes(kind)"
-            >关联目标或清单<ToDooSelect v-model="form.listId"
-              ><option :value="null">不关联</option>
-              <option
-                v-for="l in model.state.snapshot?.lists.filter((l) => !l.deletedAt)"
-                :key="l.id"
-                :value="l.id"
-              >
-                {{ l.name }}
-              </option></ToDooSelect
-            ></label
+            >关联目标或清单<ToDooListTreeSelect v-model="form.listId" :model="model"
+              :allow-create="false" null-label="不关联" aria-label="关联目标或清单"
+            /></label
           >
           <template v-if="kind === 'habit'">
             <div class="todo-form-grid">
@@ -871,20 +894,20 @@ defineExpose({
           v-if="entity"
           html-type="button"
           class="todo-button todo-danger"
-          :disabled="model.state.busy"
+          :disabled="model.state.busy || appearanceBusy"
           @click="remove"
           danger
         >
           移入回收站</AButton
         ><span class="todo-spacer"></span
-        ><AButton html-type="button" class="todo-button" @click="close">取消</AButton
+        ><AButton html-type="button" class="todo-button" :disabled="appearanceBusy" @click="close">取消</AButton
         ><AButton
           html-type="submit"
           class="todo-button todo-primary"
-          :disabled="model.state.busy || savingOutcome"
+          :disabled="model.state.busy || savingOutcome || appearanceBusy || appearanceEditing"
           type="primary"
         >
-          {{ model.state.busy || savingOutcome ? '保存中…' : '保存' }}
+          {{ appearanceBusy ? '正在处理图片…' : model.state.busy || savingOutcome ? '保存中…' : '保存' }}
         </AButton>
       </template>
     </ToDooFormLayout>

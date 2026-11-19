@@ -3,7 +3,9 @@ import ToDooDisclosure from './ToDooDisclosure.vue';
 import { useToDooConfirm } from '../../to-doo-controls';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
-import ToDooInlineListCreate from './ToDooInlineListCreate.vue';
+import ToDooListTreeSelect from './ToDooListTreeSelect.vue';
+import ToDooTaskValueSelect from './ToDooTaskValueSelect.vue';
+import ToDooTaskValueLabel from './ToDooTaskValueLabel.vue';
 import ToDooTimeBlockFields from './ToDooTimeBlockFields.vue';
 import { guardToDooTaskAction } from '../../to-doo-action-guard';
 import { validateToDooTaskDraft, type ToDooDraftIssue } from '../../to-doo-draft-validation';
@@ -18,8 +20,6 @@ import {
   Dropdown as ADropdown,
   Menu as AMenu,
   MenuItem as AMenuItem,
-  Select as ASelect,
-  Tag as ATag,
   Textarea as ATextarea,
 } from 'ant-design-vue';
 import type { TreeEntry } from '../../../../shared/contracts';
@@ -29,7 +29,6 @@ import {
   toDooDisplayTime,
   parseToDooQuickEntry,
   toDooStatusLabels,
-  toDooPriorityLabels,
   toDooDependencies,
   toDooDeadlineOverdue,
   type ToDooWorkbench,
@@ -39,6 +38,7 @@ import ToDooNotes from './ToDooNotes.vue';
 import ToDooReminders from './ToDooReminders.vue';
 import ToDooDateExceptions from './ToDooDateExceptions.vue';
 import ToDooIcon from './ToDooIcon.vue';
+import ToDooListIcon from './ToDooListIcon.vue';
 import ToDooTaskMenu from './ToDooTaskMenu.vue';
 import {
   toDooDateLabel,
@@ -105,6 +105,20 @@ const panelLabels: Record<DetailPanel, string> = {
   due: '截止日期', priority: '优先级', list: '所属清单', plan: '时间安排', repeat: '重复规则', reminders: '任务提醒', resources: '关联资料', classification: '四象限归类',
   attachments: '任务附件', results: '完成标准与成果', properties: '其他属性', records: '推进记录', history: '操作历史',
 };
+const panelIcons: Record<DetailPanel, string> = {
+  due: 'calendar', priority: 'flag', list: 'list', plan: 'calendar', repeat: 'repeat',
+  reminders: 'notifications', resources: 'link', classification: 'matrix', attachments: 'attachment',
+  results: 'completed', properties: 'settings', records: 'tasks', history: 'refresh',
+};
+const panelDescriptions: Record<DetailPanel, string> = {
+  due: '设定一个清晰的截止时间。', priority: '决定这件事在执行时的先后顺序。',
+  list: '把任务放到合适的清单中。', plan: '为这件事留出一段专心处理的时间。',
+  repeat: '把固定要做的事安排成规律。', reminders: '在需要的时候，提醒自己回来处理。',
+  resources: '把笔记和参考资料放在任务旁边。', classification: '从重要和紧急两个角度安排事情。',
+  attachments: '把任务需要的文件放在这里。', results: '写下完成标准，留下成果与证据。',
+  properties: '补充标签、分组和任务之间的关系。', records: '记录进展，保留下一个行动的线索。',
+  history: '回看这件事的修改与推进记录。',
+};
 const descriptionOpen = ref(false);
 const descriptionLabel = ref<HTMLLabelElement>();
 async function editDescription() {
@@ -131,6 +145,7 @@ function captureProperty(section: DetailPanel) {
     ...(section === 'plan' ? { blocks: cloneProperty(draft.blocks) } : {}), scope: scope.value };
 }
 function cancelProperty() {
+  if (inlineListOpen.value && (state.busy || state.pendingMutation)) return;
   const draft = form.value, baseline = propertyBaseline;
   if (draft && baseline?.key === state.selectedTaskId + '@' + state.selectedOccurrenceId) {
     Object.assign(draft.task, cloneProperty(baseline.task));
@@ -144,11 +159,15 @@ function cancelProperty() {
   validationError.value = '';
 }
 function completeProperty() {
+  if (state.busy || inlineListOpen.value) return;
   if (!validateDetail(true)) return;
   propertyOpen.value = false;
   propertyBaseline = undefined;
 }
-function closeProperty() { propertyOpen.value = false; }
+function closeProperty() {
+  if (inlineListOpen.value && (state.busy || state.pendingMutation)) return;
+  propertyOpen.value = false;
+}
 function addPlan() {
   const draft = form.value;
   if (!draft?.occurrence || state.busy) return;
@@ -377,15 +396,6 @@ function currentDetail(taskId: string, occurrenceId: string) {
     detailAlive && state.selectedTaskId === taskId && state.selectedOccurrenceId === occurrenceId
   );
 }
-const priorityOptions = ['high', 'normal', 'low', 'none'].map((value) => ({
-  value,
-  label:
-    toDooPriorityLabels[value as keyof typeof toDooPriorityLabels] +
-    (value === 'none' ? '' : '优先级'),
-}));
-function priorityPopupContainer(trigger: HTMLElement): HTMLElement {
-  return trigger.closest<HTMLElement>('.to-doo-workspace') || trigger.parentElement || trigger;
-}
 const local = props.model.newTaskDraft(props.parentTaskId, props.listId);
 const quick = computed(() =>
   parseToDooQuickEntry(
@@ -455,6 +465,7 @@ const deadlineOverdue = computed(() =>
     today.value,
   ),
 );
+const currentList = computed(() => state.snapshot?.lists.find((list) => list.id === form.value?.task.listId));
 const currentListName = computed(() =>
   form.value?.task.listId
     ? state.snapshot?.lists.find((list) => list.id === form.value?.task.listId)?.name || '所属清单'
@@ -704,6 +715,7 @@ async function discardNew() {
   emit('close');
 }
 function close() {
+  if (inlineListOpen.value && (state.busy || state.pendingMutation)) return;
   emit('close');
 }
 async function discardConflict() {
@@ -829,43 +841,27 @@ defineExpose({
         </div>
         <label>任务说明<ATextarea v-model:value="local.description" :rows="3"></ATextarea></label
         ><label
-          >清单<ToDooSelect
+          >清单<ToDooListTreeSelect
             aria-label="目标或清单"
+            :model="model"
             v-model="local.listId"
             :disabled="!!parentTaskId"
             @change="local.sectionId = null"
-          >
-            <option :value="null">收集箱</option>
-            <option v-for="l in model.taskLists()" :key="l.id" :value="l.id">
-              {{ l.name }}
-            </option>
-          </ToDooSelect></label
+            @created="useCreatedList"
+            @creation-open-change="inlineListOpen = $event"
+          /></label
         >
-        <ToDooInlineListCreate
-          v-if="!parentTaskId"
-          :model="model"
-          @created="useCreatedList"
-          @open-change="inlineListOpen = $event"
-        />
         <div class="todo-form-grid">
           <label>计划日期<ToDooDateField v-model="local.planDate" type="date" /></label>
           <label
-            >优先级<ToDooSelect v-model="local.priority" aria-label="优先级"
-              ><option v-for="(label, value) in toDooPriorityLabels" :key="value" :value="value">
-                {{ label }}{{ value === 'none' ? '' : '优先级' }}
-              </option></ToDooSelect
-            ></label
+            >优先级<ToDooTaskValueSelect kind="priority" v-model="local.priority" aria-label="优先级" /></label
           >
         </div>
         <ToDooDisclosure class="todo-disclosure" :open="!!local.dueDate || !!local.criteria">
           <template #header><span>更多选项</span></template>
           <div class="todo-disclosure-content todo-form">
             <label
-              >初始状态<ToDooSelect v-model="local.initialStatus" aria-label="初始状态"
-                ><option v-for="(label, value) in toDooStatusLabels" :key="value" :value="value">
-                  {{ label }}
-                </option></ToDooSelect
-              ></label
+              >初始状态<ToDooTaskValueSelect kind="status" v-model="local.initialStatus" aria-label="初始状态" /></label
             >
             <label
               v-if="
@@ -905,17 +901,17 @@ defineExpose({
                 <option value="weekly">每周</option></ToDooSelect
               ></label
             >
-            <div v-if="local.frequency === 'weekly'" class="todo-actions" aria-label="重复星期">
-              <label v-for="(day, index) in ['日', '一', '二', '三', '四', '五', '六']" :key="index"
-                ><ACheckbox
+            <div v-if="local.frequency === 'weekly'" class="todo-create-weekdays" role="group" aria-label="重复星期">
+              <ACheckbox
+                  v-for="(day, index) in ['日', '一', '二', '三', '四', '五', '六']" :key="index"
+                  class="todo-checkbox"
                   :checked="local.weekdays.includes(index)"
                   @change="
                     local.weekdays = local.weekdays.includes(index)
                       ? local.weekdays.filter((value) => value !== index)
                       : [...local.weekdays, index]
                   "
-                />周{{ day }}</label
-              >
+                >周{{ day }}</ACheckbox>
             </div>
             <ToDooReminders v-model="local.reminders" :date-based="false" />
             <label>完成标准<ATextarea v-model:value="local.criteria" :rows="3"></ATextarea></label>
@@ -983,11 +979,12 @@ defineExpose({
         <div class="todo-detail-property-chips" role="group" aria-label="任务安排">
           <div class="todo-detail-context">
             <AButton type="text" :disabled="state.busy" :title="currentListName" @click="revealDetail('list')">
-              <ToDooIcon :name="form.task.listId ? 'list' : 'inbox'" :size="16" />
+              <ToDooListIcon v-if="currentList" :list="currentList" :size="16" />
+              <ToDooIcon v-else :name="form.task.listId ? 'list' : 'inbox'" :size="16" />
               <span class="todo-detail-property-value">{{ currentListName }}</span>
-              <span class="todo-list-chevron">⌄</span>
+              <ToDooIcon name="chevron" class="todo-list-chevron" :size="12" />
             </AButton>
-            <span v-if="form.occurrence && !['todo', 'done'].includes(form.occurrence.status)" class="todo-muted">{{ toDooStatusLabels[form.occurrence.status] }}</span>
+            <ToDooTaskValueLabel v-if="form.occurrence && !['todo', 'done'].includes(form.occurrence.status)" kind="status" :value="form.occurrence.status" />
           </div>
           <AButton type="text" class="todo-detail-schedule" aria-label="编辑计划日期" :title="planSummary"
             :class="{ 'is-empty': !scheduledBlocks.length }"
@@ -1004,8 +1001,7 @@ defineExpose({
           <span :id="deadlineSummaryId" class="todo-accessible-label">{{ deadlineSummary }}</span>
           <AButton type="text" aria-label="编辑优先级" :class="'todo-priority-' + form.task.priority"
             :disabled="state.busy" @click="revealDetail('priority')">
-            <ToDooIcon name="flag" :size="16" />
-            <span class="todo-detail-property-value">{{ form.task.priority === 'none' ? '设置优先级' : toDooPriorityLabels[form.task.priority] + '优先级' }}</span>
+            <ToDooTaskValueLabel kind="priority" :value="form.task.priority" />
           </AButton>
         </div>
         <AButton v-if="!children.length && !showChildren" type="text" class="todo-add-property" @click="emit('child', form.task.id)">＋ 添加子任务</AButton>
@@ -1025,7 +1021,7 @@ defineExpose({
               @click="emit('select', t.id)"
               type="text"
             >
-              <span>{{ t.title }}</span><span aria-hidden="true">↗</span></AButton
+              <span>{{ t.title }}</span><ToDooIcon name="external" :size="14" /></AButton
             ><AButton
               html-type="button"
               class="todo-link"
@@ -1048,7 +1044,7 @@ defineExpose({
             type="link"
             class="todo-link"
             @click="emit('open-note', note.noteId)"
-            ><ToDooIcon name="link" :size="16" /><span>{{ note.title || '关联资料' }}</span> ↗</AButton
+            ><ToDooIcon name="link" :size="16" /><span>{{ note.title || '关联资料' }}</span><ToDooIcon name="external" :size="14" /></AButton
           >
         </section>
         <section v-if="form.task.tagIds.length || form.task.dependencies.length || form.task.criteria || form.task.attachments.length || outcomes.length" class="todo-detail-value-summary" aria-label="任务补充信息">
@@ -1095,40 +1091,40 @@ defineExpose({
               >{{ form.task.noteRefs.length }} 份</small
             ></AButton
           >
-        <ADropdown :trigger="['click']" overlay-class-name="todo-ant-popup">
+        <ADropdown :trigger="['click']" placement="bottomRight" overlay-class-name="todo-ant-popup todo-task-properties-menu">
           <AButton type="text" aria-label="更多任务属性" title="更多属性"><ToDooIcon name="more" :size="16" />更多</AButton>
           <template #overlay><AMenu :selectable="false">
-            <AMenuItem v-for="(label, key) in panelLabels" :key="key" @click="revealDetail(key)">{{ label }}</AMenuItem>
+            <AMenuItem v-for="(label, key) in panelLabels" :key="key" @click="revealDetail(key)"><ToDooIcon :name="panelIcons[key]" :size="16" /><span>{{ label }}</span></AMenuItem>
           </AMenu></template>
         </ADropdown>
         </div>
-        <AModal :open="propertyOpen" :title="detailPanel ? panelLabels[detailPanel] : ''" :width="560"
+        <AModal :open="propertyOpen" :width="560"
           wrap-class-name="todo-ant-modal todo-property-modal" :after-close="restorePropertyFocus" @cancel="closeProperty">
+          <template #title>
+            <div v-if="detailPanel" class="todo-property-heading">
+              <span class="todo-property-heading-icon" aria-hidden="true"><ToDooIcon :name="panelIcons[detailPanel]" :size="21" /></span>
+              <span>{{ panelLabels[detailPanel] }}</span>
+            </div>
+          </template>
+          <p v-if="detailPanel" class="todo-property-intro">{{ panelDescriptions[detailPanel] }}</p>
           <fieldset ref="propertyFields" class="todo-form todo-create-fields todo-detail-options" :disabled="state.busy"
             @keydown.esc.capture="capturePickerEscape" @keydown="propertyKeydown">
             <p v-if="validationError" class="todo-danger" role="alert">{{ validationError }}</p>
-            <section v-if="detailPanel === 'list'" class="todo-form">
+            <section v-if="detailPanel === 'list' && propertyOpen" class="todo-form">
         <div class="todo-document-meta">
           <label
             ><span class="todo-document-field-label">清单</span
-            ><ToDooSelect
+            ><ToDooListTreeSelect
               aria-label="所属目标或清单"
+              :model="model"
               :value="form.task.listId"
               @change="changeList"
               :disabled="!!form.task.parentTaskId"
-              ><option :value="null">收集箱</option>
-              <option v-for="l in model.taskLists()" :key="l.id" :value="l.id">
-                {{ l.name }}
-              </option></ToDooSelect
-            ></label
+              @created="useCreatedList"
+              @creation-open-change="inlineListOpen = $event"
+            /></label
           >
         </div>
-        <ToDooInlineListCreate
-          v-if="!form.task.parentTaskId"
-          :model="model"
-          @created="useCreatedList"
-          @open-change="inlineListOpen = $event"
-        />
 
             </section>
             <section v-if="detailPanel === 'due'" ref="deadlineFields" class="todo-form">
@@ -1140,7 +1136,7 @@ defineExpose({
               <AButton :disabled="state.busy || !form.occurrence?.due" @click="due('', 'date')">清除截止日期</AButton>
             </section>
             <section v-if="detailPanel === 'priority'" class="todo-form">
-              <label>优先级<ASelect v-model:value="form.task.priority" aria-label="优先级" :options="priorityOptions" :disabled="state.busy" dropdown-class-name="todo-ant-popup todo-priority-popup" /></label>
+              <label>优先级<ToDooTaskValueSelect kind="priority" v-model="form.task.priority" aria-label="优先级" :disabled="state.busy" /></label>
             </section>
             <section v-if="detailPanel === 'plan'" class="todo-form">
               <div v-for="block in form.blocks.filter(value => !value.deletedAt)" :key="block.id" class="todo-form todo-plan-editor">
@@ -1547,6 +1543,7 @@ defineExpose({
                 ></label>
                 </template>
                 <div ref="reminderFields" v-if="detailPanel === 'reminders'">
+                  <p v-if="detailPanel === 'reminders' && !form.task.reminders.length" class="todo-property-empty">还没有提醒，添加一个合适的时间吧。</p>
                   <ToDooReminders v-model="form.task.reminders" :date-based="false" />
                 </div>
                 <template v-if="detailPanel !== 'reminders'">

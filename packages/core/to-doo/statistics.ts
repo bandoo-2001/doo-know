@@ -5,6 +5,7 @@ import type {
   ToDooStatisticsAuthorization,
 } from '../../../shared/to-doo-contracts.js';
 import { addDays, dateTimeInstant, localDate } from './recurrence.js';
+import { sumHabitAmounts } from '../../../shared/to-doo-habits.js';
 
 type StatisticsData = Pick<
   ToDooCollections,
@@ -119,15 +120,18 @@ export function aggregateToDooStatistics(
   const habits = new Set(
     data.habits.filter((row) => !row.deletedAt && scope.canRead('habit', row)).map((row) => row.id),
   );
-  for (const row of data.habitEntries)
-    if (
-      !row.deletedAt &&
-      !row.skipped &&
-      habits.has(row.habitId) &&
-      scope.canRead('habitEntry', row) &&
-      within(row.localDate)
-    )
-      result.habitAmount += row.amount;
+  result.habitAmount = sumHabitAmounts(
+    data.habitEntries
+      .filter(
+        (row) =>
+          !row.deletedAt &&
+          !row.skipped &&
+          habits.has(row.habitId) &&
+          scope.canRead('habitEntry', row) &&
+          within(row.localDate),
+      )
+      .map((row) => row.amount),
+  );
   for (const row of data.outcomes)
     if (
       !row.deletedAt &&

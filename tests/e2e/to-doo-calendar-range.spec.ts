@@ -115,7 +115,11 @@ test('month geometry stays within the viewport and settings never move the date 
     expect(lastDay).not.toBeNull();
     const bottomNavigation = app.locator('.todo-bottom-navigation');
     const contentBottom = await bottomNavigation.isVisible() ? (await bottomNavigation.boundingBox())!.y : size.height;
-    expect(lastDay!.y + lastDay!.height).toBeLessThanOrEqual(contentBottom + 1);
+    if (size.width === 390 && info.project.name === 'mobile') {
+      const viewport = await app.locator('.todo-calendar-grid-scroll').boundingBox();
+      expect(viewport!.y + viewport!.height).toBeLessThanOrEqual(contentBottom + 1);
+      expect(lastDay!.y + lastDay!.height).toBeGreaterThan(contentBottom);
+    } else expect(lastDay!.y + lastDay!.height).toBeLessThanOrEqual(contentBottom + 1);
     const firstDay = await month.locator('.todo-month-day').first().boundingBox();
     expect(firstDay!.y).toBeGreaterThanOrEqual(0);
     const events = month.locator('.todo-month-day[aria-label="2026-10-01 日程"] .todo-month-day-events');

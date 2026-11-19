@@ -1,3 +1,4 @@
+import { loadToDooTaskOptionThroughUi } from '../support/to-doo-task-fixture';
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
@@ -122,7 +123,8 @@ test('phone focus keeps one header and a compact timer with optional settings', 
   const timer = app.getByRole('region', { name: '专注计时器', exact: true });
   await expect(timer).toBeVisible();
   expect((await app.locator('.todo-topbar').boundingBox())!.y).toBeCloseTo(0, 0);
-  expect((await timer.boundingBox())!.height).toBeLessThanOrEqual(140);
+  expect((await timer.getByRole('timer', { name: '专注计时', exact: true }).boundingBox())!.height).toBeLessThanOrEqual(140);
+  await expect(timer.getByRole('button', { name: '开始专注', exact: true })).toBeInViewport();
   await timer.getByRole('button', { name: '计时设置', exact: true }).click();
   await expect(app.getByRole('combobox', { name: '关联行动', exact: true })).toBeVisible();
   await app.getByRole('button', { name: '收起计时设置', exact: true }).click();
@@ -147,13 +149,19 @@ test('a focus project saves records, survives refresh and archives without chang
   const taskId = (await task.json()).ids[0];
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
-  await app.getByRole('button', { name: '新建专注项目', exact: true }).click();
+  const createProject = app.getByRole('button', { name: '新建专注项目', exact: true });
+  if (await createProject.isVisible()) await createProject.click();
+  else {
+    await app.getByRole('button', { name: '专注项目更多', exact: true }).click();
+    await page.getByRole('menuitem', { name: '新建项目', exact: true }).click();
+  }
   const editor = page.getByRole('dialog', { name: '新建专注项目', exact: true });
   const topicName = '阅读与学习 ' + info.project.name;
   await editor.getByLabel('名称', { exact: true }).fill(topicName);
   await editor.getByRole('button', { name: '保存', exact: true }).click();
   await expect(editor).not.toBeVisible();
   await app.getByRole('button', { name: '选择专注项目 ' + topicName, exact: true }).click();
+  await loadToDooTaskOptionThroughUi(page, app.getByRole('combobox', { name: '专注任务', exact: true }), title);
   if (!(await app.getByRole('combobox', { name: '关联行动', exact: true }).isVisible()))
     await app.getByRole('button', { name: '计时设置', exact: true }).click();
   await selectToDooOption(app, '关联行动', title);
@@ -171,6 +179,7 @@ test('a focus project saves records, survives refresh and archives without chang
   await app.getByRole('textbox', { name: '本次专注记录', exact: true }).fill(note);
   if (await closeSettings.isVisible()) await closeSettings.click();
   await app.getByRole('button', { name: '结束并保存', exact: true }).click();
+  await openToDooFocusHistory(page);
   const record = app.locator('.todo-focus-history-item').filter({ hasText: note });
   await expect(record).toBeVisible();
   await record.locator('summary').click();
@@ -185,7 +194,8 @@ test('a focus project saves records, survives refresh and archives without chang
     await app.locator('.todo-focus-mobile-panes').getByText('专注', { exact: true }).click();
   await app.getByRole('button', { name: '专注项目操作 ' + topicName, exact: true }).click();
   await page.getByRole('menuitem', { name: '归档项目', exact: true }).click();
-  await app.getByText('已归档', { exact: true }).click();
+  await app.getByRole('button', { name: '专注项目更多', exact: true }).click();
+  await page.getByRole('menuitem', { name: '已归档项目', exact: true }).click();
   await expect(
     app.getByRole('button', { name: '选择专注项目 ' + topicName, exact: true }),
   ).toBeVisible();
@@ -316,6 +326,7 @@ test('another window can finish the timer while a local note survives read and s
   await expect(retained).toHaveValue(note);
   await app.getByRole('button', { name: '保存记录', exact: true }).click();
   await expect(retained).not.toBeVisible();
+  await openToDooFocusHistory(page);
   await expect(app.locator('.todo-focus-history-item').filter({ hasText: note })).toBeVisible();
   await other.close();
 });
@@ -360,6 +371,7 @@ test('typing while finish is pending keeps the newer note after the receipt arri
   await expect(retained).toHaveValue('结束时提交的记录，等待时继续补写');
   await app.getByRole('button', { name: '保存记录', exact: true }).click();
   await expect(retained).not.toBeVisible();
+  await openToDooFocusHistory(page);
   await expect(
     app.locator('.todo-focus-history-item').filter({ hasText: '等待时继续补写' }),
   ).toBeVisible();

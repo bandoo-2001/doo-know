@@ -4,20 +4,20 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { releaseInfo } from '../apps/server/platform/release.js';
 
-it('advertises generation six for current-format storage and diagram documents', async () => {
+it('advertises generation seven for To Doo hierarchy, icons and anniversary appearance data', async () => {
   const root = await mkdtemp(join(tmpdir(), 'dooknow-release-compatibility-'));
   try {
     await writeFile(join(root, 'package.json'), JSON.stringify({ version: '1.1.0-rc.18' }));
     expect(releaseInfo(root)).toMatchObject({
       version: '1.1.0-rc.18-dev',
-      databaseCompatibility: 6,
+      databaseCompatibility: 7,
     });
   } finally {
     await rm(root, { recursive: true, force: true });
   }
 });
 
-it.each([1, 2, 3, 4, 5, 6])(
+it.each([1, 2, 3, 4, 5, 6, 7])(
   'keeps a packaged release generation %s authoritative for rollback checks',
   async (generation) => {
     const root = await mkdtemp(join(tmpdir(), 'dooknow-release-compatibility-'));

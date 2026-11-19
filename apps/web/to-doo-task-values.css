@@ -1,0 +1,90 @@
+/* Colors use the document theme, so selections and body-mounted menus agree. */
+.todo-task-value-label,
+.ant-btn > .todo-task-value-label[data-kind] {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  line-height: inherit;
+  vertical-align: middle;
+  color: var(--todo-value-color, var(--todo-muted));
+}
+.todo-task-value-icon {
+  flex: 0 0 16px;
+  display: block;
+}
+.todo-task-value-label > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.todo-task-value-label[data-kind='priority'][data-value='high'] {
+  --todo-value-color: var(--todo-priority-red);
+}
+.todo-task-value-label[data-kind='priority'][data-value='normal'] {
+  --todo-value-color: var(--todo-priority-orange);
+}
+.todo-task-value-label[data-kind='priority'][data-value='low'] {
+  --todo-value-color: var(--todo-priority-blue);
+}
+.todo-task-value-label[data-kind='priority'][data-value='none'] {
+  --todo-value-color: var(--todo-priority-gray);
+}
+.todo-task-value-label[data-kind='priority'][data-value='none'] .todo-task-value-icon {
+  stroke-dasharray: 3 2;
+}
+.todo-task-value-label[data-kind='status'][data-value='todo'] {
+  --todo-value-color: var(--todo-priority-gray);
+}
+.todo-task-value-label[data-kind='status'][data-value='doing'] {
+  --todo-value-color: var(--todo-accent);
+}
+.todo-task-value-label[data-kind='status'][data-value='blocked'] {
+  --todo-value-color: var(--todo-warning-text);
+}
+.todo-task-value-label[data-kind='status'][data-value='done'] {
+  --todo-value-color: var(--todo-success-text);
+}
+.todo-task-value-label[data-kind='status'][data-value='cancelled'] {
+  --todo-value-color: var(--todo-muted);
+}
+.todo-task-value-label[data-kind='status'][data-value='skipped'] {
+  --todo-value-color: color-mix(in srgb, var(--todo-accent) 60%, var(--todo-danger));
+}
+.todo-task-value-select .ant-select-selection-item {
+  display: flex;
+  align-items: center;
+}
+.todo-task-value-select .todo-task-value-label {
+  line-height: 22px;
+}
+.todo-task-values-popup .ant-select-item-option {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+}
+.todo-task-values-popup .ant-select-item-option-content {
+  min-width: 0;
+}
+.todo-task-values-popup .todo-task-value-label {
+  line-height: 22px;
+}
+.todo-task-menu-popup .ant-dropdown-menu-title-content:has(> .todo-task-value-label),
+.todo-task-menu-popup .ant-menu-title-content:has(> .todo-task-value-label) {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.todo-task-menu-popup .todo-task-value-label {
+  flex: 1 1 auto;
+}
+.todo-task-menu-popup .todo-menu-current {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+:is(.ant-select-disabled, .ant-menu-item-disabled, .ant-dropdown-menu-item-disabled)
+  .todo-task-value-label {
+  opacity: 0.55;
+}

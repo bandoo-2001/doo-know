@@ -3,6 +3,10 @@ import type { Page } from '@playwright/test';
 import type { ToDooCommandResult, ToDooSnapshot } from '../../shared/to-doo-contracts';
 import { test, expect } from '../support/browser-test';
 
+test.afterEach(async ({ page }) => {
+  await page.unrouteAll({ behavior: 'wait' });
+});
+
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const response = await page.request.post('/api/to-doo/commands', {
@@ -48,7 +52,8 @@ test('goal cards show their own completed action progress and open the matching 
     title: '已完成的行动 ' + suffix,
     listId,
   });
-  const occurrence = completed.snapshot.occurrences.find(
+  const completedState = await (await page.request.get('/api/to-doo/state?taskIds=' + completed.ids[0])).json() as ToDooSnapshot;
+  const occurrence = completedState.occurrences.find(
     (item) => item.taskId === completed.ids[0],
   )!;
   await command(page, 'set_occurrence_status', {
@@ -89,21 +94,39 @@ test('goal cards show their own completed action progress and open the matching 
 });
 
 test('an empty overview keeps its first goal and action controls available', async ({ page }) => {
+  const response = await page.request.get('/api/to-doo/state?view=overview&limit=200');
+  expect(response.ok(), await response.text()).toBe(true);
+  const snapshot = (await response.json()) as ToDooSnapshot;
+  const kinds = ['list', 'task', 'occurrence', 'timeBlock', 'section'] as const;
+  const emptyPage = (value: ToDooSnapshot['page']) => ({
+    ...value,
+    total: 0,
+    nextCursor: null,
+    truncated: false,
+    counts: { ...value.counts, list: 0, task: 0, occurrence: 0, timeBlock: 0, section: 0 },
+  });
+  const collectionPages = { ...snapshot.collectionPages };
+  for (const kind of kinds) {
+    const pagination = collectionPages[kind];
+    if (pagination) collectionPages[kind] = emptyPage(pagination);
+  }
+  const empty: ToDooSnapshot = {
+    ...snapshot,
+    lists: [],
+    tasks: [],
+    occurrences: [],
+    timeBlocks: [],
+    sections: [],
+    page: emptyPage(snapshot.page),
+    collectionPages,
+    statistics: { ...snapshot.statistics, byList: {} },
+  };
   await page.route(/\/api\/to-doo\/state(?:\?|$)/, async (route) => {
-    const response = await route.fetch();
-    const snapshot = (await response.json()) as ToDooSnapshot;
+    const params = new URL(route.request().url()).searchParams;
+    const kind = kinds.find((kind) => kind === params.get('kind'));
+    if (params.has('kind') ? !kind : params.get('view') !== 'overview') return route.continue();
     await route.fulfill({
-      response,
-      json: {
-        ...snapshot,
-        lists: [],
-        tasks: [],
-        occurrences: [],
-        timeBlocks: [],
-        sections: [],
-        page: { ...snapshot.page, total: 0, nextCursor: null, truncated: false },
-        statistics: { ...snapshot.statistics, byList: {} },
-      },
+      json: { ...empty, page: kind ? collectionPages[kind] || empty.page : empty.page },
     });
   });
   await page.goto('/?view=apps&app=to-doo&appSection=overview');
@@ -136,7 +159,7 @@ test('an unstarted goal creates its first action in that goal', async ({ page })
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
   await expect(card).toContainText('0 / 1');
   const snapshot = (await (
-    await page.request.get('/api/to-doo/state?kind=task&limit=1000')
+    await page.request.get('/api/to-doo/state?kind=task&listIds=' + listId)
   ).json()) as ToDooSnapshot;
   expect(snapshot.tasks.find((task) => task.title === title)).toMatchObject({ listId });
 });
@@ -187,7 +210,7 @@ test('narrow task lists retain keyboard details and quick capture in both themes
   await expect(page.getByRole('button', { name: quickTitle, exact: true })).toBeVisible();
   await expect(capture).toHaveValue('');
   const snapshot = (await (
-    await page.request.get('/api/to-doo/state?kind=task&limit=1000')
+    await page.request.get('/api/to-doo/state?kind=task&listIds=' + listId)
   ).json()) as ToDooSnapshot;
   expect(snapshot.tasks.find((task) => task.title === quickTitle)).toMatchObject({ listId });
 });

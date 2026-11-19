@@ -2,6 +2,7 @@ import { SVG_MIME, SVG_POLICY, validateSvgSource } from '../../shared/svg-policy
 
 type Sources = { src: string | null; srcset?: string | null };
 type Getter = () => Sources;
+type ImageRequestOptions = { onError?: () => void };
 export const deferredImageSource = 'data-dooknow-image-src';
 export function deferImageSource(
   token: { attrs: [string, string | number][] | null; attrSet(name: string, value: string): void },
@@ -15,6 +16,7 @@ function allowedSource(source: string | null) {
     return null;
   return source &&
     (/^\/api\/assets\/[a-zA-Z0-9-]+(?:\?[^#]*)?$/.test(source) ||
+      /^\/api\/to-doo\/anniversary-images\/[a-f0-9]{64}$/.test(source) ||
       /^\/api\/public\/shares\/[a-zA-Z0-9_-]+\/(?:assets\/[a-zA-Z0-9-]+(?:\?[^#]*)?|asset\?source=[^#]*)$/.test(
         source,
       ))
@@ -48,6 +50,7 @@ type Owner = {
   alive: boolean;
   connected: boolean;
   source: string | null;
+  onError?: () => void;
   resource?: Resource;
 };
 type Resource = {
@@ -138,6 +141,8 @@ function createScope(document: Document) {
             limit = svg ? SVG_POLICY.maxBytes : 10 * 1024 * 1024;
           if (
             !response.ok ||
+            (/^\/api\/to-doo\/anniversary-images\//.test(resource.source) &&
+              !/^image\/(?:png|jpeg|webp)(?:;|$)/i.test(contentType)) ||
             /^attachment(?:;|$)/i.test(response.headers.get('content-disposition') || '') ||
             !/^image\/(?:png|jpeg|gif|webp|svg\+xml)(?:;|$)/i.test(contentType)
           )
@@ -177,7 +182,20 @@ function createScope(document: Document) {
           if (resource.state === 'loading') {
             resource.state = 'failed';
             forget(resource);
-            for (const owner of resource.owners) owner.image.removeAttribute('aria-busy');
+            for (const owner of resource.owners) {
+              let current: string | null;
+              try {
+                current = allowedSource(owner.getter().src);
+              } catch {
+                current = null;
+              }
+              if (current !== resource.source) {
+                refresh(owner);
+                continue;
+              }
+              owner.image.removeAttribute('aria-busy');
+              owner.onError?.();
+            }
           }
         } finally {
           if (resource.timer !== undefined) view.clearTimeout(resource.timer);
@@ -255,13 +273,14 @@ function createScope(document: Document) {
     }
     stopIfUnused();
   }
-  function own(image: HTMLImageElement, getter: Getter) {
+  function own(image: HTMLImageElement, getter: Getter, onError?: () => void) {
     let owner = owners.get(image);
     if (owner) {
       owner.getter = getter;
+      owner.onError = onError;
       owner.token = {};
     } else {
-      owner = { image, getter, token: {}, alive: true, connected: false, source: null };
+      owner = { image, getter, token: {}, alive: true, connected: false, source: null, onError };
       owners.set(image, owner);
       tombstones.delete(image);
     }
@@ -367,9 +386,13 @@ function scopeFor(document: Document) {
   }
   return scope;
 }
-export function trackImageRequest(image: HTMLImageElement, getter: Getter) {
+export function trackImageRequest(
+  image: HTMLImageElement,
+  getter: Getter,
+  options?: ImageRequestOptions,
+) {
   const scope = scopeFor(image.ownerDocument),
-    owner = scope?.own(image, getter),
+    owner = scope?.own(image, getter, options?.onError),
     token = owner?.token;
   const stop = () => {
     if (owner?.token === token && owner) scope?.dispose(owner);

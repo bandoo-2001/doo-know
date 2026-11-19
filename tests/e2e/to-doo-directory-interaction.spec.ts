@@ -81,7 +81,7 @@ test('the folded mobile list group keeps quick navigation and single-click list 
   await expect(toggle).toHaveAttribute('aria-expanded', 'false');
   await group.getByRole('button', { name: '新建清单', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '新建清单', exact: true });
-  await expect(dialog.getByRole('textbox', { name: '名称', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('textbox', { name: '清单名称', exact: true })).toBeVisible();
   await dialog.getByRole('button', { name: '取消', exact: true }).click();
   await expect(dialog).toBeHidden();
   await expect(page.getByRole('heading', { name: '今天', exact: true })).toBeVisible();

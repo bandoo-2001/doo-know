@@ -179,6 +179,40 @@ export async function selectToDooList(page: Page, name: string) {
   await closeToDooDirectory(page);
 }
 
+/** Follow real collection pagination before asserting a newly seeded task in a shared fixture. */
+export async function revealToDooTask(page: Page, title: string) {
+  const task = page.getByRole('button', { name: title, exact: true });
+  await page.locator('.todo-main[aria-busy="false"]').waitFor({ state: 'visible' });
+  await page.locator('.todo-load-more button:disabled').first().waitFor({ state: 'hidden' });
+  for (let pageNumber = 0; pageNumber < 50 && !(await task.isVisible()); pageNumber++) {
+    let advanced = false;
+    for (const [kind, label] of [
+      ['task', '任务'],
+      ['occurrence', '执行实例'],
+    ] as const) {
+      const more = page.getByRole('button', { name: '继续载入' + label, exact: true });
+      if (!(await more.isVisible())) continue;
+      await expect(more).toBeEnabled();
+      const response = page.waitForResponse((response) => {
+        const url = new URL(response.url());
+        return (
+          url.pathname === '/api/to-doo/state' &&
+          url.searchParams.get('kind') === kind &&
+          url.searchParams.has('cursor')
+        );
+      });
+      await more.click();
+      expect((await response).ok()).toBe(true);
+      await page.locator('.todo-load-more button:disabled').first().waitFor({ state: 'hidden' });
+      advanced = true;
+      if (await task.isVisible()) break;
+    }
+    if (!advanced) break;
+  }
+  await expect(task).toBeVisible();
+  return task;
+}
+
 /** Return to the DooKnow location without reaching through its hidden application shell. */
 export async function returnFromToDoo(page: Page) {
   const button = page
@@ -236,9 +270,17 @@ export async function selectToDooTaskView(
 ) {
   await expect(page.locator('.todo-task-toolbar')).toBeVisible();
   const picker = page.getByRole('combobox', { name: '任务展示方式', exact: true });
-  if (!(await picker.isVisible()))
-    await page.getByRole('button', { name: '任务显示与管理', exact: true }).click();
+  const display = page.getByRole('button', { name: '任务显示与管理', exact: true });
+  if (await display.count()) {
+    if ((await display.getAttribute('aria-expanded')) !== 'true') await display.click();
+    await expect(display).toHaveAttribute('aria-expanded', 'true');
+  }
+  await expect(picker).toBeVisible();
   await selectToDooOption(page, '任务展示方式', label);
+  const popup = page.locator('.todo-task-display-popup:visible');
+  if (await display.count() && (await display.getAttribute('aria-expanded')) === 'true')
+    await popup.getByRole('button', { name: '关闭', exact: true }).click();
+  await expect(popup).toHaveCount(0);
 }
 
 /** Expand task search when the compact phone toolbar is used. */

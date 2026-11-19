@@ -15,7 +15,14 @@ test('rescheduling a Today task needs only a date and explains where it went', a
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=today');
   const input = page.getByRole('textbox', { name: '快速添加任务', exact: true });
   await input.fill(title);
+  const createdResponse = page.waitForResponse(response => response.request().method() === 'POST' &&
+    new URL(response.url()).pathname === '/api/to-doo/commands' &&
+    response.request().postDataJSON()?.action === 'create_task' &&
+    response.request().postDataJSON()?.payload.title === title);
   await page.getByRole('button', { name: '添加任务', exact: true }).click();
+  const created = await createdResponse;
+  expect(created.ok(), await created.text()).toBe(true);
+  const taskId = (await created.json()).ids[0] as string;
   const task = page.getByRole('button', { name: title, exact: true });
   await task.click();
   const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
@@ -30,6 +37,7 @@ test('rescheduling a Today task needs only a date and explains where it went', a
   await completeToDooDetailProperty(page);
   await expect(page.getByRole('dialog', { name: /时间安排/ })).toHaveCount(0);
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
+  await detail.locator('.todo-detail-save .ant-btn-loading-icon').waitFor({ state: 'detached' });
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   await expect(task).not.toBeVisible();
@@ -39,7 +47,7 @@ test('rescheduling a Today task needs only a date and explains where it went', a
   await expect.poll(() => new URL(page.url()).searchParams.get('date')).toBe(tomorrow);
   await expect(page.getByRole('button', { name: new RegExp(title) }).first()).toBeVisible();
   const snapshot = await (
-    await page.request.get('/api/to-doo/state?view=calendar&from=' + tomorrow + '&to=' + tomorrow)
+    await page.request.get('/api/to-doo/state?view=calendar&from=' + tomorrow + '&to=' + tomorrow + '&taskIds=' + encodeURIComponent(taskId))
   ).json();
   const stored = snapshot.tasks.find((row: any) => row.title === title);
   const occurrence = snapshot.occurrences.find((row: any) => row.taskId === stored.id);
@@ -59,6 +67,7 @@ test('a date can be added, cleared and reloaded without inventing a start time',
   const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
   await setToDooDetailPlanDate(page, '2030-05-17');
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
+  await detail.locator('.todo-detail-save .ant-btn-loading-icon').waitFor({ state: 'detached' });
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
   await page.reload();
   const plan = await openToDooDetailPlan(page);
@@ -66,6 +75,7 @@ test('a date can be added, cleared and reloaded without inventing a start time',
   await expect(plan.getByLabel('时间', { exact: true })).toHaveValue('');
   await setToDooDetailPlanDate(page, '');
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
+  await detail.locator('.todo-detail-save .ant-btn-loading-icon').waitFor({ state: 'detached' });
   await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeDisabled();
   await page.reload();
   const cleared = await openToDooDetailPlan(page);

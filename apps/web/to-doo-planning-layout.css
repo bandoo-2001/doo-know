@@ -167,6 +167,7 @@
 .to-doo-workspace.todo-page-calendar .todo-week { height: 100%; }
 .to-doo-workspace.todo-page-calendar .todo-week-viewport { height: 100%; max-height: none; }
 .todo-page-calendar .todo-mobile-agenda { flex: 1; min-height: 0; overflow: auto; }
+.todo-page-calendar .todo-mobile-agenda > :is(.todo-agenda-toolbar, .todo-agenda-day) { flex: 0 0 auto; }
 .todo-page-calendar .todo-calendar-habits { flex: 0 0 auto; max-height: calc(var(--todo-control-height) * 2); overflow: auto; margin-top: var(--todo-space-8); padding: var(--todo-space-8) var(--todo-space-12); }
 .to-doo-workspace.todo-page-timeline .todo-timeline-scroll { flex: 1; min-height: 0; overflow: auto; }
 .todo-page-timeline .todo-timeline-track .todo-deadline {
@@ -185,4 +186,12 @@
   .to-doo-workspace .todo-calendar-toolbar h2 { font-size: var(--todo-font-size); }
   .to-doo-workspace.todo-page-calendar .todo-month-day { padding: var(--todo-space-4) 2px; }
   .todo-page-calendar .todo-mobile-calendar-choice { flex: 0 0 auto; margin-bottom: var(--todo-space-8); }
+}
+@media (max-width: 720px) and (pointer: coarse) {
+  .to-doo-workspace.todo-page-calendar .todo-calendar-grid-scroll.is-mobile-grid:has(> .todo-month) {
+    overflow-y: auto;
+  }
+  .to-doo-workspace.todo-page-calendar .todo-calendar-grid-scroll.is-mobile-grid > .todo-month {
+    min-height: calc(var(--todo-icon-button-size) + 6 * (2 * var(--todo-touch-target) + 2 * var(--todo-space-4)));
+  }
 }

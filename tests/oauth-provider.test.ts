@@ -32,6 +32,7 @@ it('runs real DCR, PKCE, owner consent, signed JWT, refresh and immediate grant 
       { accept: true, oauth_query: oauthQuery, scopes: ['knowledge:read', 'offline_access'], allowedPrefixes: ['00-Inbox'] });
     const target = new URL(result.url, f.config.origin);
     expect(target.origin).toBe('https://client.example');
+    expect(target.searchParams.get('iss')).toBe(f.config.origin + '/api/auth');
     const code = target.searchParams.get('code')!;
     expect(code).toBeTruthy();
     const exchange = async (body: Record<string, string>) => auth.handler(new Request(f.config.origin + '/api/auth/oauth2/token', {
@@ -51,6 +52,37 @@ it('runs real DCR, PKCE, owner consent, signed JWT, refresh and immediate grant 
     await expect(verifyMcpBearer(auth, f.config, db, 'Bearer ' + refreshed.access_token)).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
     const revoked = await exchange({ grant_type: 'refresh_token', client_id: clientId, refresh_token: refreshed.refresh_token, resource: f.config.origin + '/mcp' });
     expect(revoked.status).toBe(400);
+  } finally { db.close(); await f.close(); }
+});
+
+it('keeps RFC 9207 issuer identification on declined ChatGPT callback-specific DCR authorization', async () => {
+  const f = await createFixture(), db = openDatabase(f.dataRoot);
+  try {
+    const headers = await loginFixtureOwner(f), auth = await createAuth(f.config, db);
+    const callback = 'https://chatgpt.com/connector/oauth/release-fixture';
+    const registered = await (auth.api as any).registerOAuthClient({ body: {
+      client_name: 'ChatGPT DCR compatibility fixture', redirect_uris: [callback],
+      token_endpoint_auth_method: 'none', grant_types: ['authorization_code', 'refresh_token'],
+      response_types: ['code'], scope: 'knowledge:read offline_access',
+    } });
+    const verifier = randomBytes(32).toString('base64url');
+    const query = new URLSearchParams({ client_id: registered.client_id, redirect_uri: callback,
+      response_type: 'code', scope: 'knowledge:read offline_access', state: 'declined-state',
+      resource: f.config.origin + '/mcp', code_challenge_method: 'S256',
+      code_challenge: createHash('sha256').update(verifier).digest('base64url') });
+    const response = await auth.handler(new Request(f.config.origin + '/api/auth/oauth2/authorize?' + query,
+      { headers: { cookie: headers.cookie, accept: 'text/html' } }));
+    expect(response.status).toBe(302);
+    const consent = new URL(response.headers.get('location')!, f.config.origin);
+    const oauthQuery = consent.searchParams.get('oauth_query') || consent.search.slice(1);
+    const denied = await approveOAuthConsent(auth, f.config, db, new Headers({ cookie: headers.cookie }),
+      { accept: false, oauth_query: oauthQuery });
+    const target = new URL(denied.url);
+    expect(target.origin + target.pathname).toBe(callback);
+    expect(target.searchParams.get('error')).toBe('access_denied');
+    expect(target.searchParams.get('state')).toBe('declined-state');
+    expect(target.searchParams.get('iss')).toBe(f.config.origin + '/api/auth');
+    expect(target.searchParams.has('code')).toBe(false);
   } finally { db.close(); await f.close(); }
 });
 

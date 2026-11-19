@@ -1,0 +1,538 @@
+/* Daily records and lifetime detail share one habit workspace. */
+.todo-habit-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  min-width: 0;
+}
+.todo-habit-workspace.has-detail {
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 400px);
+}
+.todo-habit-workspace-main {
+  min-width: 0;
+  container-type: inline-size;
+}
+.todo-habit-workspace .todo-habit-cards {
+  gap: 20px;
+}
+.to-doo-workspace .todo-habit-workspace .todo-habit-today-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+.todo-habit-workspace .todo-habit-today-heading {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+.todo-habit-intention {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  border-radius: var(--todo-radius);
+  background: color-mix(in srgb, var(--todo-accent) 4%, var(--todo-paper));
+  border: 1px solid var(--todo-line);
+}
+.todo-habit-intention-copy {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+.todo-habit-intention-copy > p {
+  margin: 0 0 10px;
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.todo-habit-intention-counts {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  font-size: 13px;
+}
+.todo-habit-intention-counts > span {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.todo-habit-intention-counts strong {
+  font-size: 24px;
+  font-weight: 550;
+  color: var(--todo-ink);
+  font-variant-numeric: tabular-nums;
+}
+.todo-habit-date-tools {
+  display: flex;
+  align-items: start;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.todo-habit-date-browser {
+  min-width: 0;
+}
+.todo-habit-date-browser > summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  font-size: 12px;
+  color: var(--todo-accent);
+  cursor: pointer;
+  list-style: none;
+}
+.todo-habit-date-browser > summary::-webkit-details-marker {
+  display: none;
+}
+.todo-habit-week {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  width: min(340px, 100%);
+  padding-top: 12px;
+}
+.todo-habit-week-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--todo-muted);
+}
+.todo-habit-week-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+.todo-habit-week-days > button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: 56px;
+  padding: 6px 4px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--todo-paper);
+  color: var(--todo-muted);
+  cursor: pointer;
+  font-size: 11px;
+}
+.todo-habit-week-days > button > strong {
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--todo-ink);
+}
+.todo-habit-week-days > button[aria-pressed='true'] {
+  border-color: var(--todo-accent);
+  color: var(--todo-accent);
+  background: color-mix(in srgb, var(--todo-accent) 8%, var(--todo-paper));
+}
+.todo-habit-week-days > button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.todo-habit-week-days > button:focus-visible,
+.todo-habit-date-browser > summary:focus-visible,
+.todo-habit-fold-heading:focus-visible {
+  outline: 2px solid var(--todo-accent);
+  outline-offset: 2px;
+}
+.todo-habit-workspace .todo-habit-period-help {
+  margin: -2px 0 4px;
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.to-doo-workspace .todo-habit-workspace details.todo-habit-today-list {
+  display: block;
+}
+.todo-habit-fold-heading {
+  cursor: pointer;
+  padding: 12px 0;
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.todo-habit-fold-heading small {
+  margin-inline-start: 6px;
+  font-size: 11px;
+}
+.todo-habit-today-list[open] > .todo-habit-card {
+  margin-top: 8px;
+}
+.todo-habit-detail-slot {
+  position: sticky;
+  top: 12px;
+  height: calc(100dvh - 200px);
+  min-height: 0;
+  min-width: 0;
+}
+.todo-habit-detail-backdrop {
+  display: none;
+}
+@media (max-width: 1100px) {
+  .todo-habit-workspace.has-detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .todo-habit-detail-slot {
+    position: fixed;
+    z-index: 45;
+    inset: var(--todo-header-height, 56px) 0 0 auto;
+    width: min(420px, 100vw);
+    height: auto;
+    min-height: 0;
+  }
+  .todo-habit-detail-backdrop {
+    display: block;
+    position: fixed;
+    inset: var(--todo-header-height, 56px) 0 0;
+    z-index: 44;
+    border: 0;
+    border-radius: 0;
+    background: #0003;
+    padding: 0;
+  }
+}
+@media (max-width: 600px) {
+  .todo-habit-intention {
+    padding: 14px;
+    gap: 12px;
+  }
+  .todo-habit-intention-copy {
+    flex-basis: 100%;
+  }
+  .todo-habit-intention-counts {
+    gap: 8px 20px;
+  }
+  .todo-habit-date-tools {
+    width: 100%;
+  }
+  .todo-habit-date-browser {
+    flex: 1;
+  }
+  .todo-habit-detail-slot {
+    width: 100%;
+  }
+}
+/* Keep the detail's own scroll area above the app's persistent mobile navigation. */
+@media (max-width: 720px),
+  (max-width: 960px) and (max-height: 500px),
+  (max-width: 1100px) and (orientation: portrait) {
+  .todo-habit-detail-slot,
+  .todo-habit-detail-backdrop {
+    bottom: var(--workspace-bottom-inset, 68px);
+  }
+}
+
+/* A readable canvas and two clear lanes give everyday actions room to breathe. */
+.to-doo-workspace .todo-page-habits {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding: 28px 40px 40px;
+}
+.to-doo-workspace .todo-page-habits > .todo-page-heading {
+  margin-bottom: 16px;
+}
+.to-doo-workspace .todo-page-habits > .todo-page-heading h1 {
+  font-size: var(--todo-heading-size);
+  letter-spacing: -0.025em;
+}
+.todo-page-habits .todo-life-toolbar {
+  margin-bottom: 20px;
+}
+.todo-page-habits .todo-habit-intention {
+  padding: 24px 28px;
+  margin-bottom: 28px;
+  border-radius: calc(var(--todo-radius) + 4px);
+  border-color: color-mix(in srgb, var(--todo-accent) 12%, var(--todo-line));
+  background: linear-gradient(
+    110deg,
+    color-mix(in srgb, var(--todo-accent) 6%, var(--todo-paper)),
+    var(--todo-paper) 78%
+  );
+  align-items: center;
+}
+.todo-habit-intention-copy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.todo-habit-intention-heading {
+  min-width: 150px;
+}
+.todo-habit-intention-heading > p {
+  margin: 0 0 6px;
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.to-doo-workspace .todo-habit-intention-heading > h2 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.todo-habit-intention-counts {
+  gap: 28px;
+  padding-inline: 24px;
+}
+.todo-habit-intention-counts > span {
+  gap: 12px;
+  align-items: center;
+}
+.todo-habit-intention-counts strong {
+  font-size: 32px;
+  line-height: 1;
+  color: var(--todo-accent);
+}
+.todo-habit-intention-counts > span:nth-child(2) strong {
+  color: var(--todo-green);
+}
+.todo-habit-intention-counts > span > span {
+  font-size: 13px;
+  color: var(--todo-ink);
+}
+.todo-habit-intention-counts small {
+  display: block;
+  margin-top: 3px;
+  color: var(--todo-muted);
+  font-size: 11px;
+}
+.todo-habit-date-browser > summary {
+  border: 1px solid var(--todo-line);
+  border-radius: var(--todo-control-radius);
+  background: var(--todo-paper);
+  padding: 9px 12px;
+}
+.todo-habit-workspace .todo-habit-cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.todo-habit-workspace .todo-habit-cards > .ant-empty {
+  grid-column: 1 / -1;
+}
+.to-doo-workspace .todo-habit-workspace section.todo-habit-today-list {
+  container-type: inline-size;
+  padding: 20px;
+  border: 1px solid var(--todo-line);
+  border-radius: calc(var(--todo-radius) + 4px);
+  gap: 12px;
+  background: var(--todo-paper);
+}
+.todo-habit-workspace .todo-habit-today-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0;
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.todo-habit-workspace .todo-habit-today-heading::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: var(--todo-accent);
+}
+.todo-habit-workspace [data-group='period'] .todo-habit-today-heading::before {
+  background: var(--todo-green);
+}
+.todo-habit-workspace .todo-habit-today-heading small {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 22px;
+  padding-inline: 6px;
+  border-radius: 6px;
+  background: var(--todo-soft);
+  font-size: 11px;
+  color: var(--todo-muted);
+}
+.todo-habit-workspace .todo-habit-period-help {
+  margin: -2px 0 2px;
+  font-size: 12px;
+  line-height: 18px;
+}
+.to-doo-workspace .todo-habit-workspace details.todo-habit-today-list {
+  grid-column: 1 / -1;
+  border-radius: var(--todo-radius);
+  background: color-mix(in srgb, var(--todo-soft) 72%, var(--todo-paper));
+  border: 1px solid transparent;
+}
+.todo-habit-fold-heading {
+  padding: 11px 14px;
+  font-size: 13px;
+  line-height: 22px;
+}
+.todo-habit-fold-heading small {
+  float: right;
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--todo-paper);
+  font-size: 11px;
+}
+.todo-habit-today-list[open] > .todo-habit-card {
+  width: calc(100% - 24px);
+  margin: 0 12px 8px;
+}
+@container (min-width: 1040px) {
+  .todo-habit-workspace-main > .todo-habit-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 24px;
+  }
+}
+.todo-habit-workspace.has-detail .todo-habit-cards {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (max-width: 1100px) {
+  .to-doo-workspace .todo-page-habits {
+    padding-inline: 24px;
+  }
+  .todo-habit-intention-counts {
+    padding-inline: 0;
+  }
+}
+@media (max-width: 600px) {
+  .to-doo-workspace .todo-page-habits {
+    padding: 20px 16px 32px;
+  }
+  .todo-page-habits .todo-habit-intention {
+    padding: 18px;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .todo-habit-intention-copy {
+    display: grid;
+    gap: 18px;
+  }
+  .todo-habit-intention-counts {
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .todo-habit-intention-counts strong {
+    font-size: 28px;
+  }
+  .todo-habit-date-browser > summary {
+    justify-content: center;
+  }
+  .to-doo-workspace .todo-habit-workspace section.todo-habit-today-list {
+    padding: 14px;
+    border-radius: calc(var(--todo-radius) + 4px);
+    gap: 10px;
+  }
+}
+@media (max-width: 600px) {
+  .todo-page-habits .todo-habit-intention {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px 12px;
+  }
+  .todo-habit-intention-copy {
+    display: contents;
+  }
+  .todo-habit-intention-heading {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+  .to-doo-workspace .todo-habit-intention-heading > h2 {
+    font-size: 18px;
+  }
+  .todo-habit-intention-counts {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+  }
+  .todo-habit-intention > .todo-habit-date-tools {
+    grid-column: 2;
+    grid-row: 1;
+    width: auto;
+  }
+  .todo-habit-date-browser > summary {
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    white-space: nowrap;
+    font-size: 11px;
+  }
+  .todo-habit-intention > .todo-habit-date-tools:has(.todo-habit-date-browser[open]),
+  .todo-habit-intention > .todo-habit-date-tools:has(> .ant-btn) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    width: 100%;
+  }
+}
+/* Compact labels stay with familiar icons; longer explanations live in detail/tooltips. */
+.todo-habit-workspace .todo-habit-today-heading::before {
+  content: none;
+}
+.todo-habit-today-heading > svg {
+  color: var(--todo-accent);
+  flex: none;
+}
+[data-group='period'] .todo-habit-today-heading > svg {
+  color: var(--todo-green);
+}
+.todo-habit-fold-heading > svg {
+  margin-inline-end: 8px;
+  vertical-align: -3px;
+}
+.todo-habit-intention-heading > h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.todo-habit-intention-heading > h2 > svg {
+  color: var(--todo-muted);
+  flex: none;
+}
+.todo-habit-intention-counts > span {
+  gap: 8px;
+}
+.todo-habit-intention-counts strong {
+  font-size: 28px;
+}
+.todo-habit-intention-counts small {
+  margin: 0;
+  font-size: 12px;
+}
+.todo-habit-intention-counts > span > svg {
+  color: var(--todo-accent);
+}
+.todo-habit-intention-counts > span:nth-child(2) > svg {
+  color: var(--todo-green);
+}
+.todo-page-habits .todo-habit-intention {
+  padding-block: 18px;
+}
+.todo-habit-date-browser > summary {
+  min-height: 32px;
+  padding: 6px 8px;
+}
+@media (max-width: 600px) {
+  .todo-page-habits .todo-habit-intention {
+    gap: 14px 10px;
+    padding: 16px;
+  }
+  .todo-habit-intention-heading > h2 {
+    gap: 6px;
+  }
+  .todo-habit-intention-heading > h2 > svg {
+    display: none;
+  }
+  .todo-habit-intention-counts strong {
+    font-size: 24px;
+  }
+}

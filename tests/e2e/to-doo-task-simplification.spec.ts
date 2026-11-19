@@ -137,7 +137,7 @@ test('task details retain subtasks and provide direct reminder editing', async (
     });
   }
   const reminders = await openToDooDetailProperty(page, 'reminders');
-  await expect(reminders.getByRole('button', { name: '＋ 添加提醒', exact: true })).toBeInViewport();
+  await expect(reminders.getByRole('button', { name: '添加提醒', exact: true })).toBeInViewport();
 });
 
 test('context menu copy, priority and subtree move leave multi-selection untouched', async ({
@@ -196,6 +196,7 @@ test('group creation and view switching preserve the group, list and selected ta
   await detail.getByLabel('任务标题', { exact: true }).fill(title);
   await detail.getByRole('button', { name: '创建任务', exact: true }).click();
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
+  await expect(detail.getByText('已保存', { exact: true })).toBeVisible();
   if (info.project.name === 'mobile') {
     await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
     await expect(detail).not.toBeVisible();
@@ -222,7 +223,7 @@ test('group creation and view switching preserve the group, list and selected ta
       await expect(page.getByRole('textbox', { name: '连续安排开始时间', exact: true })).not.toBeVisible();
     }
   }
-  const stored = await (await page.request.get('/api/to-doo/state?kind=task&limit=1000')).json();
+  const stored = await (await page.request.get('/api/to-doo/state?kind=task&listIds=' + f.listId)).json();
   expect(stored.tasks.find((task: any) => task.title === title)).toMatchObject({
     listId: f.listId,
     sectionId: f.secondGroupId,
@@ -263,7 +264,7 @@ test('switching a new task to another list clears its original group', async ({ 
   await selectToDooOption(detail, '目标或清单', destinationName);
   await detail.getByRole('button', { name: '创建任务', exact: true }).click();
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
-  const stored = await (await page.request.get('/api/to-doo/state?kind=task&limit=1000')).json();
+  const stored = await (await page.request.get('/api/to-doo/state?kind=task&listIds=' + destination.ids[0])).json();
   expect(stored.tasks.find((task: any) => task.title === title)).toMatchObject({
     listId: destination.ids[0],
     sectionId: null,

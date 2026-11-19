@@ -1,8 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
+import type { ToDooSnapshot } from '../../shared/to-doo-contracts';
 import { test, expect } from '../support/browser-test';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
-import { completeToDooDetailProperty, openToDooDetailPlan } from '../support/to-doo-detail-controls';
+import {
+  completeToDooDetailProperty,
+  openToDooDetailPlan,
+} from '../support/to-doo-detail-controls';
 
 test.beforeEach(async ({ context, page }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -17,6 +21,30 @@ async function command(page: Page, action: string, payload: Record<string, unkno
   });
   expect(response.ok(), await response.text()).toBe(true);
   return response.json();
+}
+
+async function tasksWithExactTitle(page: Page, title: string) {
+  const tasks: ToDooSnapshot['tasks'] = [];
+  const seen = new Set<string>();
+  let cursor: string | null | undefined;
+  for (let pageNumber = 0; pageNumber < 50; pageNumber++) {
+    const params = new URLSearchParams({
+      kind: 'task',
+      limit: '500',
+      filter: JSON.stringify({ query: title, includeArchived: true, includeDeleted: true }),
+    });
+    if (cursor) params.set('cursor', cursor);
+    const response = await page.request.get('/api/to-doo/state?' + params);
+    expect(response.ok(), await response.text()).toBe(true);
+    const data = (await response.json()) as ToDooSnapshot;
+    tasks.push(...data.tasks.filter((task) => task.title === title));
+    cursor = data.page.nextCursor;
+    if (!cursor) break;
+    expect(seen.has(cursor), 'Task uniqueness query must advance its cursor').toBe(false);
+    seen.add(cursor);
+  }
+  expect(cursor, 'Task uniqueness must include every matching page').toBeNull();
+  return tasks;
 }
 
 test('calendar schedules an existing task, opens its details and reflects completion without creating a copy', async ({
@@ -61,9 +89,16 @@ test('calendar schedules an existing task, opens its details and reflects comple
   await page.reload();
   await expect(event).toHaveClass(/is-done/);
   const snapshot = await (
-    await page.request.get('/api/to-doo/state?view=calendar&from=' + date + '&to=' + date)
+    await page.request.get(
+      '/api/to-doo/state?view=calendar&from=' +
+        date +
+        '&to=' +
+        date +
+        '&taskIds=' +
+        encodeURIComponent(created.ids[0]),
+    )
   ).json();
-  const tasks = snapshot.tasks.filter((row: any) => row.title === title);
+  const tasks = await tasksWithExactTitle(page, title);
   expect(tasks).toHaveLength(1);
   expect(tasks[0].id).toBe(created.ids[0]);
   expect(snapshot.occurrences.find((row: any) => row.taskId === created.ids[0])?.status).toBe(
@@ -128,11 +163,16 @@ test('an arrangement follows its chosen month and retrying a lost response never
   await expect(page.getByRole('button', { name: new RegExp(title) }).first()).toBeVisible();
   const snapshot = await (
     await page.request.get(
-      '/api/to-doo/state?view=calendar&from=' + targetDate + '&to=' + targetDate,
+      '/api/to-doo/state?view=calendar&from=' +
+        targetDate +
+        '&to=' +
+        targetDate +
+        '&taskIds=' +
+        encodeURIComponent(created.ids[0]),
     )
   ).json();
   const occurrence = snapshot.occurrences.find((row: any) => row.taskId === created.ids[0]);
-  expect(snapshot.tasks.filter((row: any) => row.title === title)).toHaveLength(1);
+  expect(await tasksWithExactTitle(page, title)).toHaveLength(1);
   expect(
     snapshot.timeBlocks.filter((row: any) => row.occurrenceId === occurrence.id && !row.deletedAt),
   ).toHaveLength(1);
