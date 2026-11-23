@@ -293,7 +293,11 @@ export class ServiceHealthError extends Error {
   }
 }
 
-export async function waitHealthy(config: HostConfig, version: string) {
+export async function waitHealthy(
+  config: HostConfig,
+  version: string,
+  { allowUnavailableSource = false } = {},
+) {
   const url = healthURL(config) + '/healthz';
   const until = Date.now() + 30000;
   let last: HealthObservation = { kind: 'unreachable' };
@@ -305,7 +309,11 @@ export async function waitHealthy(config: HostConfig, version: string) {
         if (
           response.ok &&
           body.version === version &&
-          ['ready', 'setup_required'].includes(body.phase)
+          (['ready', 'setup_required'].includes(body.phase) ||
+            (allowUnavailableSource &&
+              body.phase === 'source_unavailable' &&
+              body.status === 'alive' &&
+              body.maintenance === false))
         )
           return body;
         last = {

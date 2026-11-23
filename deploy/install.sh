@@ -5,7 +5,7 @@ main() (
   set -euo pipefail
   umask 077
   # __DOOKNOW_GITHUB_FETCH_FUNCTION__
-  local stage='' work='' reported=0
+  local stage='' work='' launcher_work='' reported=0
   step() {
     stage="[$1/6] $2"
     printf '\n%s…\n' "$stage" >&2
@@ -23,6 +23,9 @@ main() (
     fi
     if [ -n "$work" ] && ! rm -rf -- "$work"; then
       printf '无法清理本次安装的临时目录 %q。请先核对目录权限。\n' "$work" >&2
+    fi
+    if [ -n "$launcher_work" ] && ! rm -f -- "$launcher_work"; then
+      printf '无法清理本次安装的临时命令文件 %q。\n' "$launcher_work" >&2
     fi
   }
   make_directory() {
@@ -44,7 +47,7 @@ main() (
     fail '安装源必须为 HTTPS 或本机环回 HTTP 地址。请检查 DOOKNOW_SOURCE，地址中不能包含凭据或查询参数。'
   fi
   local command
-  for command in uname tar sha256sum flock readlink getconf df awk stat sleep mkdir mktemp mv ln rm chmod cat; do
+  for command in uname tar gzip sha256sum flock readlink getconf df awk stat sleep mkdir mktemp mv ln rm chmod cat grep; do
     command -v "$command" >/dev/null || fail "缺少必要命令 $command。请检查 PATH 或安装提供该命令的系统软件包。"
   done
   command -v curl >/dev/null || command -v wget >/dev/null || fail '缺少下载工具。请安装 curl 或 wget 后重试。'
@@ -64,7 +67,7 @@ main() (
   fi
   local base="${DOOKNOW_INSTALL_ROOT:-${XDG_DATA_HOME:-$HOME/.local/share}/doo-know}"
   local bindir="${DOOKNOW_BIN_DIR:-$HOME/.local/bin}" cache="${XDG_CACHE_HOME:-$HOME/.cache}/doo-know/downloads"
-  local config_home profile free_kib lock_status=0 bound_profile
+  local config_home profile free_kib bound_profile install_id launcher
   config_home="$(readlink -m -- "${XDG_CONFIG_HOME:-$HOME/.config}")" ||
     fail '无法解析配置根目录。请检查 XDG_CONFIG_HOME 的路径及访问权限。'
   profile="$(readlink -m -- "${DOOKNOW_PROFILE:-$config_home/doo-know/profile.json}")" ||
@@ -78,14 +81,19 @@ main() (
     fail "$(printf '无法读取安装目录 %q 的磁盘空间。请检查目录所在磁盘是否已挂载，以及 df 是否可用。' "$base")"
   [ "$free_kib" -ge 786432 ] ||
     fail "$(printf '安装至少需要 768 MiB 可用空间，%q 所在磁盘目前可用 %s MiB。请释放空间或另选安装目录。' "$base" "$((free_kib / 1024))")"
-  exec 9>"$base/install.lock" ||
-    fail "$(printf '无法打开安装锁 %q。请检查安装目录及锁文件的权限。' "$base/install.lock")"
-  flock -n -E 75 9 || lock_status=$?
-  case "$lock_status" in
-    0) ;;
-    75) fail '另一个安装正在进行。请等待该安装退出后再重试。' ;;
-    *) fail "$(printf '无法锁定 %q（退出码 %s）。请检查目录所在文件系统是否支持文件锁。' "$base/install.lock" "$lock_status")" ;;
-  esac
+  take_lock() {
+    local descriptor="$1" lock_file="$2" lock_status=0
+    flock -n -E 75 "$descriptor" || lock_status=$?
+    case "$lock_status" in
+      0) ;;
+      75) fail '另一个安装正在进行。请等待该安装退出后再重试。' ;;
+      *) fail "$(printf '无法锁定 %q（退出码 %s）。请检查目录所在文件系统是否支持文件锁。' "$lock_file" "$lock_status")" ;;
+    esac
+  }
+  { [ ! -e "$base/install.lock" ] || [ -f "$base/install.lock" ]; } &&
+    [ ! -L "$base/install.lock" ] && exec 9>>"$base/install.lock" ||
+    fail "$(printf '无法安全打开安装锁 %q。请核对文件类型和权限。' "$base/install.lock")"
+  take_lock 9 "$base/install.lock"
   check_profile_binding() {
     [ -f "$base/profile.path" ] && [ ! -L "$base/profile.path" ] &&
       bound_profile="$(cat -- "$base/profile.path")" && [[ "$bound_profile" = /* ]] ||
@@ -99,6 +107,31 @@ main() (
   if { [ -e "$base/profile.path" ] || [ -L "$base/current" ]; } && [ ! -f "$profile" ]; then
     fail "$(printf '已有安装的配置文件不存在或不是普通文件。请恢复原配置 %q。全新安装需要独立的配置和程序目录。' "$profile")"
   fi
+  if [ -e "$base/current" ] && [ ! -L "$base/current" ]; then
+    fail "$(printf '当前版本路径 %q 被其他文件占用。请核对安装目录。' "$base/current")"
+  fi
+
+  # Different profiles can use the same bin directory. Serialize ownership
+  # checks and publication even when their installation roots are different.
+  launcher="$bindir/dooknow"
+  install_id="$(printf '%s' "$base" | sha256sum)"
+  install_id="${install_id%% *}"
+  { [ ! -e "$bindir/.dooknow-install.lock" ] || [ -f "$bindir/.dooknow-install.lock" ]; } &&
+    [ ! -L "$bindir/.dooknow-install.lock" ] && exec 8>>"$bindir/.dooknow-install.lock" ||
+    fail "$(printf '无法安全打开管理命令安装锁 %q。请核对文件类型和权限。' "$bindir/.dooknow-install.lock")"
+  take_lock 8 "$bindir/.dooknow-install.lock"
+  check_launcher() {
+    if [ ! -e "$launcher" ] && [ ! -L "$launcher" ]; then return; fi
+    if [ -f "$launcher" ] && [ ! -L "$launcher" ] && [ -O "$launcher" ]; then
+      if grep -Fxq -- "# DooKnow install: $install_id" "$launcher"; then return; fi
+      if [[ "$base" =~ ^[A-Za-z0-9_./@+-]+$ ]] &&
+        grep -Fxq -e "export DOOKNOW_INSTALL_ROOT=$base" -e "DOOKNOW_INSTALL_ROOT=$base" -- "$launcher"; then
+        return
+      fi
+    fi
+    fail "$(printf '管理命令路径已被其他安装或文件占用 %q。独立安装请指定不同的 DOOKNOW_BIN_DIR。' "$launcher")"
+  }
+  check_launcher
   work="$(mktemp -d -- "$base/.install.XXXXXXXX")" ||
     fail "$(printf '无法在 %q 创建安装临时目录。请检查权限、磁盘空间和 inode 余量。' "$base")"
 
@@ -269,16 +302,17 @@ main() (
       rm -- "$work/profile.path" ||
       fail "$(printf '程序已就绪，但无法写入配置归属记录 %q。请检查目录权限，并核对是否有其他安装在操作同一目录。' "$base/profile.path")"
   fi
-  local install_id
-  install_id="$(printf '%s' "$base" | sha256sum)"
-  install_id="${install_id%% *}"
+  check_launcher
+  launcher_work="$(mktemp -- "$bindir/.dooknow.XXXXXXXX")" ||
+    fail "$(printf '无法在 %q 暂存管理命令。请核对目录权限和磁盘空间。' "$bindir")"
   {
     printf '#!/usr/bin/env bash\n# DooKnow install: %s\nset -euo pipefail\nexport DOOKNOW_INSTALL_ROOT=%q\n' "$install_id" "$base"
     printf 'export DOOKNOW_PROFILE=%q\nexport XDG_CONFIG_HOME=%q\nexport DOOKNOW_BIN_DIR=%q\n' "$profile" "$config_home" "$bindir"
     printf 'release_root="$(readlink -f "$DOOKNOW_INSTALL_ROOT/current")"\nexec "$release_root/runtime/node/bin/node" "$release_root/dist/server/scripts/manage.js" "$@"\n'
-  } > "$work/dooknow"
-  chmod 700 "$work/dooknow" && mv -Tf -- "$work/dooknow" "$bindir/dooknow" ||
-    fail "$(printf '程序已就绪，但无法发布管理命令 %q。请检查该路径是否被目录占用，以及 DOOKNOW_BIN_DIR 的写入权限。处理后重跑原安装命令。' "$bindir/dooknow")"
-  printf '管理命令路径：%s\n\n' "$bindir/dooknow"
+  } > "$launcher_work"
+  chmod 700 "$launcher_work" && mv -Tf -- "$launcher_work" "$launcher" ||
+    fail "$(printf '程序已就绪，但无法发布管理命令 %q。请核对 DOOKNOW_BIN_DIR 的写入权限。处理后重跑原安装命令。' "$launcher")"
+  launcher_work=''
+  printf '管理命令路径：%s\n\n' "$launcher"
 )
 main "$@"

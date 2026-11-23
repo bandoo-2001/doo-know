@@ -111,6 +111,25 @@ it('binds launchers to their installed profiles across fresh terminals and indep
         port: String(15270 + i),
       });
     }
+    const firstLauncher = join(root, 'first/bin/dooknow');
+    const firstLauncherContents = await readFile(firstLauncher, 'utf8');
+    await expect(
+      exec('bash', [script], {
+        cwd: root,
+        env: {
+          ...cleanEnv,
+          XDG_CONFIG_HOME: installations[1].configRoot,
+          XDG_CACHE_HOME: join(root, 'cache'),
+          DOOKNOW_NO_SERVICE: '1',
+          DOOKNOW_INSTALL_ROOT: join(root, 'second'),
+          DOOKNOW_BIN_DIR: join(root, 'first/bin'),
+          DOOKNOW_PROFILE: installations[1].profile,
+        },
+      }),
+    ).rejects.toMatchObject({
+      stderr: expect.stringContaining('管理命令路径已被其他安装或文件占用'),
+    });
+    expect(await readFile(firstLauncher, 'utf8')).toBe(firstLauncherContents);
     await expect(
       exec('bash', [script], {
         cwd: root,

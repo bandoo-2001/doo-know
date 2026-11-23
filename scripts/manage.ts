@@ -1,6 +1,6 @@
 import { installNetwork } from './install-network.js';
 import { installSummary } from './install-summary.js';
-import { installError, type InstallProgress } from './install-error.js';
+import { installError, installSourceWarning, type InstallProgress } from './install-error.js';
 import { withEnvironmentProxy } from './environment-proxy.js';
 import { managementError } from './management-error.js';
 import { collectAccount } from './account-prompt.js';
@@ -23,6 +23,7 @@ import { randomBytes, createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { loadHostConfig, applicationRoot } from '../apps/server/platform/config.js';
 import { openDatabase } from '../packages/core/db.js';
+import { assertRoot } from '../packages/core/indexing/reconcile.js';
 import {
   acquireInstance,
   readInstance,
@@ -332,6 +333,7 @@ async function initializeInstallation(progress: InstallProgress) {
   } else console.log('账号已存在，保留原有账号、密钥与配置。');
   // The first service process must see the same download environment as the installer.
   rememberProxy();
+  let sourceUnavailable = false;
   if (serviceName) {
     stage(
       '写入并注册用户服务',
@@ -344,7 +346,10 @@ async function initializeInstallation(progress: InstallProgress) {
     progress.serviceStarted = true;
     systemctl([instance ? 'restart' : 'start', serviceName]);
     stage('等待服务健康检查');
-    await waitHealthy(config, releaseInfo().version);
+    const health = await waitHealthy(config, releaseInfo().version, {
+      allowUnavailableSource: true,
+    });
+    sourceUnavailable = health.phase === 'source_unavailable';
     stage('保存用户服务配置');
     if (existing)
       atomicJson(profileFile, {
@@ -365,7 +370,8 @@ async function initializeInstallation(progress: InstallProgress) {
   }
   stage('记录安装目录归属');
   if (config.installRoot) bindInstallationProfile(config.installRoot, profileFile);
-  console.log(installSummary(config));
+  console.log(installSummary(config, sourceUnavailable));
+  if (sourceUnavailable) console.warn(installSourceWarning(config));
 }
 function effectiveConfig() {
   return loadHostConfig({
@@ -458,7 +464,16 @@ async function main() {
         import('../apps/server/plugins/host.js'),
       ]);
       await createAuth(config, db);
-      platformSettings(config, db).configured();
+      const knowledge = platformSettings(config, db).configured();
+      if (command === 'self-check' && knowledge) {
+        try {
+          assertRoot(knowledge, db);
+        } catch {
+          throw Error(
+            `升级自检无法访问原知识库目录 ${JSON.stringify(knowledge.knowledgeRoot)}。请恢复原目录或挂载后重试。`,
+          );
+        }
+      }
       pluginHost(config, db);
       for (const row of db
         .prepare('SELECT manifest_json FROM platform_plugins WHERE installed=1')

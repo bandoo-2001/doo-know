@@ -1,10 +1,13 @@
-export function installSummary(config: {
-  host?: string;
-  port?: number;
-  origin: string;
-  allowedOrigins?: string[];
-  serviceManaged?: boolean;
-}) {
+export function installSummary(
+  config: {
+    host?: string;
+    port?: number;
+    origin: string;
+    allowedOrigins?: string[];
+    serviceManaged?: boolean;
+  },
+  sourceUnavailable = false,
+) {
   const host = config.host || '127.0.0.1';
   const port = config.port || 5173;
   const addresses = [...new Set([config.origin, ...(config.allowedOrigins || [])])];
@@ -12,7 +15,7 @@ export function installSummary(config: {
   const listener = host.includes(':') ? `[${host}]:${port}` : `${host}:${port}`;
   return [
     '',
-    'DooKnow 安装完成',
+    sourceUnavailable ? 'DooKnow 程序安装完成，知识库待恢复' : 'DooKnow 安装完成',
     '────────────────────────────────────────',
     '',
     '访问地址（以下地址均已允许登录）',
@@ -25,7 +28,9 @@ export function installSummary(config: {
     ...(host === '::' ? ['  IPv4 是否可用取决于系统双栈设置，此处仅配置 IPv6 地址。'] : []),
     '',
     '下一步',
-    '  登录后选择服务器知识库目录。',
+    sourceUnavailable
+      ? '  恢复旧知识库原目录或挂载后，登录并刷新工作区。'
+      : '  登录后选择服务器知识库目录。',
     '',
     '服务管理',
     config.serviceManaged === false

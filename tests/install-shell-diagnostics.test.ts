@@ -1,6 +1,15 @@
 import { expect, it } from 'vitest';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import {
+  mkdir,
+  mkdtemp,
+  readFile,
+  readdir,
+  readlink,
+  rm,
+  symlink,
+  writeFile,
+} from 'node:fs/promises';
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -73,6 +82,86 @@ it('identifies environment, manifest, download and checksum failures before publ
   } finally {
     server.closeAllConnections();
     await new Promise<void>((resolve) => server.close(() => resolve()));
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+it('stops before download when the host, paths or installation locks are unavailable', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'installer-preflight-'));
+  const script = new URL('../deploy/install.sh', import.meta.url).pathname;
+  const tools = join(root, 'tools');
+  const install = join(root, 'install');
+  const bin = join(root, 'bin');
+  const env = {
+    PATH: tools + ':' + process.env.PATH,
+    HOME: root,
+    DOOKNOW_SOURCE: 'http://127.0.0.1:1',
+    DOOKNOW_INSTALL_ROOT: install,
+    DOOKNOW_BIN_DIR: bin,
+    DOOKNOW_NO_SERVICE: '1',
+  };
+  async function expectPreflightFailure(
+    command: string,
+    args: string[],
+    hint: string,
+    overrides: NodeJS.ProcessEnv = {},
+  ) {
+    const result = await exec(command, args, { env: { ...env, ...overrides }, timeout: 5000 }).then(
+      () => ({ code: 0, stderr: '' }),
+      (error) => error,
+    );
+    expect(result).toMatchObject({ code: 1 });
+    expect(result.stderr).toContain('[1/6] 检查安装环境失败');
+    expect(result.stderr).toContain(hint);
+    expect(result.stderr).not.toContain('[2/6]');
+  }
+
+  try {
+    await mkdir(tools);
+    await mkdir(install);
+    await mkdir(bin);
+    const shims = [
+      { name: 'getconf', output: 'printf "glibc 2.33\\n"', hint: '发行包要求 glibc ≥ 2.34' },
+      {
+        name: 'df',
+        output: 'printf "header\\ndrive 20 10 10 50%% /\\n"',
+        hint: '至少需要 768 MiB',
+      },
+      { name: 'systemctl', output: 'exit 1', hint: '无法连接当前用户的 systemd' },
+    ];
+    for (const { name, output, hint } of shims) {
+      const path = join(tools, name);
+      await writeFile(path, '#!/bin/sh\n' + output + '\n', { mode: 0o700 });
+      await expectPreflightFailure('bash', [script], hint, {
+        DOOKNOW_NO_SERVICE: name === 'systemctl' ? '0' : '1',
+      });
+      await rm(path);
+    }
+    const minimalPath = join(root, 'minimal-tools');
+    await mkdir(minimalPath);
+    for (const name of ['uname', 'tar']) {
+      const { stdout } = await exec('bash', ['-c', 'command -v "$1"', 'fixture', name]);
+      await symlink(stdout.trim(), join(minimalPath, name));
+    }
+    await expectPreflightFailure('/bin/bash', [script], '缺少必要命令 gzip', {
+      PATH: minimalPath,
+    });
+
+    for (const lock of [join(install, 'install.lock'), join(bin, '.dooknow-install.lock')]) {
+      await expectPreflightFailure('flock', [lock, 'bash', script], '另一个安装正在进行');
+      await rm(lock);
+    }
+    const unrelated = join(root, 'keep-me');
+    await writeFile(unrelated, 'unrelated file\n');
+    await rm(join(install, 'install.lock'), { force: true });
+    await symlink(unrelated, join(install, 'install.lock'));
+    await expectPreflightFailure('bash', [script], '无法安全打开安装锁');
+    await rm(join(install, 'install.lock'));
+    await symlink(unrelated, join(bin, 'dooknow'));
+    await expectPreflightFailure('bash', [script], '管理命令路径已被其他安装或文件占用');
+    expect(await readlink(join(bin, 'dooknow'))).toBe(unrelated);
+    expect(await readFile(unrelated, 'utf8')).toBe('unrelated file\n');
+  } finally {
     await rm(root, { recursive: true, force: true });
   }
 });

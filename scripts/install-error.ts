@@ -92,11 +92,19 @@ function rootFailure(config: HostConfig, phase: 'source_unavailable' | 'configur
       reason = '无法读取已绑定的知识库目录。请核对挂载及服务日志。';
     }
   }
+  return [...context, reason];
+}
+
+const independentInstallHint =
+  '全新安装时，请分别指定新实例的 DOOKNOW_PROFILE、DOOKNOW_INSTALL_ROOT、XDG_DATA_HOME 和 DOOKNOW_BIN_DIR。实例同时运行时，还需使用不同的服务名和端口。';
+
+export function installSourceWarning(config: HostConfig) {
   return [
-    ...context,
-    reason,
-    '继续使用旧实例时，恢复原目录或挂载后重跑安装。全新安装时，请分别指定新实例的 DOOKNOW_PROFILE、DOOKNOW_INSTALL_ROOT、XDG_DATA_HOME 和 DOOKNOW_BIN_DIR。实例同时运行时，还需使用不同的服务名和端口。',
-  ];
+    '服务已启动，原有知识库暂不可用（source_unavailable）。账号、数据库和知识库绑定已保留。',
+    ...rootFailure(config, 'source_unavailable'),
+    '恢复原目录或挂载后，登录并刷新工作区即可重试连接。',
+    independentInstallHint,
+  ].join('\n');
 }
 
 function healthFailure(error: ServiceHealthError, config?: HostConfig) {
@@ -119,9 +127,14 @@ function healthFailure(error: ServiceHealthError, config?: HostConfig) {
     if (
       config &&
       (observation.phase === 'source_unavailable' || observation.phase === 'configuration_error')
-    )
+    ) {
       lines.push(...rootFailure(config, observation.phase));
-    else if (observation.phase === 'owner_required')
+      if (observation.phase === 'source_unavailable')
+        lines.push(
+          '继续使用旧实例时，请恢复原目录或挂载后重跑原安装命令。',
+          independentInstallHint,
+        );
+    } else if (observation.phase === 'owner_required')
       lines.push(
         '正在响应的实例未读取到管理员账号。请核对服务使用的配置和数据目录，再在本机交互终端重跑原安装命令。',
       );

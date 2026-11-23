@@ -1,5 +1,5 @@
 import { it, expect } from 'vitest';
-import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rename, writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFile } from 'node:child_process';
@@ -210,6 +210,49 @@ it('completes provider initialization before closing an offline self-check datab
       join(root, 'independent-check'),
     ]);
     expect(JSON.parse(result.stdout)).toMatchObject({ check: 'ok' });
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+it('detects an unavailable original during self-check before an upgrade can stop the service', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'dooknow-selfcheck-source-'));
+  try {
+    const profileFile = join(root, 'profile.json');
+    const knowledgeRoot = join(root, 'originals');
+    const secretFile = join(root, 'auth.key');
+    await writeFile(secretFile, 'selfcheck-disposable-secret-at-least-thirty-two', { mode: 0o600 });
+    await writeFile(
+      profileFile,
+      JSON.stringify({
+        dataRoot: join(root, 'live-data'),
+        knowledgeRoot,
+        secretFile,
+        origin: 'http://127.0.0.1:15177',
+        port: 15177,
+      }),
+      { mode: 0o600 },
+    );
+    await mkdir(knowledgeRoot);
+    const args = [
+      '--import',
+      'tsx',
+      'scripts/manage.ts',
+      'self-check',
+      '--profile',
+      profileFile,
+      '--data-root',
+      join(root, 'independent-check'),
+    ];
+    await exec(process.execPath, args);
+    await rename(knowledgeRoot, knowledgeRoot + '-offline');
+    await expect(exec(process.execPath, args)).rejects.toMatchObject({
+      code: 1,
+      stderr: expect.stringContaining('升级自检无法访问原知识库目录'),
+    });
+    await rename(knowledgeRoot + '-offline', knowledgeRoot);
+    const result = await exec(process.execPath, args);
+    expect(JSON.parse(result.stdout)).toMatchObject({ check: 'ok' });
+    await expect(readFile(join(root, 'live-data/app.sqlite'))).rejects.toMatchObject({ code: 'ENOENT' });
   } finally {
     await rm(root, { recursive: true, force: true });
   }
