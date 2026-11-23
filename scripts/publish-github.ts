@@ -11,6 +11,37 @@ type Options = { directory: string; repository: string; tag: string; commit: str
 type Asset = { id: number; name: string; size: number; state: string; digest: string };
 const names = /^(?:install\.sh|release(?:-[0-9A-Za-z.+-]{1,80})?\.(?:txt|json)|catalog\.json|dooknow-[0-9A-Za-z.+-]{1,120}\.tar\.gz)$/;
 async function digest(file: string) { const h = createHash('sha256'); for await (const b of createReadStream(file)) h.update(b); return h.digest('hex'); }
+export function renderGithubBootstrap(helper: string, repository: string, tag: string, assetId: number, sha256: string) {
+  return `#!/usr/bin/env bash
+# Generated pinned release bootstrap; contains no credentials.
+main() {
+  set +x
+  set -euo pipefail
+  umask 077
+${helper}
+  local tool work cleanup_path
+  for tool in mktemp sha256sum; do
+    command -v "$tool" >/dev/null || { echo "安装引导缺少必要命令 $tool，请安装系统工具后重试。" >&2; return 1; }
+  done
+  work="$(mktemp -d "\${TMPDIR:-/tmp}/dooknow-bootstrap.XXXXXXXX" 2>/dev/null)" || {
+    echo '无法创建安装引导的临时目录，请检查 TMPDIR 或 /tmp 的写入权限、磁盘空间和配额。' >&2
+    return 1
+  }
+  printf -v cleanup_path '%q' "$work"
+  trap "rm -rf -- $cleanup_path" EXIT
+  github_fetch '${repository}' '${assetId}' "$work/install.sh" "" 'https://github.com/${repository}/releases/download/${tag}/install.sh' || {
+    echo '未能取得 DooKnow ${tag} 的安装脚本。请修复上方错误后重跑原安装命令。' >&2
+    return 1
+  }
+  if ! printf '%s  %s\\n' '${sha256}' "$work/install.sh" | sha256sum --status -c -; then
+    echo 'DooKnow ${tag} 安装脚本的 SHA-256 校验失败。请从项目 README 重新获取安装命令，并检查代理缓存或发行制品是否异常。' >&2
+    return 1
+  fi
+  bash "$work/install.sh" "$@"
+}
+main "$@"
+`;
+}
 export async function publishGithubRelease(o: Options) {
   if (!/^[A-Za-z0-9-]+\/[A-Za-z0-9_.-]+$/.test(o.repository) || !/^v[0-9][A-Za-z0-9.+-]{0,79}$/.test(o.tag) || !/^[a-f0-9]{40}$/.test(o.commit) || !/^[A-Za-z0-9_-]{20,4096}$/.test(o.token)) throw Error('INVALID_PUBLISH_ARGUMENTS');
   await verifyReleaseEvidence(o.directory, o.verification, o.commit);
@@ -105,7 +136,7 @@ export async function publishGithubRelease(o: Options) {
   if (!await checkTag()) throw Error('GITHUB_TAG_MISSING');
   if (release.draft) release = await request('/releases/' + release.id, 'PATCH', { draft: false, prerelease: o.tag.includes('-'), make_latest: o.tag.includes('-') ? 'false' : 'true' });
   const helper = await readFile(new URL('../deploy/github-fetch.sh', import.meta.url), 'utf8');
-  const bootstrap = `#!/usr/bin/env bash\n# Generated pinned release bootstrap; contains no credentials.\nmain() {\n  set +x\n  set -euo pipefail\n  umask 077\n${helper}\n  local work cleanup_path\n  work="$(mktemp -d "\${TMPDIR:-/tmp}/dooknow-bootstrap.XXXXXXXX")"\n  printf -v cleanup_path '%q' "$work"\n  trap "rm -rf -- $cleanup_path" EXIT\n  github_fetch '${o.repository}' '${install.id}' "$work/install.sh" "" 'https://github.com/${o.repository}/releases/download/${o.tag}/install.sh'\n  printf '%s  %s\\n' '${installSha}' "$work/install.sh" | sha256sum -c - >/dev/null\n  bash "$work/install.sh" "$@"\n}\nmain "$@"\n`;
+  const bootstrap = renderGithubBootstrap(helper, o.repository, o.tag, install.id, installSha);
   await writeFile(o.bootstrap, bootstrap, { mode: 0o700 });
   return { url: release.html_url || `https://github.com/${o.repository}/releases/tag/${o.tag}`, private: privateRepository, tag: o.tag, commit: o.commit, installerAssetId: install.id, installerSha256: installSha, assets: assets.map(({ id, name, size, digest }) => ({ id, name, size, digest })) };
 }

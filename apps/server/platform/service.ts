@@ -14,7 +14,7 @@ import {
 } from 'node:fs';
 import { join, dirname, resolve, isAbsolute } from 'node:path';
 import { homedir } from 'node:os';
-import type { HostConfig } from '../../../shared/platform-contracts.js';
+import type { HostConfig, PlatformStatus } from '../../../shared/platform-contracts.js';
 import { activeDatabaseProcesses, readInstance } from './instance.js';
 import Database from 'better-sqlite3';
 export function unitName(config: HostConfig) {
@@ -258,24 +258,70 @@ export function healthURL(config: HostConfig) {
         : config.host;
   return `http://${host.includes(':') ? '[' + host + ']' : host}:${config.port}`;
 }
+type HealthObservation =
+  | { kind: 'unreachable' }
+  | { kind: 'invalid_response'; httpStatus: number }
+  | {
+      kind: 'phase';
+      phase: PlatformStatus['phase'];
+      version?: string;
+      httpStatus: number;
+    };
+
+const healthPhases = new Set<PlatformStatus['phase']>([
+  'owner_required',
+  'setup_required',
+  'initializing',
+  'ready',
+  'source_unavailable',
+  'configuration_error',
+]);
+
+export class ServiceHealthError extends Error {
+  constructor(
+    readonly url: string,
+    readonly expectedVersion: string,
+    readonly observation: HealthObservation,
+  ) {
+    const detail =
+      observation.kind === 'phase'
+        ? observation.phase
+        : observation.kind === 'invalid_response'
+          ? `无效的健康响应（HTTP ${observation.httpStatus}）`
+          : 'UNREACHABLE';
+    super('服务健康检查失败：' + detail + '；未恢复写入');
+  }
+}
+
 export async function waitHealthy(config: HostConfig, version: string) {
+  const url = healthURL(config) + '/healthz';
   const until = Date.now() + 30000;
-  let last = 'UNREACHABLE';
+  let last: HealthObservation = { kind: 'unreachable' };
   do {
     try {
-      const response = await fetch(healthURL(config) + '/healthz', {
-          signal: AbortSignal.timeout(2000),
-        }),
-        body = await response.json();
-      last = body.phase || body.status;
-      if (
-        response.ok &&
-        body.version === version &&
-        ['ready', 'setup_required'].includes(body.phase)
-      )
-        return body;
+      const response = await fetch(url, { signal: AbortSignal.timeout(2000) });
+      const body = await response.json().catch(() => undefined);
+      if (healthPhases.has(body?.phase)) {
+        if (
+          response.ok &&
+          body.version === version &&
+          ['ready', 'setup_required'].includes(body.phase)
+        )
+          return body;
+        last = {
+          kind: 'phase',
+          phase: body.phase,
+          version:
+            typeof body.version === 'string' && /^[0-9][a-zA-Z0-9.+-]{0,79}$/.test(body.version)
+              ? body.version
+              : undefined,
+          httpStatus: response.status,
+        };
+      } else if (last.kind !== 'phase') {
+        last = { kind: 'invalid_response', httpStatus: response.status };
+      }
     } catch {}
     await new Promise((r) => setTimeout(r, 200));
   } while (Date.now() < until);
-  throw Error('服务健康检查失败：' + last + '；未恢复写入');
+  throw new ServiceHealthError(url, version, last);
 }

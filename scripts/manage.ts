@@ -1,5 +1,6 @@
 import { installNetwork } from './install-network.js';
 import { installSummary } from './install-summary.js';
+import { installError, type InstallProgress } from './install-error.js';
 import { withEnvironmentProxy } from './environment-proxy.js';
 import { managementError } from './management-error.js';
 import { collectAccount } from './account-prompt.js';
@@ -172,7 +173,11 @@ function configureDistribution(profile: Record<string, any>) {
 }
 async function promptAccount(reset = false) {
   if (!process.stdin.isTTY)
-    throw new Error('账号初始化需要本机终端，请运行 dooknow install；密码不能通过命令参数传入');
+    throw new Error(
+      reset
+        ? '请在本机交互终端运行密码重置并输入新密码。'
+        : '账号初始化需要本机终端。请在能够输入用户名及隐藏密码的终端重跑原安装命令。',
+    );
   let muted = false;
   const output = new Writable({
     write(chunk, _encoding, next) {
@@ -212,9 +217,34 @@ async function availablePort(host: string, port: number) {
   });
 }
 async function install() {
+  const progress: InstallProgress = { step: '定位实例配置' };
+  try {
+    const explicit = values.profile || process.env.DOOKNOW_PROFILE;
+    if (explicit) progress.profileFile = resolve(explicit);
+    profileFile = resolveProfileFile(values.profile, process.env, {
+      installRoot: values['install-root'],
+      allowCreate: true,
+    });
+    progress.profileFile = profileFile;
+    await initializeInstallation(progress);
+  } catch (error) {
+    throw installError(error, progress);
+  }
+}
+
+async function initializeInstallation(progress: InstallProgress) {
+  const stage = (step: string, hint?: string) => Object.assign(progress, { step, hint });
+  stage('读取实例配置');
   const existing = existsSync(profileFile)
     ? JSON.parse(readFileSync(profileFile, 'utf8'))
     : undefined;
+  if (
+    existing !== undefined &&
+    (!existing || typeof existing !== 'object' || Array.isArray(existing))
+  )
+    throw new Error('配置文件必须是 JSON 对象，请核对配置或恢复有效备份。');
+
+  stage('核对实例目录与网络设置');
   const requestedInstallRoot = values['install-root'] || process.env.DOOKNOW_INSTALL_ROOT;
   if (
     existing?.installRoot &&
@@ -247,21 +277,37 @@ async function install() {
     throw new Error('拒绝改变现有数据目录；独立安装请使用新的 --profile');
   const installRootChanged = !!existing && !existing.installRoot && !!requestedInstallRoot;
   if (installRootChanged) profile.installRoot = resolve(requestedInstallRoot!);
+  if (typeof profile.dataRoot === 'string') progress.dataRoot = profile.dataRoot;
+  stage('检查认证密钥', '请核对配置指定的密钥文件是否存在且为当前用户可读的私有文件。');
   if (!existsSync(profile.secretFile)) {
     if (existsSync(join(profile.dataRoot, 'app.sqlite')))
-      throw new Error('已有数据库的认证密钥缺失，请恢复密钥，不能重新生成');
+      throw new Error('已有数据库的认证密钥缺失。请从此实例的备份恢复原密钥。');
     mkdirSync(dirname(profile.secretFile), { recursive: true, mode: 0o700 });
     writeFileSync(profile.secretFile, randomBytes(48).toString('base64url'), {
       mode: 0o600,
       flag: 'wx',
     });
   }
+  stage('保存并验证实例配置', '请核对实例文件权限，以及监听地址、端口和访问来源的设置。');
   const distributionChanged = configureDistribution(profile);
   if (!existing || distributionChanged || installRootChanged) atomicJson(profileFile, profile);
   const config = effectiveConfig();
+  progress.config = config;
+  progress.dataRoot = config.dataRoot;
+  stage('检查监听地址及端口');
   const instance = readInstance(config.dataRoot);
   if (!instance) await availablePort(config.host!, config.port!);
-  if (!values['no-service']) systemctl(['show-environment']);
+  let serviceName: string | undefined;
+  if (!values['no-service']) {
+    stage(
+      '连接 systemd 用户服务管理器',
+      '请在安装用户的正常登录会话中运行。仅需前台运行时，使用 DOOKNOW_NO_SERVICE=1 重跑安装。',
+    );
+    serviceName = unitName(config);
+    systemctl(['show-environment']);
+    progress.serviceName = serviceName;
+  }
+  stage('打开或初始化数据库');
   const db = openDatabase(config.dataRoot);
   let hasOwner = false;
   try {
@@ -278,6 +324,7 @@ async function install() {
     db.close();
   }
   if (!hasOwner) {
+    stage('创建初始账号');
     const input = await promptAccount();
     const { initializeOwner } = await import('../apps/server/auth.js');
     await initializeOwner(config, input.username, input.password);
@@ -285,16 +332,25 @@ async function install() {
   } else console.log('账号已存在，保留原有账号、密钥与配置。');
   // The first service process must see the same download environment as the installer.
   rememberProxy();
-  if (!values['no-service']) {
+  if (serviceName) {
+    stage(
+      '写入并注册用户服务',
+      '请核对服务文件的权限和归属。独立安装可用 DOOKNOW_SERVICE_NAME 指定新服务名。',
+    );
     writeService(config, applicationRoot(), process.execPath);
-    systemctl(['enable', unitName(config)]);
-    systemctl([instance ? 'restart' : 'start', unitName(config)]);
+    stage('启用用户服务');
+    systemctl(['enable', serviceName]);
+    stage(instance ? '重启现有用户服务' : '启动用户服务');
+    progress.serviceStarted = true;
+    systemctl([instance ? 'restart' : 'start', serviceName]);
+    stage('等待服务健康检查');
     await waitHealthy(config, releaseInfo().version);
+    stage('保存用户服务配置');
     if (existing)
       atomicJson(profileFile, {
         ...existing,
         serviceManaged: true,
-        serviceName: config.serviceName || 'doo-know.service',
+        serviceName,
         ...(config.installRoot ? { installRoot: config.installRoot } : {}),
       });
     let linger = 'unknown';
@@ -307,6 +363,7 @@ async function install() {
     } catch {}
     if (linger !== 'yes') console.log('用户服务已启用；无人登录时常驻需管理员启用 linger。');
   }
+  stage('记录安装目录归属');
   if (config.installRoot) bindInstallationProfile(config.installRoot, profileFile);
   console.log(installSummary(config));
 }
@@ -328,9 +385,10 @@ async function main() {
     );
     return;
   }
+  if (command === 'install') return install();
   profileFile = resolveProfileFile(values.profile, process.env, {
     installRoot: values['install-root'],
-    allowCreate: command === 'install' || (command === 'restore' && !!values.profile),
+    allowCreate: command === 'restore' && !!values.profile,
   });
   if (command === 'restore') {
     if (!values.source || !values['key-file'] || !values['data-root'] || !values.profile)
@@ -352,7 +410,6 @@ async function main() {
     );
     return;
   }
-  if (command === 'install') return install();
   if (command === 'update' && (values['github-repository'] || values['github-token-file'])) {
     const profile = JSON.parse(readFileSync(profileFile, 'utf8'));
     if (configureDistribution(profile)) atomicJson(profileFile, profile);

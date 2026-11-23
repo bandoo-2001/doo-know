@@ -224,7 +224,7 @@ it('does not report install completion when proxy persistence precedes a failed 
         console.log('LoadState=' + (fs.existsSync(unit) ? 'loaded' : 'not-found'));
         console.log('FragmentPath=' + (fs.existsSync(unit) ? unit : '')); process.exit(0);
       }
-      if (process.argv.includes('start')) { console.error('fixture service startup refused'); process.exit(1); }
+      if (process.argv.includes('start')) { console.error('fixture service startup refused with private diagnostic details'); process.exit(1); }
     `,
       { mode: 0o700 });
     const failure = await f.run('install', {
@@ -232,7 +232,10 @@ it('does not report install completion when proxy persistence precedes a failed 
       XDG_CONFIG_HOME: join(f.root, 'config'),
     }, ['--profile', f.profile, '--service-name', 'dooknow-proxy-warning-fixture.service'])
       .then(() => { throw Error('fixture install unexpectedly succeeded'); }, error => error);
-    expect(failure.stderr).toContain('fixture service startup refused');
+    expect(failure.stderr).toContain('安装失败（启动用户服务）');
+    expect(failure.stderr).toContain('systemd 用户服务命令执行失败（退出码 1）');
+    expect(failure.stderr).toContain('journalctl --user -u dooknow-proxy-warning-fixture.service');
+    expect(failure.stderr).not.toContain('private diagnostic details');
     expect(failure.stderr).toContain('无法记住下载代理');
     expect(failure.stderr).not.toContain('本次操作已完成');
     expect(failure.stderr).toMatch(/服务.*代理/);

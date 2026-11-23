@@ -1,6 +1,6 @@
 import { diagramDependencyChecker } from './diagram-dependencies.js';
 import { observeSource } from './state.js';
-import { lstatSync, realpathSync, readdirSync } from 'node:fs';
+import { lstatSync } from 'node:fs';
 
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { AppDatabase } from '../db.js';
@@ -17,16 +17,10 @@ import { recoverFolders } from '../folders.js';
 import { workspaceWrite } from '../workspace/gate.js';
 import { portableLibrary } from '../portable-library.js';
 import { beginOperation, completeOperation, existingResult, sha256 } from '../knowledge/operations.js';
+import { readKnowledgeRootIdentity } from './root-identity.js';
 export function assertRoot(config: Pick<AppConfig, 'knowledgeRoot'>, db: AppDatabase) {
   try {
-    const s = lstatSync(config.knowledgeRoot, { bigint: true });
-    if (!s.isDirectory() || s.isSymbolicLink()) throw new Error();
-    readdirSync(config.knowledgeRoot);
-    const identity = JSON.stringify({
-        path: realpathSync(config.knowledgeRoot),
-        dev: String(s.dev),
-        ino: String(s.ino),
-      }),
+    const identity = readKnowledgeRootIdentity(config.knowledgeRoot),
       stored = db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as
         | { value: string }
         | undefined;
