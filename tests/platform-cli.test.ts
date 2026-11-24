@@ -249,6 +249,9 @@ it('detects an unavailable original during self-check before an upgrade can stop
       code: 1,
       stderr: expect.stringContaining('升级自检无法访问原知识库目录'),
     });
+    await expect(
+      exec(process.execPath, args, { env: { ...process.env, DOOKNOW_UPGRADE_CHECK: '1' } }),
+    ).rejects.toMatchObject({ code: 42, stdout: JSON.stringify(knowledgeRoot) + '\n' });
     await rename(knowledgeRoot + '-offline', knowledgeRoot);
     const result = await exec(process.execPath, args);
     expect(JSON.parse(result.stdout)).toMatchObject({ check: 'ok' });

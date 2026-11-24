@@ -6,13 +6,26 @@ main() (
   umask 077
   # __DOOKNOW_GITHUB_FETCH_FUNCTION__
   local stage='' work='' launcher_work='' reported=0
+  local use_color=0
+  if [ -t 2 ] && [ "${TERM:-dumb}" != dumb ] && [ -z "${NO_COLOR:-}" ]; then
+    use_color=1
+  fi
+  message() {
+    local style="$1" line="$2"
+    if [ "$use_color" -eq 1 ]; then
+      printf '\033[%sm%s\033[0m\n' "$style" "$line" >&2
+    else
+      printf '%s\n' "$line" >&2
+    fi
+  }
   step() {
     stage="[$1/6] $2"
-    printf '\n%s…\n' "$stage" >&2
+    printf '\n' >&2
+    message '1;36' "$stage…"
   }
   fail() {
     reported=1
-    printf '%s失败\n' "$stage" >&2
+    message '1;31' "${stage}失败"
     printf '%s\n' "$@" >&2
     exit 1
   }
@@ -39,7 +52,9 @@ main() (
   }
   trap 'finish "$?"' EXIT
 
-  printf '\nDooKnow 安装向导\n────────────────────────────────────────\n' >&2
+  printf '\n' >&2
+  message '1;36' 'DooKnow 安装向导'
+  printf '────────────────────────────────────────\n' >&2
   step 1 '检查安装环境'
   local source="${DOOKNOW_SOURCE:-__DOOKNOW_RELEASE_SOURCE__}" node_sha='__DOOKNOW_NODE_BINARY_SHA__'
   source="${source%/}"
@@ -217,7 +232,7 @@ main() (
     mv -Tf -- "$work/package.tar.gz" "$archive" ||
       fail "$(printf '安装包已通过校验，但无法写入下载缓存 %q。请检查目录权限、磁盘空间和文件系统。' "$cache")"
   fi
-  printf '应用安装包 SHA-256 校验通过。\n' >&2
+  message '1;32' '应用安装包 SHA-256 校验通过。'
 
   step 5 '解包应用并校验运行时'
   # Only execute the pinned Node and checksum-verified standalone validator before extraction.
@@ -231,7 +246,7 @@ main() (
     fail '无法从安装包读取归档校验程序。请检查发行包结构和安装目录可用空间。'
   "$work/node" "$work/check-archive.mjs" "$archive" > "$work/archive-check.json" ||
     fail "$(printf '归档安全校验程序未成功运行。请查看上方错误，并检查 %q 所在挂载点是否允许执行、发行包是否完整。' "$base")"
-  printf '归档安全校验通过。\n' >&2
+  message '1;32' '归档安全校验通过。'
   local release="$base/releases/$version"
   if [ -e "$release" ]; then
     [ -f "$release/package.sha256" ] && [ "$(cat -- "$release/package.sha256")" = "$checksum" ] ||
@@ -247,6 +262,84 @@ main() (
   fi
 
   step 6 '初始化账号与服务'
+  local tty_available=0
+  local node_options="${NODE_OPTIONS:+$NODE_OPTIONS }--disable-warning=UNDICI-EHPA"
+  if ( : </dev/tty ) 2>/dev/null; then tty_available=1; fi
+
+  publish_launcher() {
+    check_launcher
+    launcher_work="$(mktemp -- "$bindir/.dooknow.XXXXXXXX")" ||
+      fail "$(printf '无法在 %q 暂存管理命令。请核对目录权限和磁盘空间。' "$bindir")"
+    {
+      printf '#!/usr/bin/env bash\n# DooKnow install: %s\nset -euo pipefail\nexport DOOKNOW_INSTALL_ROOT=%q\n' "$install_id" "$base"
+      printf 'export DOOKNOW_PROFILE=%q\nexport XDG_CONFIG_HOME=%q\nexport DOOKNOW_BIN_DIR=%q\n' "$profile" "$config_home" "$bindir"
+      printf 'release_root="$(readlink -f "$DOOKNOW_INSTALL_ROOT/current")"\nexec "$release_root/runtime/node/bin/node" "$release_root/dist/server/scripts/manage.js" "$@"\n'
+    } > "$launcher_work"
+    chmod 700 "$launcher_work" && mv -Tf -- "$launcher_work" "$launcher" ||
+      fail "$(printf '程序已就绪，但无法发布管理命令 %q。请核对 DOOKNOW_BIN_DIR 的写入权限。处理后重跑原安装命令。' "$launcher")"
+    launcher_work=''
+  }
+
+  choose_new_instance() {
+    local answer
+    message '1;33' '旧知识库暂不可用。可以等待原目录恢复，或者另建一个新实例。'
+    while true; do
+      message '1;36' '创建独立的新实例？[y/N/q]  Y 新建，N 等待后重试，Q 退出'
+      IFS= read -r answer </dev/tty || return 2
+      case "$answer" in
+        [yY]) return 0 ;;
+        [qQ]) return 2 ;;
+        ''|[nN]) break ;;
+        *) message '33' '请输入 Y、N 或 Q。' ;;
+      esac
+    done
+    while true; do
+      message '1;36' '恢复原目录或挂载后按回车重试，输入 Q 退出。'
+      IFS= read -r answer </dev/tty || return 2
+      case "$answer" in
+        '') return 1 ;;
+        [qQ]) return 2 ;;
+        *) message '33' '请按回车或输入 Q。' ;;
+      esac
+    done
+  }
+
+  install_fresh_instance() (
+    local environment_overrides='DATA_ROOT|KNOWLEDGE_ROOT|AUTH_SECRET_FILE|APP_ORIGIN|PORT|HOST|VECTOR_RUNTIME_ROOT|MODEL_DIR|TOKENIZER_PYTHON|VECTOR_SERVICE_URL|VECTOR_SERVICE_TOKEN_FILE|EMBEDDING_SPACE_ID|AGENT_CONFIG_FILE'
+    if [ "${DOOKNOW_NO_SERVICE:-0}" != 1 ]; then
+      local user_environment
+      user_environment="$(systemctl --user show-environment)" ||
+        fail '无法读取 systemd 用户服务环境。请检查用户会话后再新建实例。'
+      if grep -Eq "^($environment_overrides)=." <<<"$user_environment"; then
+        fail 'systemd 用户环境中含有 DooKnow 路径或监听覆盖项，无法隔离新实例。请清除这些覆盖项，或以前台模式安装。'
+      fi
+    fi
+    local instances="${XDG_DATA_HOME:-$HOME/.local/share}/doo-know-instances" fresh_root fresh_port
+    make_directory '独立实例目录' "$instances"
+    fresh_root="$(mktemp -d -- "$instances/instance-XXXXXXXX")" ||
+      fail '无法创建独立实例目录。请检查数据目录的权限和磁盘空间。'
+    fresh_root="$(readlink -f -- "$fresh_root")"
+    fresh_port="$("$release/runtime/node/bin/node" --input-type=module -e '
+      import { createServer } from "node:net";
+      const probe = createServer();
+      probe.listen(0, "127.0.0.1", () => {
+        console.log(probe.address().port);
+        probe.close();
+      });
+    ')" || fail '无法为新实例选择空闲端口。'
+    [[ "$fresh_port" =~ ^[0-9]+$ ]] || fail '无法识别新实例的监听端口。'
+    message '1;36' "$(printf '新实例目录 %q，访问地址 http://127.0.0.1:%s。' "$fresh_root" "$fresh_port")"
+    message '33' '接下来设置新的账号，登录后即可创建知识库。旧实例的程序、账号和数据会保留。'
+    unset DATA_ROOT KNOWLEDGE_ROOT AUTH_SECRET_FILE APP_ORIGIN PORT HOST VECTOR_RUNTIME_ROOT \
+      MODEL_DIR TOKENIZER_PYTHON VECTOR_SERVICE_URL VECTOR_SERVICE_TOKEN_FILE EMBEDDING_SPACE_ID \
+      AGENT_CONFIG_FILE DOOKNOW_APP_ORIGIN DOOKNOW_ALLOW_ROOT
+    export XDG_CONFIG_HOME="$config_home" XDG_DATA_HOME="$fresh_root/share"
+    export DOOKNOW_INSTALL_ROOT="$fresh_root/share/doo-know" DOOKNOW_PROFILE="$fresh_root/config/profile.json"
+    export DOOKNOW_BIN_DIR="$fresh_root/bin" DOOKNOW_HOST=127.0.0.1 DOOKNOW_PORT="$fresh_port"
+    export DOOKNOW_SERVICE_NAME="doo-know-${fresh_root##*/}.service" DOOKNOW_SOURCE="$source"
+    main 8>&- 9>&-
+  )
+
   local args=(install --install-root "$base" --profile "$profile")
   local github_repository=''
   if [[ "$source" =~ ^https://github\.com/([A-Za-z0-9-]+/[A-Za-z0-9_.-]+)/releases/download/([A-Za-z0-9.+-]+)$ ]]; then
@@ -270,22 +363,51 @@ main() (
   fi
   if [ -n "$current" ] && [ "$current" != "$release" ]; then
     local update_args=(update --source "$source" --version "$version" --install-root "$base" --profile "$profile")
-    local manager_root="$current"
+    local manager_root="$current" update_status choice
     [ "${DOOKNOW_NO_SERVICE:-0}" != 1 ] || update_args+=(--no-service)
     if [ -n "$github_repository" ]; then
       manager_root="$release"
       update_args+=(--github-repository "$github_repository")
       [ -z "${DOOKNOW_GITHUB_TOKEN_FILE:-}" ] || update_args+=(--github-token-file "$DOOKNOW_GITHUB_TOKEN_FILE")
     fi
-    "$manager_root/runtime/node/bin/node" "$manager_root/dist/server/scripts/manage.js" "${update_args[@]}" ||
-      fail '发现已有实例，升级未完成。请查看上方原因，并保留配置、备份、版本目录及升级记录。'
+    if [ ! -e "$launcher" ] && [ -n "${bound_profile:-}" ] && [[ "$current" == "$base/releases/"* ]] &&
+      [ -x "$current/runtime/node/bin/node" ] && [ -f "$current/dist/server/scripts/manage.js" ]; then
+      publish_launcher
+      message '1;32' "已恢复旧实例的管理命令 $launcher。"
+    fi
+    while true; do
+      update_status=0
+      NODE_OPTIONS="$node_options" DOOKNOW_INSTALL_WIZARD=1 "$manager_root/runtime/node/bin/node" \
+        "$manager_root/dist/server/scripts/manage.js" "${update_args[@]}" || update_status=$?
+      if [ "$update_status" -eq 0 ]; then break; fi
+      if [ "$update_status" -ne 42 ]; then
+        fail '发现已有实例，升级未完成。请查看上方原因，并保留配置、备份、版本目录及升级记录。'
+      fi
+      if [ "$tty_available" -ne 1 ]; then
+        fail '旧知识库暂不可用。请恢复原目录后重试，或在交互终端重跑安装向导并选择新建独立实例。'
+      fi
+      choice=0
+      choose_new_instance || choice=$?
+      case "$choice" in
+        0)
+          reported=1
+          install_fresh_instance
+          return
+          ;;
+        2)
+          message '33' '已退出安装向导。以后可重跑原安装命令。'
+          reported=1
+          exit 1
+          ;;
+      esac
+    done
   else
     local node="$release/runtime/node/bin/node" manager="$release/dist/server/scripts/manage.js"
-    if ( : </dev/tty ) 2>/dev/null; then
-      "$node" "$manager" "${args[@]}" </dev/tty ||
+    if [ "$tty_available" -eq 1 ]; then
+      NODE_OPTIONS="$node_options" "$node" "$manager" "${args[@]}" </dev/tty ||
         fail '安装包已解包，账号或服务设置可能已写入，安装器尚未完成管理命令入口的发布。请处理上方错误后重跑原安装命令。'
     else
-      "$node" "$manager" "${args[@]}" ||
+      NODE_OPTIONS="$node_options" "$node" "$manager" "${args[@]}" ||
         fail '安装包已解包，安装器尚未完成管理命令入口的发布。' \
           '若上方提示需要交互输入，请在运行 DooKnow 的用户终端重跑完整安装命令。其他错误请先按上方诊断处理。'
     fi
@@ -302,17 +424,7 @@ main() (
       rm -- "$work/profile.path" ||
       fail "$(printf '程序已就绪，但无法写入配置归属记录 %q。请检查目录权限，并核对是否有其他安装在操作同一目录。' "$base/profile.path")"
   fi
-  check_launcher
-  launcher_work="$(mktemp -- "$bindir/.dooknow.XXXXXXXX")" ||
-    fail "$(printf '无法在 %q 暂存管理命令。请核对目录权限和磁盘空间。' "$bindir")"
-  {
-    printf '#!/usr/bin/env bash\n# DooKnow install: %s\nset -euo pipefail\nexport DOOKNOW_INSTALL_ROOT=%q\n' "$install_id" "$base"
-    printf 'export DOOKNOW_PROFILE=%q\nexport XDG_CONFIG_HOME=%q\nexport DOOKNOW_BIN_DIR=%q\n' "$profile" "$config_home" "$bindir"
-    printf 'release_root="$(readlink -f "$DOOKNOW_INSTALL_ROOT/current")"\nexec "$release_root/runtime/node/bin/node" "$release_root/dist/server/scripts/manage.js" "$@"\n'
-  } > "$launcher_work"
-  chmod 700 "$launcher_work" && mv -Tf -- "$launcher_work" "$launcher" ||
-    fail "$(printf '程序已就绪，但无法发布管理命令 %q。请核对 DOOKNOW_BIN_DIR 的写入权限。处理后重跑原安装命令。' "$launcher")"
-  launcher_work=''
+  publish_launcher
   printf '管理命令路径：%s\n\n' "$launcher"
 )
 main "$@"

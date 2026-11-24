@@ -121,6 +121,7 @@ const commands: [string, string[]][] = [
       'tests/install-launcher.test.ts',
       'tests/install-shell-diagnostics.test.ts',
       'tests/install-template.test.ts',
+      'tests/install-wizard.test.ts',
       'tests/account-prompt.test.ts',
       'tests/auth.test.ts',
       'tests/platform-cli.test.ts',

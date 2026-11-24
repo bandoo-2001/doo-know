@@ -13,7 +13,7 @@ import {
 } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { artifactFetch, githubUpdateSource } from './distribution.js';
-import { join, resolve, dirname, basename } from 'node:path';
+import { join, resolve, dirname, basename, isAbsolute } from 'node:path';
 import { homedir } from 'node:os';
 import { createHash, randomUUID } from 'node:crypto';
 import { execFile } from 'node:child_process';
@@ -38,6 +38,17 @@ import { sealBackup, unsealBackup } from './sealed-backup.js';
 import { processIsAlive, workspaceProcess } from '../../../packages/core/workspace/gate.js';
 import { prepareRecoveryLauncher } from './recovery-launcher.js';
 const exec = promisify(execFile);
+
+// The installer uses this result only for a failed source check before any
+// upgrade transaction has started.
+export const UPGRADE_SOURCE_UNAVAILABLE_EXIT = 42;
+export class UpgradeSourceUnavailableError extends Error {
+  constructor(readonly knowledgeRoot: string) {
+    super(
+      `升级自检无法访问原知识库目录 ${JSON.stringify(knowledgeRoot)}。请恢复原目录或挂载后重试。`,
+    );
+  }
+}
 export async function durableJson(path: string, value: unknown) {
   await mkdir(dirname(path), { recursive: true, mode: 0o700 });
   const temp = path + '.' + randomUUID() + '.tmp',
@@ -148,27 +159,42 @@ async function candidateCheck(config: HostConfig, candidate: string, clone: stri
   } finally {
     db.close();
   }
-  await exec(
-    join(candidate, 'runtime/node/bin/node'),
-    [
-      join(candidate, 'dist/server/scripts/manage.js'),
-      'self-check',
-      '--profile',
-      config.profileFile!,
-      '--data-root',
-      clone,
-    ],
-    {
-      timeout: 60000,
-      maxBuffer: 32768,
-      env: {
-        ...process.env,
-        DATA_ROOT: '',
-        KNOWLEDGE_ROOT: '',
-        DOOKNOW_PROFILE: config.profileFile,
+  try {
+    await exec(
+      join(candidate, 'runtime/node/bin/node'),
+      [
+        join(candidate, 'dist/server/scripts/manage.js'),
+        'self-check',
+        '--profile',
+        config.profileFile!,
+        '--data-root',
+        clone,
+      ],
+      {
+        timeout: 60000,
+        maxBuffer: 32768,
+        env: {
+          ...process.env,
+          DATA_ROOT: '',
+          KNOWLEDGE_ROOT: '',
+          DOOKNOW_PROFILE: config.profileFile,
+          DOOKNOW_UPGRADE_CHECK: '1',
+        },
       },
-    },
-  );
+    );
+  } catch (error) {
+    const result = error as { code?: number; stdout?: string };
+    if (result.code === UPGRADE_SOURCE_UNAVAILABLE_EXIT && typeof result.stdout === 'string') {
+      let root: unknown;
+      try {
+        root = JSON.parse(result.stdout);
+      } catch {
+        throw error;
+      }
+      if (typeof root === 'string' && isAbsolute(root)) throw new UpgradeSourceUnavailableError(root);
+    }
+    throw error;
+  }
 }
 async function offlineMigration(config: HostConfig, candidate: string) {
   await exec(

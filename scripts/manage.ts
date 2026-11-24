@@ -24,6 +24,7 @@ import { execFileSync } from 'node:child_process';
 import { loadHostConfig, applicationRoot } from '../apps/server/platform/config.js';
 import { openDatabase } from '../packages/core/db.js';
 import { assertRoot } from '../packages/core/indexing/reconcile.js';
+import { KnowledgeError } from '../packages/core/knowledge/errors.js';
 import {
   acquireInstance,
   readInstance,
@@ -46,6 +47,8 @@ import {
   managementLock,
   updatePlatform,
   rollbackPlatform,
+  UpgradeSourceUnavailableError,
+  UPGRADE_SOURCE_UNAVAILABLE_EXIT,
 } from '../apps/server/platform/updates.js';
 import { platformSettings } from '../apps/server/platform/settings.js';
 import { satisfies } from 'semver';
@@ -464,15 +467,22 @@ async function main() {
         import('../apps/server/plugins/host.js'),
       ]);
       await createAuth(config, db);
-      const knowledge = platformSettings(config, db).configured();
-      if (command === 'self-check' && knowledge) {
-        try {
+      let source = config.knowledgeRoot;
+      try {
+        const knowledge = platformSettings(config, db).configured();
+        if (command === 'self-check' && knowledge) {
+          source = knowledge.knowledgeRoot;
           assertRoot(knowledge, db);
-        } catch {
-          throw Error(
-            `升级自检无法访问原知识库目录 ${JSON.stringify(knowledge.knowledgeRoot)}。请恢复原目录或挂载后重试。`,
-          );
         }
+      } catch (error) {
+        if (
+          command === 'self-check' &&
+          source &&
+          error instanceof KnowledgeError &&
+          error.code === 'SOURCE_UNAVAILABLE'
+        )
+          throw new UpgradeSourceUnavailableError(source);
+        throw error;
       }
       pluginHost(config, db);
       for (const row of db
@@ -645,6 +655,18 @@ withEnvironmentProxy(main, () => {
   });
   return loadDownloadProxy(selected);
 }).catch((e: Error) => {
+  if (e instanceof UpgradeSourceUnavailableError) {
+    if (command === 'self-check' && process.env.DOOKNOW_UPGRADE_CHECK === '1') {
+      console.log(JSON.stringify(e.knowledgeRoot));
+      process.exitCode = UPGRADE_SOURCE_UNAVAILABLE_EXIT;
+      return;
+    }
+    if (command === 'update' && process.env.DOOKNOW_INSTALL_WIZARD === '1') {
+      console.error(e.message);
+      process.exitCode = UPGRADE_SOURCE_UNAVAILABLE_EXIT;
+      return;
+    }
+  }
   console.error(managementError(e));
   process.exitCode = 1;
 });
