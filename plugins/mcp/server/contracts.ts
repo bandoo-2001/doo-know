@@ -396,15 +396,44 @@ export const researchMetadata = z
     endByte: z.number().int().nonnegative().optional(),
   })
   .strict();
-export const researchObject = z
-  .object({
-    id: z.string().min(1).max(4096),
-    title: z.string().refine((s) => [...s].length <= 256),
-    text: z.string().refine((s) => Buffer.byteLength(s) <= 16384),
-    url: z.string().url().max(4096).optional(),
-    metadata: researchMetadata,
-  })
-  .strict();
+const researchContent = {
+  title: z.string().refine((s) => [...s].length <= 256),
+  text: z.string().refine((s) => Buffer.byteLength(s) <= 16384),
+  url: z.string().url().max(4096).optional(),
+};
+const researchId = z.string().min(1).max(4096);
+export const researchObject = z.object({
+  id: researchId,
+  ...researchContent,
+  metadata: researchMetadata,
+}).strict();
+export const officeResearchReference = z.object({
+  documentId: z.string().min(1).max(256),
+  segment: z.number().int().nonnegative(),
+  sourceHash: hash,
+  sourceRevision: z.number().int().positive(),
+}).strict();
+const officeResearchMetadata = z.object({
+  ...officeResearchReference.omit({ segment: true }).shape,
+  objectType: z.literal('office'),
+  fileType: z.enum(['docx', 'xlsx', 'pptx', 'pdf']),
+  location: z.string().min(1).max(512),
+}).strict();
+export const officeResearchResult = z.object({
+  ...researchContent,
+  metadata: officeResearchMetadata,
+}).strict();
+export const officeResearchSearchOutput = z.object({
+  results: z.array(officeResearchReference.extend({
+    title: researchContent.title,
+    url: researchContent.url,
+  })).max(10),
+  degraded: z.boolean(),
+  reasons: z.array(z.string().regex(/^[A-Z][A-Z0-9_]{0,63}$/)).max(32),
+}).strict();
+export const researchFetchOutput = researchObject.extend({
+  metadata: z.union([researchMetadata, officeResearchMetadata]),
+});
 export const researchSearchOutput = z
   .object({
     degraded: z.boolean(),

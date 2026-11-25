@@ -16,6 +16,34 @@ export interface BlogPort {
   publish(input: BlogPublishInput, options?: ServiceCallOptions): Promise<BlogPost>;
   unpublish(input: BlogUnpublishInput, options?: ServiceCallOptions): Promise<BlogPost>;
 }
+export type OfficeResearchReference = {
+  documentId: string;
+  segment: number;
+  sourceHash: string;
+  sourceRevision: number;
+};
+export type OfficeResearchMatch = OfficeResearchReference & { title: string; url: string };
+export type OfficeResearchResult = {
+  title: string;
+  text: string;
+  url: string;
+  metadata: {
+    objectType: 'office';
+    documentId: string;
+    fileType: 'docx' | 'xlsx' | 'pptx' | 'pdf';
+    location: string;
+    sourceHash: string;
+    sourceRevision: number;
+  };
+};
+export interface OfficeResearchPort {
+  search(input: { query: string; limit: number }, options?: ServiceCallOptions): Promise<{
+    results: OfficeResearchMatch[];
+    degraded: boolean;
+    reasons: string[];
+  }>;
+  fetch(input: OfficeResearchReference, options?: ServiceCallOptions): Promise<OfficeResearchResult>;
+}
 export interface KnowledgePort {
   info(input: any, options?: ServiceCallOptions): Promise<any>;
   list(input: any, options?: ServiceCallOptions): Promise<any>;
@@ -53,6 +81,7 @@ export interface PluginServices {
   permissions?: { context(options?: ServiceCallOptions): Promise<McpPermissionContext> };
   knowledgeOrganization?: KnowledgeOrganizationPort;
   knowledge: KnowledgePort;
+  officeResearch?: OfficeResearchPort;
   blog?: BlogPort;
   toDoo?: ToDooPort;
   authorization?: {

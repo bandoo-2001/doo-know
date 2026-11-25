@@ -20,6 +20,7 @@ import { getToDooInstallationId } from '../to-doo/installation.js';
 import { createGraphService } from '../../../packages/core/graph/service.js';
 import { createGraphModel } from '../../../packages/core/graph/model.js';
 import { createKnowledgeGraph } from '../../../packages/core/graph/knowledge-service.js';
+import { officeSearchIndex } from '../../../packages/core/onlyoffice/search.js';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -48,6 +49,8 @@ async function createRuntime(config: AppConfig, db: AppDatabase) {
     notifications: ReturnType<typeof createToDooNotifications>;
   } | undefined;
   let graph: ReturnType<typeof createGraphService> | undefined;
+  let officeIndex: ReturnType<typeof officeSearchIndex> | undefined;
+  const office = () => (officeIndex ??= officeSearchIndex(config, db));
   let graphBundle: { model: ReturnType<typeof createGraphModel>; knowledge: ReturnType<typeof createKnowledgeGraph> } | undefined;
   function fullGraph() {
     if (graphBundle) return graphBundle;
@@ -60,6 +63,14 @@ async function createRuntime(config: AppConfig, db: AppDatabase) {
   // Analysis starts with the library, without requiring the graph application to be opened.
   // A damaged optional graph domain remains isolated from normal note operations.
   try { fullGraph(); } catch { /* Its endpoints retain the recovery error; never replace user decisions. */ }
+  const reconcileOffice = () => {
+    try { office().schedule(); } catch { /* Optional derived data must not prevent ordinary note access. */ }
+  };
+  const officeIndexEnabled = config.indexing?.enabled !== false;
+  if (officeIndexEnabled) reconcileOffice();
+  const officeReconcile = officeIndexEnabled && config.indexing?.watch !== false
+    ? setInterval(reconcileOffice, 5 * 60_000).unref()
+    : undefined;
   function toDoo() {
     if (toDooBundle) return toDooBundle;
     const service = createToDooService(config, db, notes);
@@ -90,6 +101,11 @@ async function createRuntime(config: AppConfig, db: AppDatabase) {
     notes,
     knowledge,
     collections,
+    get officeSearch() { return office(); },
+    closeOfficeSearch: async () => {
+      clearInterval(officeReconcile);
+      await officeIndex?.close();
+    },
     get graph() { return graph ??= createGraphService(config, db, notes); },
     get graphModel() { return fullGraph().model; },
     get knowledgeGraph() { return fullGraph().knowledge; },
@@ -158,6 +174,7 @@ export function platformRuntime(config: HostConfig, db: AppDatabase) {
       await activation;
       if (!runtime) return;
       const k = runtime.knowledge;
+      await runtime.closeOfficeSearch();
       await runtime.closeGraph();
       await runtime.closeToDoo();
       await runtime.collections.close();

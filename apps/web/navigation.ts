@@ -28,7 +28,7 @@ export const toDooTaskFilters = [
 ] as const;
 export type ToDooTaskFilter = (typeof toDooTaskFilters)[number];
 export type WorkspaceRoute = {
-  app?: 'blog' | 'to-doo' | 'graph';
+  app?: 'blog' | 'to-doo' | 'graph' | 'office';
   appSection?: 'overview' | 'articles' | 'taxonomy' | 'settings' | 'design' | ToDooAppSection;
   task?: string;
   occurrence?: string;
@@ -68,6 +68,9 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
   const entity = (key: string) =>
     /^[A-Za-z0-9_-]{1,128}$/.test(query.get(key) || '') ? query.get(key)! : undefined;
   return {
+    ...(query.get('view') === 'apps' && query.get('app') === 'office'
+      ? { app: 'office' as const }
+      : {}),
     ...(query.get('view') === 'apps' && query.get('app') === 'graph'
       ? {
           app: 'graph' as const,

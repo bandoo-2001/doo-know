@@ -13,6 +13,7 @@ import {
   mcpResult,
   ReadingBudgets,
   budgets,
+  resultSize,
 } from "./budgets.js";
 import { BridgeError, errorBody, invalidInput, annotateError, bridgeErrorSchema } from "./errors.js";
 import { createToDooOperations } from './to-doo-operations.js';
@@ -60,17 +61,29 @@ const policyKey = (p: Principal) =>
       ]),
     )
     .digest("hex");
-const referenceSchema = z
+const referenceOwner = {
+  owner: z.string().length(64),
+  expires: z.number().int().positive(),
+};
+const noteReference = z
   .object({
     kind: z.enum(["note", "chunk"]),
     noteId: c.noteId,
     chunkId: z.string().max(256).optional(),
     sourceHash: c.hash,
     sourceRevision: z.number().int().positive(),
-    owner: z.string().length(64),
-    expires: z.number().int().positive(),
+    ...referenceOwner,
   })
   .strict();
+const officeReference = c.officeResearchReference.extend({
+  kind: z.literal('office'),
+  ...referenceOwner,
+});
+const referenceSchema = z.union([noteReference, officeReference]);
+type NoteReference = Omit<z.infer<typeof noteReference>, keyof typeof referenceOwner>;
+type OfficeReference = Omit<z.infer<typeof officeReference>, keyof typeof referenceOwner>;
+type SearchItem = z.infer<typeof c.researchSearchOutput>['results'][number];
+type NoteHit = z.infer<typeof c.searchOutput>['results'][number];
 export function createOperations(
   config: { objectIdSecret: string },
   client: KnowledgeClient,
@@ -100,13 +113,7 @@ export function createOperations(
   };
   const sign = (
     p: Principal,
-    input: {
-      kind: "note" | "chunk";
-      noteId: string;
-      chunkId?: string;
-      sourceHash: string;
-      sourceRevision: number;
-    },
+    input: NoteReference | OfficeReference,
   ) => {
     const data = Buffer.from(
       JSON.stringify({
@@ -178,13 +185,7 @@ export function createOperations(
     });
   const resultObject = async (
     p: Principal,
-    input: {
-      kind: "note" | "chunk";
-      noteId: string;
-      sourceHash: string;
-      sourceRevision: number;
-      chunkId?: string;
-    },
+    input: NoteReference,
     options: CallOptions,
     id = sign(p, input),
   ) => {
@@ -193,6 +194,67 @@ export function createOperations(
     assertResponse(result);
     return result;
   };
+  const officeObject = async (
+    p: Principal,
+    input: OfficeReference,
+    options: CallOptions,
+    id: string,
+  ) => {
+    const fetchOffice = client.officeFetch;
+    if (!fetchOffice) throw new BridgeError('RESULT_STALE', 409);
+    const { documentId, segment, sourceHash, sourceRevision } = input;
+    const data = await reader.run(p, () =>
+      fetchOffice({ documentId, segment, sourceHash, sourceRevision }, options),
+    );
+    if (
+      data.metadata.objectType !== 'office' ||
+      data.metadata.documentId !== documentId ||
+      data.metadata.sourceHash !== sourceHash ||
+      data.metadata.sourceRevision !== sourceRevision
+    )
+      throw new BridgeError('INVALID_BACKEND_RESPONSE', 502);
+    const result = { ...data, id };
+    assertResponse(result);
+    return result;
+  };
+  async function noteSearchItem(p: Principal, note: NoteHit, options: CallOptions): Promise<{
+    item?: SearchItem;
+    stale?: boolean;
+  } | { error: unknown }> {
+    try {
+      authorizePath(p, note.relativePath);
+      const first = note.matches[0];
+      if (!first) return {};
+      const info = await client.info(p, { noteId: note.noteId }, options);
+      authorizePath(p, info.relativePath);
+      const base = {
+        noteId: note.noteId,
+        sourceHash: first.sourceHash,
+        sourceRevision: first.sourceRevision,
+      };
+      let object;
+      if (info.sizeBytes <= 16384 && info.editorMode !== 'metadata') {
+        try {
+          object = await resultObject(p, { kind: 'note', ...base }, options);
+        } catch (error) {
+          if (
+            !(error instanceof BridgeError) ||
+            !['RESEARCH_OBJECT_TOO_LARGE', 'RESPONSE_TOO_LARGE'].includes(error.code)
+          ) throw error;
+        }
+      }
+      object ??= await resultObject(p, { kind: 'chunk', ...base, chunkId: first.chunkId }, options);
+      return {
+        item: { id: object.id, title: object.title, ...(object.url ? { url: object.url } : {}) },
+      };
+    } catch (error) {
+      if (error instanceof BridgeError && [
+        'RESULT_STALE', 'SNAPSHOT_STALE', 'VERSION_CONFLICT', 'NOT_FOUND', 'NOTE_NOT_FOUND',
+        'SOURCE_CHANGED',
+      ].includes(error.code)) return { stale: true };
+      return { error };
+    }
+  }
   const operations: Operation[] = [
     { name:'get_mcp_context',description:'返回本人有效分域权限、实例及结构版本。保存/整理前调用；每次实时授权。',readOnly:true,input:z.object({}).strict(),output:dataSchema(c.mcpContext),run:(p,a,o)=>client.context(p,a,o) },
     { name:'list_directories',description:'列直接子目录，含空目录；null为根。默认20、最多50；游标绑定授权和结构版本。',scope:'knowledge:read',readOnly:true,input:c.directoryListInput,output:dataSchema(c.directoryPage),run:(p,a,o)=>client.directories(p,a,o) },
@@ -202,77 +264,83 @@ export function createOperations(
     {
       name: "search",
       description:
-        "混合搜索最多10个可fetch对象：小笔记全文或大笔记片段，不自动翻页。",
+        "搜索最多10个可fetch对象，包括笔记全文、笔记片段和获准的办公文档片段。",
       scope: "knowledge:read",
       readOnly: true,
       research: true,
       input: z.object({ query: c.searchInput.shape.query }).strict(),
       output: c.researchSearchOutput,
       run: async (p, args, options) => {
-        const searched = await client.search(
-            p,
-            {
-              query: args.query,
-              mode: "hybrid",
-              freshness: "indexed",
-              limit: 10,
-            },
-            options,
-          ),
-          results: { id: string; title: string; url?: string }[] = [];
-        const reasons = new Set<string>(searched.reasons || []); let omitted = 0;
+        const limit = 10;
+        const [markdown, office] = await Promise.allSettled([
+          client.search(p, { query: args.query, mode: 'hybrid', freshness: 'indexed', limit }, options),
+          client.officeSearch?.({ query: args.query, limit }, options),
+        ]);
+        if (markdown.status === 'rejected') throw markdown.reason;
+        const searched: z.infer<typeof c.searchOutput> = markdown.value;
+        const results: SearchItem[] = [];
+        const reasons = new Set(searched.reasons);
+        let omitted = 0;
+        let officeDegraded = false;
         if (!client.externalWebOriginConfigured()) reasons.add("EXTERNAL_WEB_ORIGIN_REQUIRED");
-        for (let offset = 0; offset < searched.results.length; offset += 2) {
-          const batch = await Promise.all(searched.results.slice(offset, offset+2).map(async (note: z.infer<typeof c.searchOutput>['results'][number]) => {
-          try {
-          authorizePath(p, note.relativePath);
-          const first = note.matches[0];
-          if (!first) return {};
-          const info = await client.info(p, { noteId: note.noteId }, options);
-          authorizePath(p, info.relativePath);
-          const base = {
-            noteId: note.noteId,
-            sourceHash: first.sourceHash,
-            sourceRevision: first.sourceRevision,
-          };
-          let object;
-          if (info.sizeBytes <= 16384 && info.editorMode !== "metadata") {
-            try {
-              object = await resultObject(
-                p,
-                { kind: "note", ...base },
-                options,
-              );
-            } catch (e) {
-              if (
-                !(e instanceof BridgeError) ||
-                !["RESEARCH_OBJECT_TOO_LARGE", "RESPONSE_TOO_LARGE"].includes(
-                  e.code,
-                )
-              )
-                throw e;
-            }
+        const officeResults = office.status === 'fulfilled' ? office.value?.results ?? [] : [];
+        if (office.status === 'fulfilled' && office.value) {
+          officeDegraded = office.value.degraded;
+          for (const reason of office.value.reasons) reasons.add(reason);
+        } else if (office.status === 'rejected') {
+          const code = office.reason instanceof BridgeError ? office.reason.code : undefined;
+          if (code === 'CALL_CANCELLED') throw office.reason;
+          if (code !== 'FORBIDDEN' && code !== 'CAPABILITY_UNAVAILABLE') {
+            reasons.add('OFFICE_RESEARCH_UNAVAILABLE');
           }
-          object ??= await resultObject(
-            p,
-            { kind: "chunk", ...base, chunkId: first.chunkId },
-            options,
-          );
-          return { item: { id: object.id, title: object.title, ...(object.url ? { url: object.url } : {}) } };
-          } catch (error) {
-            if (error instanceof BridgeError && ['RESULT_STALE','SNAPSHOT_STALE','VERSION_CONFLICT','NOT_FOUND','NOTE_NOT_FOUND','SOURCE_CHANGED'].includes(error.code)) return { stale: true };
-            return { error };
+        }
+        const candidates: Array<{ note: NoteHit } | { item: SearchItem }> = [];
+        // The indexes rank independently, so alternate their ranks instead of comparing scores.
+        for (let rank = 0; rank < Math.max(searched.results.length, officeResults.length); rank++) {
+          const note = searched.results[rank];
+          if (note) candidates.push({ note });
+          const hit = officeResults[rank];
+          if (hit) {
+            const { title, url, ...reference } = hit;
+            candidates.push({
+              item: { id: sign(p, { kind: 'office', ...reference }), title, ...(url ? { url } : {}) },
+            });
           }
-          }));
+        }
+        const output = () => ({
+          results,
+          degraded: searched.degraded || officeDegraded || reasons.size > 0,
+          reasons: [...reasons].slice(0, 32),
+          omitted,
+        });
+        for (let offset = 0; offset < candidates.length && results.length < limit; ) {
+          const page = candidates.slice(offset, offset + Math.min(2, limit - results.length));
+          offset += page.length;
+          const batch = await Promise.all(page.map((candidate) =>
+            'note' in candidate
+              ? noteSearchItem(p, candidate.note, options)
+              : { item: candidate.item, stale: false },
+          ));
           // Wait for the whole bounded batch before propagating failures, so a
           // failed request never leaves untracked reads running after deactivation.
           for (const result of batch) {
             if ('error' in result) throw result.error;
             if (result.stale) { omitted++; reasons.add('RESULT_STALE'); }
-            if (result.item) { assertResponse({results:[...results,result.item]}); results.push(result.item); }
+            if (!result.item) continue;
+            if (resultSize({ ...output(), results: [...results, result.item] }) > budgets.response) {
+              omitted++;
+              reasons.add('RESPONSE_TOO_LARGE');
+              continue;
+            }
+            results.push(result.item);
           }
         }
-        return { results, degraded: !!searched.degraded || reasons.size > 0, reasons: [...reasons], omitted };
+        while (results.length && resultSize(output()) > budgets.response) {
+          results.pop();
+          omitted++;
+          reasons.add('RESPONSE_TOO_LARGE');
+        }
+        return output();
       },
     },
     {
@@ -282,10 +350,11 @@ export function createOperations(
       scope: "knowledge:read",
       readOnly: true,
       research: true,
-      input: z.object({ id: z.string().min(1).max(4096).describe("原样使用search返回的对象ID；不是noteId，有效期15分钟。") }).strict(),
-      output: c.researchObject,
+      input: z.object({ id: z.string().min(1).max(4096).describe("原样使用search返回的签名对象ID，有效期15分钟。") }).strict(),
+      output: c.researchFetchOutput,
       run: async (p, args, options) => {
         const reference = decode(p, args.id);
+        if (reference.kind === 'office') return officeObject(p, reference, options, args.id);
         return resultObject(p, reference, options, args.id);
       },
     },
