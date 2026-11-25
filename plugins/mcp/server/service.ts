@@ -1,5 +1,9 @@
 import { ZodError, type z } from 'zod';
-import type { PluginServices, KnowledgePort } from '../../../packages/plugin-sdk/index.js';
+import type {
+  KnowledgePort,
+  OfficeResearchReference,
+  PluginServices,
+} from '../../../packages/plugin-sdk/index.js';
 import type { Principal } from './contracts.js';
 import * as c from './contracts.js';
 import { BridgeError, annotateError, invalidInput } from './errors.js';
@@ -20,6 +24,14 @@ export type KnowledgeClient = {
   organize(p: Principal,input: any,options?: CallOptions): Promise<any>;
   organizationHistory(p: Principal,input: any,options?: CallOptions): Promise<any>;
   undoOrganization(p: Principal,input: any,options?: CallOptions): Promise<any>;
+  officeSearch?(
+    input: { query: string; limit: number },
+    options: CallOptions,
+  ): Promise<z.infer<typeof c.officeResearchSearchOutput> | undefined>;
+  officeFetch?(
+    input: OfficeResearchReference,
+    options: CallOptions,
+  ): Promise<z.infer<typeof c.officeResearchResult>>;
   externalWebOriginConfigured(): boolean;
 };
 const schemas: Record<keyof KnowledgePort, z.ZodType> = {
@@ -108,6 +120,19 @@ export function hostClient(services: () => PluginServices, configuration: () => 
   };
   for (const name of Object.keys(schemas) as (keyof KnowledgePort)[]) client[name] = (_p, input, options = {}) =>
     invoke(toolNames[name], input, options, schemas[name], () => services().knowledge[name](input, options), writes.has(name), true);
+  client.officeSearch = async (input, options) => {
+    const port = services().officeResearch;
+    if (!port) return undefined;
+    return invoke(
+      'search', input, options, c.officeResearchSearchOutput,
+      () => port.search(input, options), false, true,
+    );
+  };
+  client.officeFetch = (input, options) => invoke('fetch', input, options, c.officeResearchResult, () => {
+    const port = services().officeResearch;
+    if (!port) throw new BridgeError('RESULT_STALE', 409);
+    return port.fetch(input, options);
+  }, false, true);
   const blogSchemas = { status: c.blogNoteStatus, publish: c.blogPost, unpublish: c.blogPost };
   for (const name of Object.keys(blogSchemas) as (keyof typeof blogSchemas)[]) {
     const key = ({ status: 'blogStatus', publish: 'blogPublish', unpublish: 'blogUnpublish' } as const)[name];

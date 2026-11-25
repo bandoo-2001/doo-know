@@ -10,7 +10,7 @@ it('requires the extended To Doo host contract for the new MCP bundle while reta
   const git = JSON.parse(
     await readFile(new URL('../plugins/git/manifest.json', import.meta.url), 'utf8'),
   );
-  expect(manifest.version).toBe('2.0.4');
+  expect(manifest.version).toBe('2.0.5');
   expect(manifest.apiVersion).toBe('^1.5.0');
   // Existing 1.4 hosts lack anniversary image tools and reject taskScope.
   expect(satisfies('1.4.0', manifest.apiVersion)).toBe(false);

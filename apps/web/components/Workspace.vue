@@ -100,6 +100,7 @@ import type { NoteInfo, FileReply, OutlinePage, FileOperation, SearchOutput, Mov
 const DocumentProperties=defineAsyncComponent(()=>import('./DocumentProperties.vue'));
 const EditorInsertMenu=defineAsyncComponent(()=>import('./EditorInsertMenu.vue'));
 const MarkdownPaste=defineAsyncComponent(()=>import('./MarkdownPaste.vue'));
+const WebCaptureDialog = defineAsyncComponent(() => import('./WebCaptureDialog.vue'));
 const NoteBacklinks=defineAsyncComponent(()=>import('./NoteBacklinks.vue'));
 const DiagramSaveDialog=defineAsyncComponent(()=>import('./DiagramSaveDialog.vue'));
 const diagramSaveContext=ref<{id:string;epoch:number;markdown:string;needs:DiagramSaveNeed[]}>();
@@ -384,12 +385,19 @@ const gitAvailable = computed(() =>
   pluginRegistry.value.installed?.some((entry) => entry.id === 'git' && entry.state === 'enabled'),
 );
 const createMenuOpen = ref(false);
+const webCaptureOpen = ref(false);
+let webCaptureIntent = 0;
 let returnRoute: WorkspaceRoute = {};
 function openImport() {
   createMenuOpen.value = false;
   importFolder.value =
     folder.value || note.value?.relativePath.split('/').slice(0, -1).join('/') || '00-Inbox';
   importOpen.value = true;
+}
+function openWebCapture() {
+  createMenuOpen.value = false;
+  webCaptureIntent = navigationIntent;
+  webCaptureOpen.value = true;
 }
 function storedSidebarWidth() {
   try {
@@ -2157,6 +2165,15 @@ async function imported(value: { id: string; relativePath: string }) {
   await run(refresh);
   tell('Markdown 已导入，可在目录中打开');
 }
+async function webCaptureSaved({ id }: Pick<NoteDocument, 'id'>) {
+  const intent = webCaptureIntent;
+  webCaptureOpen.value = false;
+  tell('网页已保存到收集箱');
+  await run(async () => {
+    await refresh();
+    if (currentIntent(intent)) await openNote(id);
+  });
+}
 const browserMediaPersistence=ref<{noteId:string;epoch:number}>();
 const browserMediaBusy=ref(false);
 async function persistPortableBrowserMedia(){
@@ -2889,6 +2906,7 @@ async function closeNotebookDrawer() {
                     <Icon name="folder" />新建文件夹
                   </button>
                   <button @click="openImport"><Icon name="file" />导入 Markdown</button>
+                  <button :disabled="!treeLoaded" @click="openWebCapture"><Icon name="link" />保存网页</button>
                 </div></template
               >
               <button
@@ -3064,7 +3082,7 @@ async function closeNotebookDrawer() {
       :active="panel"
       :collection="collection"
       :pinned-apps="pinnedApps"
-      :active-app="appsApp"
+      :active-app="appsApp === 'office' ? undefined : appsApp"
       @collection="showCollection"
       @settings="settings"
       @trash="openTrash()"
@@ -3701,6 +3719,11 @@ async function closeNotebookDrawer() {
         <AButton :disabled="importBusy || batchImportBusy" @click="importOpen = false">完成</AButton>
       </div>
     </NModal>
+    <WebCaptureDialog
+      v-if="webCaptureOpen"
+      @close="webCaptureOpen = false"
+      @saved="webCaptureSaved"
+    />
     <PluginPanel />
     <ToDooReminderCards
       :show-missed-summary="activeAppMenu?.id !== 'to-doo'"

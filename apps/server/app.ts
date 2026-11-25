@@ -51,6 +51,7 @@ import { registerGraphRoutes } from './graph/routes.js';
 import { registerSemanticGraphRoutes } from './graph/semantic-routes.js';
 import { registerAgentRoutes } from './agent/routes.js';
 import { registerWebKnowledgeRoutes } from './knowledge/web-routes.js';
+import { registerWebCaptureRoutes } from './knowledge/web-capture-routes.js';
 import { webPrincipal } from '../../packages/core/knowledge/core.js';
 import { KnowledgeError } from '../../packages/core/knowledge/errors.js';
 import { registerStorageRoutes } from './platform/storage.js';
@@ -71,6 +72,7 @@ import { ZodError } from 'zod';
 import { createOutcomeNoteService } from './to-doo/outcome-note.js';
 import { createToDooAssets } from '../../packages/core/to-doo/assets.js';
 import { registerToDooAssetRoutes } from './to-doo/asset-routes.js';
+import { registerOnlyOfficeRoutes } from './onlyoffice/routes.js';
 export async function createApp(config: HostConfig, dependencies: { gitExec?: (db: ReturnType<typeof openDatabase>) => GitExec } = {}) {
   const app = Fastify({ logger: false, bodyLimit: 2 * 1024 * 1024 });
   const db = openDatabase(config.dataRoot, 'server');
@@ -308,6 +310,17 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   });
   app.post('/api/platform/setup/finish', async () => platform.settings.finish());
   const notes = lazyService(() => platform.get().notes);
+  registerOnlyOfficeRoutes(app, {
+    db,
+    origin: config.origin,
+    secret: config.secret,
+    getRoot: () => platform.get().config.knowledgeRoot,
+    scheduleIndex: (documentId) => {
+      const runtime = platform.get();
+      if (runtime.config.indexing?.enabled !== false) runtime.officeSearch.schedule(documentId);
+    },
+  });
+  registerWebCaptureRoutes(app, () => platform.get().config.knowledgeRoot, notes);
   const knowledge = await registerAgentRoutes(
     app,
     businessConfig,

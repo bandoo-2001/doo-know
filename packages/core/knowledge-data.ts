@@ -85,7 +85,7 @@ function syncDirectory(path: string) {
     closeSync(fd);
   }
 }
-export function readKnowledgeDataFile(root: string, relative: string): Buffer | undefined {
+export function readKnowledgeDataFile(root: string, relative: string, maxBytes?: number): Buffer | undefined {
   const path = filePath(root, relative);
   if (!path) return undefined;
   let fd;
@@ -98,9 +98,22 @@ export function readKnowledgeDataFile(root: string, relative: string): Buffer | 
   try {
     const info = fstatSync(fd);
     if (!info.isFile() || info.nlink > 1) unavailable('应用数据不是独立的普通文件');
+    if (maxBytes !== undefined && info.size > maxBytes) throw new HttpError(413, '应用数据文件超过大小限制');
     return readFileSync(fd);
   } finally {
     closeSync(fd);
+  }
+}
+export function statKnowledgeDataFile(root: string, relative: string) {
+  const path = filePath(root, relative);
+  if (!path) return undefined;
+  try {
+    const info = lstatSync(path);
+    if (!info.isFile() || info.nlink > 1) unavailable('应用数据不是独立的普通文件');
+    return { sizeBytes: info.size, updatedAt: info.mtime.toISOString() };
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined;
+    throw error;
   }
 }
 export function writeKnowledgeDataFile(

@@ -219,7 +219,7 @@ it('serves both packaged MCP endpoints through the SDK with independent authenti
             requestInit: { headers: { authorization: 'Bearer ' + token } },
           }),
         );
-        expect(client.getServerVersion()).toMatchObject({ name: 'doo-know', version: '2.0.4' });
+        expect(client.getServerVersion()).toMatchObject({ name: 'doo-know', version: '2.0.5' });
         const names: string[] = [];
         let cursor: string | undefined;
         do {

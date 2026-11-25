@@ -1,5 +1,5 @@
 import { lookup } from 'node:dns/promises';
-import { isIP } from 'node:net';
+import { isIP, type LookupFunction } from 'node:net';
 import {
   request as httpRequest,
   type RequestOptions,
@@ -82,39 +82,49 @@ export function resourceDiagnostic(value: string) {
 function resourceError(message: string) {
   return Object.assign(Error(message), { code: 'PORTABLE_REMOTE_RESOURCE_FAILED' });
 }
-export async function stageRemoteResource(
+export class PublicHttpError extends Error {
+  constructor(
+    public kind: 'destination' | 'timeout' | 'redirect' | 'upstream',
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+export async function withPinnedPublicResponse<T>(
   value: string,
   options: RemoteDependencies & {
-    destination: string;
-    maxBytes?: number;
-    timeoutMs?: number;
+    timeoutMs: number;
+    redirects: number;
+    headers: Record<string, string>;
     signal?: AbortSignal;
-    onBytes?: (bytes: number) => void;
+    checkUrl?: (url: URL) => void;
   },
+  consume: (response: IncomingMessage, url: URL, signal: AbortSignal) => Promise<T>,
 ) {
-  const controller = new AbortController(),
-    timeout = setTimeout(
-      () => controller.abort(resourceError('resource timeout')),
-      options.timeoutMs ?? limits.resourceTimeoutMs,
-    );
-  const abort = () =>
-    controller.abort(options.signal?.reason ?? resourceError('resource cancelled'));
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(new PublicHttpError('timeout', 'resource timeout')),
+    options.timeoutMs,
+  );
+  const abort = () => controller.abort(options.signal?.reason);
   if (options.signal?.aborted) abort();
   else options.signal?.addEventListener('abort', abort, { once: true });
   const signal = controller.signal;
   let active: ClientRequest | undefined;
+  let response: IncomingMessage | undefined;
   const aborted = () =>
     active?.destroy(
       signal.reason instanceof Error ? signal.reason : resourceError('resource cancelled'),
     );
   signal.addEventListener('abort', aborted);
   try {
-    let url = new URL(value),
-      response: IncomingMessage | undefined;
+    let url = new URL(value);
     for (let hop = 0; ; hop++) {
       if (signal.aborted) throw signal.reason;
       if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password)
-        throw resourceError('resource protocol/credentials forbidden');
+        throw new PublicHttpError('destination', 'resource protocol/credentials forbidden');
+      options.checkUrl?.(url);
       const host = url.hostname.replace(/^\[|\]$/g, '');
       const addresses = isIP(host)
         ? [{ address: host, family: isIP(host) }]
@@ -124,9 +134,16 @@ export async function stageRemoteResource(
               signal.addEventListener('abort', () => reject(signal.reason), { once: true }),
             ),
           ]);
-      if (!addresses.length || addresses.some((a) => !isPublicAddress(a.address)))
-        throw resourceError('resource address forbidden');
+      if (
+        !addresses.length ||
+        addresses.some((a) => a.family !== isIP(a.address) || !isPublicAddress(a.address))
+      )
+        throw new PublicHttpError('destination', 'resource address forbidden');
       const pinned = addresses[0];
+      const lookupPinned: LookupFunction = (_hostname, lookupOptions, callback) => {
+        if (lookupOptions.all) callback(null, [pinned]);
+        else callback(null, pinned.address, pinned.family);
+      };
       response = await new Promise<IncomingMessage>((resolve, reject) => {
         const request =
           options.request ??
@@ -137,10 +154,9 @@ export async function stageRemoteResource(
             method: 'GET',
             agent: false,
             family: pinned.family,
-            headers: { Accept: Object.keys(resourceExtensions).join(', ') },
+            headers: options.headers,
             signal,
-            lookup: ((_hostname: string, _lookupOptions: unknown, callback: any) =>
-              callback(null, pinned.address, pinned.family)) as any,
+            lookup: lookupPinned,
           },
           resolve,
         );
@@ -150,68 +166,97 @@ export async function stageRemoteResource(
       if ([301, 302, 303, 307, 308].includes(response.statusCode ?? 0)) {
         const location = response.headers.location;
         response.destroy();
-        if (!location || hop >= limits.redirects) throw resourceError('resource redirect limit');
+        if (!location || hop >= options.redirects)
+          throw new PublicHttpError('redirect', 'resource redirect limit');
         const next = new URL(location, url);
         if (url.protocol === 'https:' && next.protocol === 'http:')
-          throw resourceError('resource redirect downgrade');
+          throw new PublicHttpError('destination', 'resource redirect downgrade');
         url = next;
         continue;
       }
       if (response.statusCode !== 200) {
         response.destroy();
-        throw resourceError('resource HTTP unavailable');
+        throw new PublicHttpError('upstream', 'resource HTTP unavailable');
       }
-      break;
+      const result = await consume(response, url, signal);
+      signal.throwIfAborted();
+      return result;
     }
-    const mime = String(response!.headers['content-type'] ?? '')
-        .split(';')[0]
-        .trim()
-        .toLowerCase(),
-      ext = resourceExtensions[mime];
-    if (!ext) {
-      response!.destroy();
-      throw resourceError('resource MIME unsupported');
-    }
-    const maximum = Math.min(
-      options.maxBytes ?? Infinity,
-      MEDIA_MIMES[ext] ? limits.mediaBytes : limits.attachmentBytes,
-    );
-    const length = response!.headers['content-length'];
-    if (length !== undefined && (!/^\d+$/.test(length) || Number(length) > maximum)) {
-      response!.destroy();
-      throw resourceError('resource quota exceeded');
-    }
-    let sizeBytes = 0;
-    const hash = createHash('sha256');
-    await pipeline(
-      response!,
-      new Transform({
-        transform(chunk, _encoding, callback) {
-          try {
-            sizeBytes += chunk.length;
-            if (sizeBytes > maximum) throw resourceError('resource quota exceeded');
-            options.onBytes?.(sizeBytes);
-            hash.update(chunk);
-            callback(null, chunk);
-          } catch (e) {
-            callback(e as Error);
-          }
-        },
-      }),
-      createWriteStream(options.destination, { flags: 'wx', mode: 0o600 }),
-      { signal },
-    );
-    if (signal.aborted) throw signal.reason;
-    return { mime, ext, sizeBytes, sha256: hash.digest('hex') };
   } catch (error) {
-    active?.destroy();
-    await unlink(options.destination).catch(() => {});
     if (signal.aborted) throw signal.reason;
     throw error;
   } finally {
+    response?.destroy();
+    active?.destroy();
     clearTimeout(timeout);
     signal.removeEventListener('abort', aborted);
     options.signal?.removeEventListener('abort', abort);
+  }
+}
+
+export async function stageRemoteResource(
+  value: string,
+  options: RemoteDependencies & {
+    destination: string;
+    maxBytes?: number;
+    timeoutMs?: number;
+    signal?: AbortSignal;
+    onBytes?: (bytes: number) => void;
+  },
+) {
+  try {
+    return await withPinnedPublicResponse(
+      value,
+      {
+        ...options,
+        timeoutMs: options.timeoutMs ?? limits.resourceTimeoutMs,
+        redirects: limits.redirects,
+        headers: { Accept: Object.keys(resourceExtensions).join(', ') },
+      },
+      async (response, _url, signal) => {
+        const mime = String(response.headers['content-type'] ?? '')
+            .split(';')[0]
+            .trim()
+            .toLowerCase(),
+          ext = resourceExtensions[mime];
+        if (!ext) {
+          throw resourceError('resource MIME unsupported');
+        }
+        const maximum = Math.min(
+          options.maxBytes ?? Infinity,
+          MEDIA_MIMES[ext] ? limits.mediaBytes : limits.attachmentBytes,
+        );
+        const length = response.headers['content-length'];
+        if (length !== undefined && (!/^\d+$/.test(length) || Number(length) > maximum)) {
+          throw resourceError('resource quota exceeded');
+        }
+        let sizeBytes = 0;
+        const hash = createHash('sha256');
+        await pipeline(
+          response,
+          new Transform({
+            transform(chunk, _encoding, callback) {
+              try {
+                sizeBytes += chunk.length;
+                if (sizeBytes > maximum) throw resourceError('resource quota exceeded');
+                options.onBytes?.(sizeBytes);
+                hash.update(chunk);
+                callback(null, chunk);
+              } catch (e) {
+                callback(e as Error);
+              }
+            },
+          }),
+          createWriteStream(options.destination, { flags: 'wx', mode: 0o600 }),
+          { signal },
+        );
+        return { mime, ext, sizeBytes, sha256: hash.digest('hex') };
+      },
+    );
+  } catch (error) {
+    await unlink(options.destination).catch(() => {});
+    if (error instanceof PublicHttpError) throw resourceError(error.message);
+    throw error;
   }
 }
 export async function stageDataResource(

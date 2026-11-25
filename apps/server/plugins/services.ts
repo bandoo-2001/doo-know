@@ -48,6 +48,7 @@ import type { McpManagedDomainPort } from '../../../shared/mcp-domain-tools.js';
 import { transferToolDefinitions } from '../../../shared/mcp-transfer-tools.js';
 import { mcpPolicy } from '../platform/oauth.js';
 import { v2ToolRequirements } from '../../../shared/permissions.js';
+import { acquireRead, chargeRate } from '../../../packages/core/agent/budgets.js';
 
 export function pluginServices(
   platform: ReturnType<typeof platformRuntime>,
@@ -233,6 +234,30 @@ export function pluginServices(
     return toDooTools ??= createToDooToolPort(fullContext);
   }
   return {
+    officeResearch: runtime.config.indexing?.enabled === false ? undefined : {
+      search: async (input, options) =>
+        workspaceRead(db, { kind: 'onlyoffice.search' }, async () => {
+          if (!authorized('knowledge:read', options).knowledgeAll)
+            return { results: [], degraded: false, reasons: [] };
+          const result = await runtime.officeSearch.search(input);
+          if (!authorized('knowledge:read', options).knowledgeAll) fail(403, 'FORBIDDEN');
+          return result;
+        }),
+      fetch: async (input, options) =>
+        workspaceRead(db, { kind: 'onlyoffice.fetch' }, async () => {
+          const p = authorized('knowledge:read', options);
+          if (!p.knowledgeAll) fail(403, 'FORBIDDEN');
+          const release = acquireRead(db, p, 'mcp');
+          try {
+            const result = await runtime.officeSearch.fetch(input);
+            if (!authorized('knowledge:read', options).knowledgeAll) fail(403, 'FORBIDDEN');
+            db.transaction(() => chargeRate(db, p, 'mcp', Buffer.byteLength(result.text))).immediate();
+            return result;
+          } finally {
+            release();
+          }
+        }),
+    },
     get knowledgeTools() { return knowledgeTools ??= createKnowledgeToolPort(fullContext); },
     get blogTools() { return blogTools ??= createBlogToolPort(fullContext); },
     get toDooTools() { return toDooTools ??= createToDooToolPort(fullContext); },
