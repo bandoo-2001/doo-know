@@ -36,7 +36,7 @@ import type { ToDooAppSection } from '../../navigation';
 import type { ToDooEntityKind, ToDooFilter } from '../../../../shared/to-doo-contracts';
 import {
   toDooLocalDate,
-  toDooDisplayTime,
+  toDooDateTimeMillis,
   shiftToDooDate,
   toDooStatusLabels,
   toDooPriorityLabels,
@@ -584,13 +584,13 @@ async function drop(event: DragEvent, column: string) {
 function urgent(item: ToDooItem) {
   if (item.task.urgentOverride !== null) return item.task.urgentOverride;
   if (!item.occurrence?.due) return false;
-  const d = toDooDisplayTime(
-    { ...item.occurrence.due, time: item.occurrence.due.time || '23:59' },
-    'UTC',
+  const due = item.occurrence.due;
+  const deadline = toDooDateTimeMillis(
+    { ...due, time: due.time || '23:59' },
+    state.snapshot?.settings.timeZone,
   );
   return (
-    Date.parse(d.date + 'T' + d.time + ':00Z') <=
-    Date.now() + (state.snapshot?.settings.urgentHours || 48) * 3600000
+    deadline <= Date.now() + (state.snapshot?.settings.urgentHours || 48) * 3600000
   );
 }
 function quadrant(item: ToDooItem, index: number) {
@@ -673,11 +673,9 @@ async function bulkDue() {
           entity: {
             ...o,
             due: bulkDate.value
-              ? {
-                  date: bulkDate.value,
-                  time: o.due?.time || null,
-                  timeZone: o.due?.timeZone || state.snapshot!.settings.timeZone,
-                }
+              ? o.due
+                ? { ...o.due, date: bulkDate.value }
+                : { date: bulkDate.value, time: null, timeZone: state.snapshot!.settings.timeZone }
               : null,
           },
           expectedRevision: o.revision,

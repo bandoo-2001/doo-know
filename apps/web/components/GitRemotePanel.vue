@@ -23,10 +23,9 @@ import {
   type WorkspaceChangeDetail,
 } from '../git-sync';
 const props = withDefaults(
-  defineProps<{ mode?: 'sync' | 'import'; timeZone?: string; inline?: boolean }>(),
+  defineProps<{ mode?: 'sync' | 'import'; inline?: boolean }>(),
   {
     mode: 'sync',
-    timeZone: 'Asia/Shanghai',
     inline: false,
   },
 );
@@ -588,7 +587,6 @@ async function startJob(kind: GitJobKind) {
         ? {
             name: name.value.trim(),
             ...(parentPath.value.trim() ? { parentPath: parentPath.value.trim() } : {}),
-            timeZone: props.timeZone,
           }
         : {}),
       ...(kind === 'push' && (committedHead.value || state.value?.head)

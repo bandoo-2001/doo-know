@@ -2,7 +2,6 @@ import { z } from 'zod';
 import {
   toDooDate,
   toDooId,
-  type ToDooDateTime,
   type ToDooEntityMap,
   type ToDooService,
   type ToDooSnapshot,
@@ -13,7 +12,7 @@ import {
   summarizeHabitPeriod,
 } from '../../../shared/to-doo-habits.js';
 import { HttpError } from '../errors.js';
-import { dateTimeInstant, localDate } from './recurrence.js';
+import { localDate, scheduleDisplayDate } from './recurrence.js';
 
 const pageSize = 12;
 const offset = z
@@ -87,12 +86,6 @@ const isLive = (entity: { deletedAt: string | null; archivedAt?: string | null }
   !!entity && !entity.deletedAt && !entity.archivedAt;
 const clipped = (title: string) => Array.from(title).slice(0, 80).join('');
 
-function displayDate(value: ToDooDateTime, zone: string) {
-  return value.time && value.timeZone !== zone
-    ? localDate(dateTimeInstant(value), zone)
-    : value.date;
-}
-
 function taskRows(state: ToDooSnapshot, listIds: Set<string>, query: Query, date: string) {
   const zone = state.settings.timeZone;
   const plannedToday = new Set<string>();
@@ -101,7 +94,7 @@ function taskRows(state: ToDooSnapshot, listIds: Set<string>, query: Query, date
       if (
         block.occurrenceId &&
         !block.deletedAt &&
-        (block.allDay ? block.start.date : displayDate(block.start, zone)) === date
+        (block.allDay ? block.start.date : scheduleDisplayDate(block.start, zone)) === date
       ) {
         plannedToday.add(block.occurrenceId);
       }
@@ -114,7 +107,7 @@ function taskRows(state: ToDooSnapshot, listIds: Set<string>, query: Query, date
       if (!task || !isOpen(o)) return [];
       const listId = task.listId ?? 'inbox';
       if (!listIds.has(listId) || (query.listId && query.listId !== listId)) return [];
-      const dueDate = o.due ? displayDate(o.due, zone) : o.scheduledDate;
+      const dueDate = o.due ? scheduleDisplayDate(o.due, zone) : o.scheduledDate;
       if (query.today && dueDate !== date && o.scheduledDate !== date && !plannedToday.has(o.id))
         return [];
       return [

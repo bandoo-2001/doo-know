@@ -1842,6 +1842,7 @@ function mapCalendarRule(item: CalendarItem, id: string): ToDooRecurrence | null
     anchorDate: item.start.date,
     time: item.start.time,
     timeZone: item.start.timeZone,
+    timeMode: item.start.timeMode,
     weekdays: dayParts.map((day) => weekdays[day.slice(-2)]),
     ...(ordinal !== undefined ? { weekOrdinal: ordinal } : {}),
     ...(monthDay !== undefined ? { monthDay: monthDay === -1 ? 31 : monthDay } : {}),
@@ -1959,9 +1960,9 @@ function ICALDateAdd(value: ToDooDateTime, minutes: number): ToDooDateTime {
   const date = new Date(value.date + 'T' + (value.time ?? '00:00') + ':00Z');
   date.setUTCMinutes(date.getUTCMinutes() + minutes);
   return {
+    ...value,
     date: date.toISOString().slice(0, 10),
     time: value.time === null ? null : date.toISOString().slice(11, 16),
-    timeZone: value.timeZone,
   };
 }
 export type ToDooInterop = ReturnType<typeof createToDooInterop>;

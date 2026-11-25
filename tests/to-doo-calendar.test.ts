@@ -45,6 +45,25 @@ describe('iCalendar exchange', () => {
     expect(calendarItemId('s', 'uid', 'original')).toBe(calendarItemId('s', 'uid', 'original'));
     expect(calendarItemId('s', 'uid', 'original')).not.toBe(calendarItemId('s', 'uid', 'other'));
   });
+  it('round-trips floating wall times and recurring exceptions without turning them into TZID dates', () => {
+    const input = source.replace(/;TZID=Asia\/Shanghai/g, '');
+    const parsed = parseCalendar(input, { timeZone: 'Asia/Tokyo' });
+    const expanded = expandCalendar(parsed.items, { from: '2026-10-29', to: '2026-11-30' });
+    expect(expanded).toHaveLength(3);
+    expect(expanded.every((item) =>
+      item.start.timeMode === 'floating' && item.end?.timeMode === 'floating',
+    )).toBe(true);
+    const output = exportCalendar(parsed.items, { datasetId: 'dataset' });
+    expect(output).toContain('DTSTART:20261029T090000');
+    expect(output).toContain('RECURRENCE-ID:20261112T090000');
+    expect(output).not.toContain('TZID');
+    expect(parseCalendar(output, { timeZone: 'America/Los_Angeles' }).items[0].start).toEqual({
+      date: '2026-10-29',
+      time: '09:00',
+      timeZone: 'America/Los_Angeles',
+      timeMode: 'floating',
+    });
+  });
   it('rejects truncated, invalid or floating-time input without an explicit time zone', () => {
     expect(() => parseCalendar(source.replace('END:VCALENDAR', ''), { timeZone: 'UTC' })).toThrow(
       /complete|calendar/i,

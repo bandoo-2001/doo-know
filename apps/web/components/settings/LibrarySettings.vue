@@ -46,8 +46,7 @@ onMounted(() => void load());
           <strong>{{ state.library.name || '尚未绑定知识库' }}</strong>
         </p>
         <p class="settings-muted">
-          {{ state.library.ready ? '知识库可用' : '知识库暂时不可用' }} · 时区
-          {{ state.library.timeZone }}
+          {{ state.library.ready ? '知识库可用' : '知识库暂时不可用' }}
         </p>
         <details>
           <summary>服务器上的原文目录</summary>

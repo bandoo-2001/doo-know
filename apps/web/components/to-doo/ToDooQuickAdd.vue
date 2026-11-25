@@ -2,15 +2,18 @@
 import ToDooDateField from './ToDooDateField.vue';
 import { Button as AButton, Input as AInput, Popover as APopover } from 'ant-design-vue';
 import ToDooSelect from './ToDooSelect.vue';
+import ToDooTimeModeFields from './ToDooTimeModeFields.vue';
 import { createToDooPopupEscapeBoundary } from '../../to-doo-controls';
 
 import { computed, nextTick, onMounted, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import type { ToDooWorkbench, ToDooCreateSeed, ToDooNewTaskDraft } from '../../to-doo-workbench';
-import { parseToDooQuickEntry, shiftToDooDate, toDooLocalDate } from '../../to-doo-workbench';
+import { parseToDooQuickEntry, shiftToDooDate, toDooDisplayTime, toDooLocalDate } from '../../to-doo-workbench';
 import {
+  isToDooTimeZone,
   prepareToDooQuickDraft,
   toDooDateLabel,
   toDooDraftPayload,
+  toDooDraftRepeatClock,
   type ToDooTaskPlacement,
 } from '../../to-doo-presentation';
 import ToDooIcon from './ToDooIcon.vue';
@@ -84,7 +87,8 @@ watch(() => [draft.value, draft.value.title] as const, ([current], [previous]) =
   if (current === previous) literalTitle.value = false;
   originalDraft.value = null;
 }, { flush: 'sync' });
-const today = computed(() => toDooLocalDate(new Date(), state.snapshot?.settings.timeZone));
+const zone = computed(() => state.snapshot?.settings.timeZone || 'UTC');
+const today = computed(() => toDooLocalDate(new Date(), zone.value));
 const prepared = computed(() =>
   prepareToDooQuickDraft(
     draft.value,
@@ -93,6 +97,7 @@ const prepared = computed(() =>
     props.defaultDate,
   ),
 );
+const repeatClock = computed(() => toDooDraftRepeatClock(draft.value));
 const recognized = computed(() => !literalTitle.value && parseToDooQuickEntry(
   draft.value.title, today.value, state.snapshot?.tags.filter((tag) => !tag.deletedAt) || [],
 ).recognized);
@@ -118,8 +123,12 @@ function useOriginal() {
 }
 function removeDate(kind: 'plan' | 'due') {
   if (!normalize()) return;
-  if (kind === 'plan') Object.assign(draft.value, { planDate: '', planTime: '', planDateCleared: true });
-  else Object.assign(draft.value, { dueDate: '', dueTime: '', planDateCleared: true });
+  if (kind === 'plan') Object.assign(draft.value, {
+    planDate: '', planTime: '', planTimeMode: 'fixed', planTimeZone: '', planDateCleared: true,
+  });
+  else Object.assign(draft.value, {
+    dueDate: '', dueTime: '', dueTimeMode: 'fixed', dueTimeZone: '', planDateCleared: true,
+  });
 }
 function removeRepeat() {
   if (normalize()) Object.assign(draft.value, { frequency: null, weekdays: [] });
@@ -143,6 +152,7 @@ function setPlanDate(value: string) {
     planDate: value,
     planDateCleared: !value,
     planTime: value ? prepared.value.planTime : '',
+    ...(!value ? { planTimeMode: 'fixed', planTimeZone: '' } : {}),
   });
 }
 function leaveFocus(event: FocusEvent) {
@@ -190,7 +200,13 @@ function enter(event: KeyboardEvent) {
 }
 async function add() {
   if (composing.value || compositionEnter || !draft.value.title.trim() || submitBlocked.value) return;
-  const payload = pendingCapture.value?.payload || toDooDraftPayload(prepared.value, state.snapshot?.settings.timeZone || 'UTC');
+  const payload = pendingCapture.value?.payload || toDooDraftPayload(prepared.value, zone.value);
+  if (!pendingCapture.value && [payload.plan, payload.due, payload.recurrence].some(
+    (entry) => entry?.time && !isToDooTimeZone(entry.timeZone || zone.value),
+  )) {
+    state.error = '请检查计划、截止或重复规则中的时区。';
+    return;
+  }
   const scope = props.listId;
   const dataset = state.snapshot?.datasetId;
   clearFeedback();
@@ -202,13 +218,17 @@ async function add() {
     if (result) {
       const taskId = result.ids.find((id) => result.snapshot.tasks.some((task) => task.id === id)) ||
         result.changed.find(entry => entry.kind === 'task' && result.ids.includes(entry.id))?.id;
-      if (taskId)
+      if (taskId) {
+        const plan = payload.plan;
         emit('created', {
           taskId,
           title: payload.title,
           listId: payload.listId || null,
-          planDates: payload.plan?.date ? [payload.plan.date] : [],
+          planDates: plan ? [toDooDisplayTime({
+            ...plan, time: plan.time ?? null, timeZone: plan.timeZone ?? 'UTC',
+          }, zone.value).date] : [],
         });
+      }
       feedback.value = `已添加「${payload.title}」`;
       feedbackTimer = setTimeout(clearFeedback, 5000);
     } else if (!pendingCapture.value) {
@@ -276,21 +296,56 @@ async function add() {
       <span v-if="prepared.planDate" class="todo-capture-chip">
         <APopover :open="chipOpen === 'plan'" trigger="click" title="计划" overlay-class-name="todo-ant-popup" @open-change="(open: boolean) => setChipOpen('plan', open)">
           <AButton type="text" @click="rememberChip" @keydown.esc.stop.prevent="closeChip" aria-label="纠正计划日期">计划 {{ toDooDateLabel(prepared.planDate, today) }} {{ prepared.planTime }}</AButton>
-          <template #content><div class="todo-capture-chip-editor" @keydown.capture="chipEscape.capture" @keydown="chipEditorKeydown"><label>计划日期<ToDooDateField v-model="draft.planDate" type="date" aria-label="纠正计划日期" /></label><label>计划时间<ToDooDateField v-model="draft.planTime" type="time" aria-label="纠正计划时间" /></label></div></template>
+          <template #content>
+            <div class="todo-capture-chip-editor" @keydown.capture="chipEscape.capture" @keydown="chipEditorKeydown">
+              <label>计划日期<ToDooDateField v-model="draft.planDate" type="date" aria-label="纠正计划日期" /></label>
+              <label>计划时间<ToDooDateField v-model="draft.planTime" type="time" aria-label="纠正计划时间" /></label>
+              <ToDooTimeModeFields v-if="draft.planTime" v-model:time-mode="draft.planTimeMode"
+                v-model:time-zone="draft.planTimeZone" :workspace-zone="zone"
+                :disabled="waitingForReceipt" label="计划" />
+            </div>
+          </template>
         </APopover>
         <AButton type="text" aria-label="移除计划识别" @click="removeDate('plan')">×</AButton>
       </span>
       <span v-if="prepared.dueDate" class="todo-capture-chip">
         <APopover :open="chipOpen === 'due'" trigger="click" title="截止" overlay-class-name="todo-ant-popup" @open-change="(open: boolean) => setChipOpen('due', open)">
           <AButton type="text" @click="rememberChip" @keydown.esc.stop.prevent="closeChip" aria-label="纠正截止日期">截止 {{ toDooDateLabel(prepared.dueDate, today) }} {{ prepared.dueTime }}</AButton>
-          <template #content><div class="todo-capture-chip-editor" @keydown.capture="chipEscape.capture" @keydown="chipEditorKeydown"><label>截止日期<ToDooDateField v-model="draft.dueDate" type="date" aria-label="纠正截止日期" /></label><label>截止时间<ToDooDateField v-model="draft.dueTime" type="time" aria-label="纠正截止时间" /></label></div></template>
+          <template #content>
+            <div class="todo-capture-chip-editor" @keydown.capture="chipEscape.capture" @keydown="chipEditorKeydown">
+              <label>截止日期<ToDooDateField v-model="draft.dueDate" type="date" aria-label="纠正截止日期" /></label>
+              <label>截止时间<ToDooDateField v-model="draft.dueTime" type="time" aria-label="纠正截止时间" /></label>
+              <ToDooTimeModeFields v-if="draft.dueTime" v-model:time-mode="draft.dueTimeMode"
+                v-model:time-zone="draft.dueTimeZone" :workspace-zone="zone"
+                :disabled="waitingForReceipt" label="截止" />
+            </div>
+          </template>
         </APopover>
         <AButton type="text" aria-label="移除截止识别" @click="removeDate('due')">×</AButton>
       </span>
       <span v-if="prepared.frequency" class="todo-capture-chip">
         <APopover :open="chipOpen === 'repeat'" trigger="click" title="重复" overlay-class-name="todo-ant-popup" @open-change="(open: boolean) => setChipOpen('repeat', open)">
           <AButton type="text" @click="rememberChip" @keydown.esc.stop.prevent="closeChip" aria-label="纠正重复规则">{{ prepared.frequency === 'daily' ? '每天重复' : '每周' + '日一二三四五六'[prepared.weekdays[0] ?? 1] + '重复' }}</AButton>
-          <template #content><div class="todo-capture-chip-editor" @keydown.capture="chipEscape.capture" @keydown="chipEditorKeydown"><label>重复<ToDooSelect :value="draft.frequency" aria-label="纠正重复规则" @change="correctRepeat"><option :value="null">不重复</option><option value="daily">每天</option><option value="weekly">每周</option></ToDooSelect></label><label v-if="draft.frequency === 'weekly'">星期<ToDooSelect :value="draft.weekdays[0] ?? 1" aria-label="重复星期" @change="draft.weekdays = [Number($event)]"><option v-for="(day, index) in ['日', '一', '二', '三', '四', '五', '六']" :key="index" :value="index">星期{{ day }}</option></ToDooSelect></label></div></template>
+          <template #content>
+            <div class="todo-capture-chip-editor" @keydown.capture="chipEscape.capture" @keydown="chipEditorKeydown">
+              <label>重复<ToDooSelect :value="draft.frequency" aria-label="纠正重复规则" @change="correctRepeat">
+                <option :value="null">不重复</option><option value="daily">每天</option><option value="weekly">每周</option>
+              </ToDooSelect></label>
+              <label v-if="draft.frequency === 'weekly'">星期
+                <ToDooSelect :value="draft.weekdays[0] ?? 1" aria-label="重复星期" @change="draft.weekdays = [Number($event)]">
+                  <option v-for="(day, index) in ['日', '一', '二', '三', '四', '五', '六']" :key="index" :value="index">星期{{ day }}</option>
+                </ToDooSelect>
+              </label>
+              <template v-if="draft.frequency && repeatClock.time">
+                <small class="todo-form-help">
+                  重复时间 {{ repeatClock.time }}，取自{{ repeatClock.source === 'plan' ? '计划' : '截止' }}时间。
+                </small>
+                <ToDooTimeModeFields :time-mode="repeatClock.timeMode" v-model:time-zone="draft.recurrenceTimeZone"
+                  :default-zone="repeatClock.timeZone" :workspace-zone="zone" :disabled="waitingForReceipt"
+                  label="重复" @update:time-mode="draft.recurrenceTimeMode = $event" />
+              </template>
+            </div>
+          </template>
         </APopover>
         <AButton type="text" aria-label="移除重复识别" @click="removeRepeat">×</AButton>
       </span>

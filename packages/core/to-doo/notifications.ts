@@ -9,7 +9,7 @@ import type {
 } from '../../../shared/to-doo-contracts.js';
 import { toDooDate } from '../../../shared/to-doo-contracts.js';
 import { createToDooNetwork, type ToDooNetwork } from './network.js';
-import { addDays, dateTimeInstant, localDate, nextAnniversary } from './recurrence.js';
+import { addDays, dateTimeInstant, localDate, nextAnniversary, scheduleTimeZone } from './recurrence.js';
 import {
   getHabitRule,
   getHabitPeriod,
@@ -99,6 +99,9 @@ export const reminderEventId = (plan: ReminderPlan) =>
     plan.scheduleRevision,
     plan.ruleId,
   ]).slice(0, 40);
+const floatingTaskSchedule = (revision: string) => 'f_' + digest(revision).slice(0, 32);
+const isFloatingTaskSchedule = (plan: ReminderPlan) =>
+  plan.sourceType === 'task' && /^f_[a-f0-9]{32}$/.test(plan.scheduleRevision);
 function secureOrigin(value: string): boolean {
   try {
     const url = new URL(value);
@@ -489,9 +492,10 @@ export function createToDooNotifications(
     const plans = port.due(at);
     const known = new Map(port.events().map((e) => [e.id, e]));
     for (const plan of plans) {
-      if (Date.parse(plan.scheduledAt) > atMs) continue;
+      const due = Date.parse(plan.scheduledAt) <= atMs;
       const id = reminderEventId(plan);
-      if (!known.has(id)) {
+      const existing = known.get(id);
+      if (!existing && due) {
         const event = port.save(
           {
             ...plan,
@@ -502,6 +506,26 @@ export function createToDooNotifications(
             deliveryGeneration: 0,
           },
           'raise_' + id,
+        );
+        known.set(id, event);
+      } else if (
+        existing &&
+        isFloatingTaskSchedule(plan) &&
+        !existing.deletedAt &&
+        !existing.firstRaisedAt &&
+        existing.userState === 'unread' &&
+        (due || existing.scheduledAt !== plan.scheduledAt)
+      ) {
+        // A known, unraised event is still on the same logical schedule. Move
+        // it in place so a timezone round trip cannot replay a stale event ID.
+        const event = port.save(
+          {
+            ...existing,
+            ...plan,
+            firstRaisedAt: due ? at.toISOString() : null,
+          },
+          'reschedule_' + digest([id, existing.revision, plan.scheduledAt, due]).slice(0, 40),
+          existing.revision,
         );
         known.set(id, event);
       }
@@ -740,7 +764,8 @@ export function createToDooNotifications(
   };
 }
 
-const atZone = (value: ToDooDateTime, allDayTime = '09:00') => dateTimeInstant(value, allDayTime);
+const atZone = (value: ToDooDateTime, allDayTime = '09:00', workspaceTimeZone?: string) =>
+  dateTimeInstant(value, allDayTime, workspaceTimeZone);
 function habitDay(habit: ToDooEntityMap['habit'], at: Date) {
   let day = localDate(at, habit.timeZone);
   for (let i = 0; i < 3; i++) {
@@ -877,7 +902,12 @@ export function reminderSourceValid(
       }
     : state;
   return notificationPlans(source, at).some(
-    (plan) => reminderEventId(plan) === event.id && plan.scheduledAt === event.scheduledAt,
+    (plan) =>
+      reminderEventId(plan) === event.id &&
+      (plan.scheduledAt === event.scheduledAt ||
+        (isFloatingTaskSchedule(plan) &&
+          !!event.firstRaisedAt &&
+          Date.parse(event.firstRaisedAt) >= Date.parse(event.scheduledAt))),
   );
 }
 export function backfillHabitReminders(
@@ -1030,6 +1060,7 @@ export function backfillHabitReminders(
 }
 export function notificationPlans(snapshot: ToDooSnapshot, at: Date): ReminderPlan[] {
   const result: ReminderPlan[] = [];
+  const workspaceTimeZone = snapshot.settings.timeZone;
   const tasks = new Map(
     snapshot.tasks.filter((t) => !t.deletedAt && !t.archivedAt).map((t) => [t.id, t]),
   );
@@ -1043,29 +1074,36 @@ export function notificationPlans(snapshot: ToDooSnapshot, at: Date): ReminderPl
       continue;
     for (const rule of occurrence.reminders ?? task.reminders) {
       let anchor: Date | null = null;
+      let value: ToDooDateTime | undefined;
+      let floatingPlan = false;
       if (rule.anchor === 'absolute' && rule.at) anchor = new Date(rule.at);
-      else if (rule.anchor === 'due' && occurrence.due)
-        anchor = atZone(occurrence.due, rule.allDayTime);
+      else if (rule.anchor === 'due' && occurrence.due) value = occurrence.due;
       else if (rule.anchor === 'plan') {
-        const block = snapshot.timeBlocks
-          .filter((b) => b.occurrenceId === occurrence.id && !b.deletedAt)
-          .sort((a, b) =>
-            (a.start.date + (a.start.time ?? '')).localeCompare(
-              b.start.date + (b.start.time ?? ''),
-            ),
-          )[0];
-        if (block) anchor = atZone(block.start, rule.allDayTime);
-      } else if (rule.anchor === 'occurrence' && occurrence.scheduledDate)
-        anchor = atZone(
-          { date: occurrence.scheduledDate, time: null, timeZone: snapshot.settings.timeZone },
-          rule.allDayTime,
+        const blocks = snapshot.timeBlocks.filter(
+          (b) => b.occurrenceId === occurrence.id && !b.deletedAt,
         );
+        // A zone change can switch the earliest block between fixed and floating.
+        // Keep one schedule identity even when the selected anchor switches.
+        floatingPlan = blocks.some((b) => b.start.timeMode === 'floating');
+        value = blocks
+          .sort(
+            (a, b) =>
+              dateTimeInstant(a.start, '00:00', workspaceTimeZone).getTime() -
+              dateTimeInstant(b.start, '00:00', workspaceTimeZone).getTime(),
+          )[0]?.start;
+      } else if (rule.anchor === 'occurrence' && occurrence.scheduledDate)
+        value = occurrence.due?.timeMode
+          ? { ...occurrence.due, date: occurrence.scheduledDate, time: null }
+          : { date: occurrence.scheduledDate, time: null, timeZone: workspaceTimeZone };
+      if (value) anchor = atZone(value, rule.allDayTime, workspaceTimeZone);
       if (anchor && Number.isFinite(anchor.getTime()))
         result.push({
           sourceType: 'task',
           sourceId: task.id,
           occurrenceKey: occurrence.cycleKey,
-          scheduleRevision: occurrence.scheduleRevision,
+          scheduleRevision: floatingPlan || value?.timeMode === 'floating'
+            ? floatingTaskSchedule(occurrence.scheduleRevision)
+            : occurrence.scheduleRevision,
           ruleId: rule.id,
           scheduledAt: new Date(anchor.getTime() + rule.offsetMinutes * 60000).toISOString(),
           title: occurrence.titleOverride ?? task.title,
@@ -1196,7 +1234,7 @@ export function notificationDomainPort(
           rule = parent.recurrence;
         }
         if (!rule) continue;
-        const day = localDate(at, rule.timeZone),
+        const day = localDate(at, scheduleTimeZone(rule, state.settings.timeZone)),
           key = digest([task.id, rule.id, task.reminders, day]);
         if (prepared.has(key)) continue;
         const offsets = task.reminders.map((r) => r.offsetMinutes),

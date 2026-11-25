@@ -70,6 +70,8 @@ export const toDooStatusSchema = z.enum([
   'cancelled',
   'skipped',
 ]);
+// Without an explicit mode, existing dates keep their anchored IANA zone.
+const timeMode = z.enum(['fixed', 'floating']);
 export const toDooDateTimeSchema = z
   .object({
     date: toDooDate,
@@ -79,6 +81,7 @@ export const toDooDateTimeSchema = z
       .nullable()
       .default(null),
     timeZone: zone.default('UTC'),
+    timeMode: timeMode.optional(),
   })
   .strict();
 export type ToDooDateTime = z.infer<typeof toDooDateTimeSchema>;
@@ -113,6 +116,7 @@ export const toDooRecurrenceSchema = z
       .nullable()
       .default(null),
     timeZone: zone.default('UTC'),
+    timeMode: timeMode.optional(),
     weekdays: z.array(z.number().int().min(0).max(6)).max(7).default([]),
     monthDay: z.number().int().min(1).max(31).optional(),
     weekOrdinal: z

@@ -11,16 +11,19 @@ import { createToDooPopupEscapeBoundary } from '../../to-doo-controls';
 import ToDooTaskValueSelect from './ToDooTaskValueSelect.vue';
 import ToDooIcon from './ToDooIcon.vue';
 import ToDooDateField from './ToDooDateField.vue';
+import ToDooTimeModeFields from './ToDooTimeModeFields.vue';
 import { computed, onMounted, reactive, ref } from 'vue';
 import type { TreeEntry } from '../../../../shared/contracts';
-import type { ToDooTask } from '../../../../shared/to-doo-contracts';
+import type { ToDooDateTime, ToDooTask } from '../../../../shared/to-doo-contracts';
 import { toDooLocalDate, type ToDooWorkbench } from '../../to-doo-workbench';
+import { toDooScheduleFields } from '../../to-doo-presentation';
 import ToDooNotes from './ToDooNotes.vue';
 const props = defineProps<{ model: ToDooWorkbench; tree: TreeEntry[] }>();
 const emit = defineEmits<{ close: []; 'open-note': [id: string] }>();
 const state = props.model.state,
   loading = ref(true),
   includeChildren = ref(true);
+const zone = computed(() => state.snapshot?.settings.timeZone || 'UTC');
 const popupEscape = createToDooPopupEscapeBoundary();
 const enabled = reactive({
   priority: false,
@@ -44,11 +47,12 @@ const patch = reactive({
 const recurrence = reactive({
   frequency: 'daily',
   interval: 1,
-  anchorDate: toDooLocalDate(),
+  anchorDate: toDooLocalDate(new Date(), zone.value),
   until: '',
   time: '09:00',
   weekdays: [1, 2, 3, 4, 5],
-  timeZone: state.snapshot?.settings.timeZone || 'UTC',
+  timeMode: 'fixed' as NonNullable<ToDooDateTime['timeMode']>,
+  timeZone: '',
 });
 onMounted(async () => {
   for (const id of state.selectedIds) await props.model.ensureTask(id);
@@ -85,8 +89,7 @@ async function save() {
           frequency: recurrence.frequency as any,
           interval: recurrence.interval,
           anchorDate: recurrence.anchorDate,
-          time: recurrence.time || null,
-          timeZone: recurrence.timeZone,
+          ...toDooScheduleFields(recurrence.time || null, zone.value, recurrence.timeMode, recurrence.timeZone),
           weekdays: recurrence.frequency === 'weekly' ? recurrence.weekdays : [],
           until: recurrence.until || null,
           count: null,
@@ -244,6 +247,9 @@ async function save() {
             ><label>重复时间<ToDooDateField v-model="recurrence.time" type="time" /></label
             ><label>结束日期<ToDooDateField v-model="recurrence.until" type="date" /></label>
           </div>
+          <ToDooTimeModeFields v-if="recurrence.frequency && recurrence.time"
+            v-model:time-mode="recurrence.timeMode" v-model:time-zone="recurrence.timeZone"
+            :workspace-zone="zone" :disabled="state.busy" label="重复" />
           <label v-if="recurrence.frequency === 'weekly'"
             >每周日期<ToDooSelect v-model="recurrence.weekdays" multiple>
               <option

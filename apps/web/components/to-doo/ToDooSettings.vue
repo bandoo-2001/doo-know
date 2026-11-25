@@ -597,6 +597,9 @@ function setDisplayTimeZone(value: string) {
   settings.value.timeZone = value;
   if (settings.value.quietHours?.timeZone === previous) settings.value.quietHours.timeZone = value;
 }
+function useDeviceTimeZone() {
+  setDisplayTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
+}
 function quiet(enabled: boolean) {
   if (!settings.value) return;
   settings.value.quietHours = {
@@ -1027,6 +1030,10 @@ defineExpose({
                 </option>
               </ToDooSelect></label
             >
+          </div>
+          <div class="todo-form-help">
+            固定时间的任务按此时区保留当地钟表时间，提醒也使用此时区。
+            <AButton size="small" @click="useDeviceTimeZone">使用此设备时区</AButton>
           </div>
           <ACheckbox
             :checked="settings.quietHours?.enabled"

@@ -77,15 +77,25 @@ export type ToDooNewTaskDraft = {
   sectionId?: string | null;
   dueDate: string;
   dueTime: string;
+  dueTimeMode?: 'fixed' | 'floating';
+  dueTimeZone?: string;
   planDate: string;
   planDateCleared?: boolean;
   planTime: string;
+  planTimeMode?: 'fixed' | 'floating';
+  planTimeZone?: string;
   estimate: number | '';
   tagIds: string[];
   frequency: 'daily' | 'weekly' | null;
   weekdays: number[];
   recurrenceId: string;
+  recurrenceTimeMode?: 'fixed' | 'floating';
+  recurrenceTimeZone?: string;
 };
+export function toDooDraftRecurrenceMode(draft: ToDooNewTaskDraft): 'fixed' | 'floating' {
+  const inherited = draft.planTime ? draft.planTimeMode : draft.dueTimeMode;
+  return draft.recurrenceTimeMode ?? (draft.recurrenceTimeZone ? 'fixed' : inherited ?? 'fixed');
+}
 export function toDooOutcomeResumeInput(
   operation: ToDooEntityMap['operation'],
   revision = operation.expectedRevision,
@@ -275,7 +285,7 @@ export function toDooDisplayTime(
   value: ToDooEntityMap['timeBlock']['start'],
   zone: string,
 ): ToDooEntityMap['timeBlock']['start'] {
-  if (value.time === null) return { ...value, timeZone: zone };
+  if (value.time === null || value.timeMode === 'floating') return { ...value, timeZone: zone };
   const parts = (at: number, timeZone: string) => {
     const p = displayTimeFormatter(timeZone).formatToParts(new Date(at));
     const get = (name: string) => p.find((v) => v.type === name)?.value;
@@ -318,6 +328,21 @@ export function toDooDisplayTime(
   if (instant === undefined) throw Error('无法解释所选当地时间，请调整日期或时区');
   return { ...parts(instant, zone), timeZone: zone };
 }
+export function toDooDateTimeMillis(
+  value: ToDooEntityMap['timeBlock']['start'],
+  zone = value.timeZone,
+): number {
+  const utc = toDooDisplayTime(
+    {
+      ...value,
+      time: value.time ?? '00:00',
+      timeZone: value.timeMode === 'floating' ? zone : value.timeZone,
+      timeMode: 'fixed',
+    },
+    'UTC',
+  );
+  return Date.parse(utc.date + 'T' + utc.time + ':00Z');
+}
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 const fingerprint = (v: unknown) => JSON.stringify(v);
 export const toDooLocalDate = (date = new Date(), timeZone?: string) =>
@@ -344,7 +369,7 @@ export function toDooItemMatchesDateRange(
   timeZone = 'UTC',
 ) {
   const dates = [
-    ...item.blocks.map((block) => block.start.date),
+    ...item.blocks.map((block) => toDooDisplayTime(block.start, timeZone).date),
     item.occurrence?.due ? toDooDisplayTime(item.occurrence.due, timeZone).date : undefined,
     item.occurrence?.scheduledDate,
   ];
@@ -356,11 +381,11 @@ export function toDooDeadlineOverdue(
   status: ToDooItem['status'],
   today: string,
   now = Date.now(),
+  timeZone?: string,
 ) {
   if (!due || !toDooPending(status)) return false;
   if (!due.time) return due.date < today;
-  const utc = toDooDisplayTime(due, 'UTC');
-  return Date.parse(utc.date + 'T' + utc.time + ':00Z') < now;
+  return toDooDateTimeMillis(due, timeZone) < now;
 }
 
 export function deriveToDooItems(
@@ -477,6 +502,8 @@ export function deriveToDooItems(
           o?.due,
           row.status,
           toDooLocalDate(new Date(), data.settings.timeZone),
+          undefined,
+          data.settings.timeZone,
         )
       )
         return false;
@@ -525,7 +552,8 @@ export function deriveToDooItems(
         else if (field === 'importance') values = [t.importance];
         else if (field === 'dueDate')
           values = o?.due ? [toDooDisplayTime(o.due, data.settings.timeZone).date] : [];
-        else if (field === 'plannedDate') values = row.blocks.map((b) => b.start.date);
+        else if (field === 'plannedDate')
+          values = row.blocks.map((b) => toDooDisplayTime(b.start, data.settings.timeZone).date);
         else if (field === 'createdDate')
           values = [toDooLocalDate(new Date(t.createdAt), data.settings.timeZone)];
         else if (field === 'completedDate')
@@ -545,17 +573,25 @@ export function deriveToDooItems(
       if (filter.group && !match(filter.group)) return false;
       return true;
     });
+  if (sort === 'due') {
+    const zone = data.settings.timeZone;
+    const deadlines = new Map(rows.map((row) => {
+      const due = row.occurrence?.due;
+      if (!due) return [row, Number.MAX_SAFE_INTEGER] as const;
+      const timed = due.time ? due : { date: due.date, time: '23:59', timeZone: zone };
+      return [row, toDooDateTimeMillis(timed, zone)] as const;
+    }));
+    return rows.sort((a, b) => deadlines.get(a)! - deadlines.get(b)!);
+  }
   const priority = { high: 0, normal: 1, low: 2, none: 3 };
   rows.sort((a, b) =>
-    sort === 'due'
-      ? (a.occurrence?.due?.date || '9999').localeCompare(b.occurrence?.due?.date || '9999')
-      : sort === 'title'
-        ? a.title.localeCompare(b.title)
-        : sort === 'priority'
-          ? priority[a.task.priority] - priority[b.task.priority]
-          : sort === 'created'
-            ? b.task.createdAt.localeCompare(a.task.createdAt)
-            : a.task.orderKey.localeCompare(b.task.orderKey),
+    sort === 'title'
+      ? a.title.localeCompare(b.title)
+      : sort === 'priority'
+        ? priority[a.task.priority] - priority[b.task.priority]
+        : sort === 'created'
+          ? b.task.createdAt.localeCompare(a.task.createdAt)
+          : a.task.orderKey.localeCompare(b.task.orderKey),
   );
   if (sort !== 'manual') return rows;
   const output: ToDooItem[] = [],
@@ -701,8 +737,12 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
     listId,
     dueDate: '',
     dueTime: '',
+    dueTimeMode: 'fixed',
+    dueTimeZone: '',
     planDate: '',
     planTime: '',
+    planTimeMode: 'fixed',
+    planTimeZone: '',
     estimate: '',
     initialStatus: 'todo',
     priority: 'none',
@@ -711,6 +751,7 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
     frequency: null,
     weekdays: [],
     recurrenceId: crypto.randomUUID(),
+    recurrenceTimeZone: '',
   });
   function persistRecovery() {
     if (restoringRecovery || !state.snapshot) return false;
@@ -2517,9 +2558,13 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
           d.frequency === (payload.recurrence?.frequency || null) &&
           (d.estimate === '' ? null : d.estimate) === (payload.estimateMinutes ?? null) &&
           (!d.dueDate || (d.dueTime || null) === (payload.due?.time || null)) &&
+          (!d.dueTime || (d.dueTimeMode ?? 'fixed') === (payload.due?.timeMode ?? 'fixed')) &&
           (!d.planDate || (d.planTime || null) === (payload.plan?.time || null)) &&
+          (!d.planTime || (d.planTimeMode ?? 'fixed') === (payload.plan?.timeMode ?? 'fixed')) &&
           (!d.frequency ||
             (d.recurrenceId === payload.recurrence?.id &&
+              (!payload.recurrence?.time ||
+                toDooDraftRecurrenceMode(d) === (payload.recurrence.timeMode ?? 'fixed')) &&
               fingerprint(d.weekdays) === fingerprint(payload.recurrence?.weekdays || [])))
         ) {
           delete state.newTaskDrafts[key];

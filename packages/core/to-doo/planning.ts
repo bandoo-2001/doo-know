@@ -3,7 +3,7 @@ import type {
   ToDooEntityMap,
   ToDooSnapshot,
 } from '../../../shared/to-doo-contracts.js';
-import { addDays, dateTimeInstant } from './recurrence.js';
+import { addDays, dateTimeInstant, scheduleTimeZone } from './recurrence.js';
 
 export type ToDooPlanningData = Pick<ToDooSnapshot, 'tasks' | 'occurrences' | 'timeBlocks'>;
 export type ToDooScheduleChange = {
@@ -46,6 +46,7 @@ export type ToDooPlanningOptions = {
   maxAffected?: number;
   maxChanges?: number;
   allowedTaskIds?: readonly string[];
+  workspaceTimeZone?: string;
 };
 export type ToDooPlanningResult = {
   changes: ToDooScheduleChange[];
@@ -78,10 +79,15 @@ function validDateTime(value: ToDooDateTime) {
     throw new Error('invalid time');
   new Intl.DateTimeFormat('en', { timeZone: value.timeZone });
 }
-function toLocal(at: number, timeZone: string, allDay = false): ToDooDateTime {
+function toLocal(
+  at: number,
+  source: ToDooDateTime,
+  workspaceTimeZone: string | undefined,
+  allDay = false,
+): ToDooDateTime {
   const parts = Object.fromEntries(
     new Intl.DateTimeFormat('en-CA', {
-      timeZone,
+      timeZone: scheduleTimeZone(source, workspaceTimeZone),
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -93,12 +99,12 @@ function toLocal(at: number, timeZone: string, allDay = false): ToDooDateTime {
       .map((part) => [part.type, part.value]),
   );
   const result = {
+    ...source,
     date: `${parts.year}-${parts.month}-${parts.day}`,
     time: allDay ? null : `${parts.hour}:${parts.minute}`,
-    timeZone,
   };
   validDateTime(result);
-  if (dateTimeInstant(result, '00:00').getTime() !== at)
+  if (dateTimeInstant(result, '00:00', workspaceTimeZone).getTime() !== at)
     throw new Error('The requested instant is ambiguous in the stored local-time representation');
   return result;
 }
@@ -106,21 +112,23 @@ function interval(
   start: ToDooDateTime,
   duration: number,
   allDay: boolean,
+  workspaceTimeZone: string | undefined,
   endDate?: string | null,
 ): Pick<Interval, 'start' | 'end'> {
   validDateTime(start);
   if (!Number.isInteger(duration) || duration <= 0 || duration > 525600)
     throw new Error('invalid duration');
   if (allDay && start.time !== null) throw new Error('all-day value needs a date');
-  const instant = dateTimeInstant(start, '00:00').getTime();
+  const instant = dateTimeInstant(start, '00:00', workspaceTimeZone).getTime();
   const end = allDay
     ? dateTimeInstant(
         {
+          ...start,
           date: endDate ?? addDays(start.date, Math.max(1, Math.ceil(duration / 1440))),
           time: null,
-          timeZone: start.timeZone,
         },
         '00:00',
+        workspaceTimeZone,
       ).getTime()
     : instant + duration * 60000;
   if (!Number.isFinite(end) || end <= instant) throw new Error('invalid interval');
@@ -270,7 +278,13 @@ function context(
         change.dateEndExclusive = change.dateEndExclusive ?? addDays(change.start.date, span);
       }
       candidateIntervals.push({
-        ...interval(change.start, change.durationMinutes, allDay, change.dateEndExclusive),
+        ...interval(
+          change.start,
+          change.durationMinutes,
+          allDay,
+          options.workspaceTimeZone,
+          change.dateEndExclusive,
+        ),
         occupiesTime: allDay || change.start.time !== null,
         occurrenceId: item.id,
         blockId: change.blockId ?? null,
@@ -297,7 +311,13 @@ function context(
       continue;
     try {
       existingIntervals.push({
-        ...interval(block.start, block.durationMinutes, block.allDay, block.dateEndExclusive),
+        ...interval(
+          block.start,
+          block.durationMinutes,
+          block.allDay,
+          options.workspaceTimeZone,
+          block.dateEndExclusive,
+        ),
         occupiesTime: block.allDay || block.start.time !== null,
         occurrenceId: block.occurrenceId,
         blockId: block.id,
@@ -674,12 +694,13 @@ export function previewToDooDependentAdjustment(
       if (allDayAnchor) {
         try {
           const block = ctx.blocks.get(allDayAnchor.blockId!)!,
-            local = toLocal(allDayAnchor.start + shift, block.start.timeZone);
+            local = toLocal(allDayAnchor.start + shift, block.start, options.workspaceTimeZone);
           if (local.time !== '00:00')
             shift =
               dateTimeInstant(
-                { date: addDays(local.date, 1), time: null, timeZone: block.start.timeZone },
+                { ...block.start, date: addDays(local.date, 1), time: null },
                 '00:00',
+                options.workspaceTimeZone,
               ).getTime() - allDayAnchor.start;
         } catch {
           extraIssues.push({
@@ -699,7 +720,12 @@ export function previewToDooDependentAdjustment(
           break;
         }
         try {
-          const start = toLocal(value.start + shift, block.start.timeZone, block.allDay);
+          const start = toLocal(
+            value.start + shift,
+            block.start,
+            options.workspaceTimeZone,
+            block.allDay,
+          );
           const changed: ToDooScheduleChange = {
             occurrenceId: id,
             expectedRevision: item.revision,
@@ -721,6 +747,7 @@ export function previewToDooDependentAdjustment(
             changed.start,
             changed.durationMinutes,
             block.allDay,
+            options.workspaceTimeZone,
             changed.dateEndExclusive,
           );
           if (span.end - span.start !== value.end - value.start)

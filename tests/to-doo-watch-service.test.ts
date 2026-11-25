@@ -159,6 +159,21 @@ it('matches today by local scheduled dates, deadlines and timed plans, without a
   expect(state.tasks.map((t) => t.title).sort()).toEqual(['今天到期', '今天的计划'].sort());
 });
 
+it('matches floating deadlines and plans by their wall date on the watch', () => {
+  const fixed = { date: '2026-11-17', time: '00:30', timeZone: 'Asia/Shanghai' };
+  const floating = { ...fixed, timeMode: 'floating' };
+  write('create_task', { title: 'Fixed deadline', due: fixed });
+  write('create_task', { title: 'Floating deadline', due: floating });
+  write('create_task', { title: 'Fixed plan', plan: fixed });
+  write('create_task', { title: 'Floating plan', plan: floating });
+
+  const all = readWatchState(service).tasks;
+  expect(all.find((row) => row.title === 'Fixed deadline')?.dueDate).toBe('2026-11-16');
+  expect(all.find((row) => row.title === 'Floating deadline')?.dueDate).toBe('2026-11-17');
+  const today = readWatchState(service, { today: '1' });
+  expect(today.tasks.map((row) => row.title).sort()).toEqual(['Fixed deadline', 'Fixed plan']);
+});
+
 it('paginates materialized repetitions beyond the default snapshot limit', () => {
   const id = write('create_task', {
     title: '每日练习',

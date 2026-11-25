@@ -15,7 +15,7 @@ import {
 } from '../../../shared/to-doo-contracts.js';
 import type { createToDooStore } from './store.js';
 import { toDooError, toDooHash, canonical, parseEntity } from './store.js';
-import { dateTimeInstant, addDays, localDate } from './recurrence.js';
+import { dateTimeInstant, addDays, localDate, scheduleDisplayDate } from './recurrence.js';
 import { aggregateToDooStatistics } from './statistics.js';
 export { focusMinutes } from './statistics.js';
 type Store = ReturnType<typeof createToDooStore>;
@@ -27,30 +27,43 @@ function installQueryFunctions(db: Store['db']) {
     const instant = Date.parse(value);
     return Number.isFinite(instant) ? instant : null;
   });
-  db.function('to_doo_deadline_overdue', { deterministic: true }, (json, status, today, now) => {
-    if (typeof json !== 'string' || !['todo', 'doing', 'blocked'].includes(String(status)))
-      return 0;
-    const due = JSON.parse(json) as ToDooDateTime | null;
-    if (!due) return 0;
-    return (!due.time ? due.date < String(today) : dateTimeInstant(due).getTime() < Number(now))
-      ? 1
-      : 0;
-  });
+  db.function(
+    'to_doo_deadline_overdue',
+    { deterministic: true },
+    (json, status, today, now, timeZone) => {
+      if (
+        typeof json !== 'string' ||
+        typeof today !== 'string' ||
+        typeof now !== 'number' ||
+        typeof timeZone !== 'string' ||
+        !['todo', 'doing', 'blocked'].includes(String(status))
+      )
+        return 0;
+      const due = JSON.parse(json) as ToDooDateTime | null;
+      if (!due) return 0;
+      return Number(
+        due.time === null
+          ? due.date < today
+          : dateTimeInstant(due, undefined, timeZone).getTime() < now,
+      );
+    },
+  );
   db.function('to_doo_display_date', { deterministic: true }, (json, timeZone) => {
     if (typeof json !== 'string' || typeof timeZone !== 'string') return null;
     const value = JSON.parse(json) as ToDooDateTime;
-    return value.time === null ? value.date : localDate(dateTimeInstant(value), timeZone);
+    return scheduleDisplayDate(value, timeZone);
   });
   db.function(
     'to_doo_interval_overlap',
     { deterministic: true },
-    (json, from, to, rangeStart, rangeEnd) => {
+    (json, from, to, rangeStart, rangeEnd, timeZone) => {
       if (
         typeof json !== 'string' ||
         typeof from !== 'string' ||
         typeof to !== 'string' ||
         typeof rangeStart !== 'number' ||
-        typeof rangeEnd !== 'number'
+        typeof rangeEnd !== 'number' ||
+        typeof timeZone !== 'string'
       )
         return 0;
       const value = JSON.parse(json) as
@@ -64,12 +77,12 @@ function installQueryFunctions(db: Store['db']) {
             : (value.end?.date ?? addDays(value.start.date, 1));
         return value.start.date <= to && end > from && end > value.start.date ? 1 : 0;
       }
-      const start = dateTimeInstant(value.start, '00:00').getTime();
+      const start = dateTimeInstant(value.start, '00:00', timeZone).getTime();
       const end =
         'durationMinutes' in value
           ? start + value.durationMinutes * 60000
           : value.end
-            ? dateTimeInstant(value.end, '00:00').getTime()
+            ? dateTimeInstant(value.end, '00:00', timeZone).getTime()
             : start + 30 * 60000;
       return start < rangeEnd && end > rangeStart && end > start ? 1 : 0;
     },
@@ -439,9 +452,9 @@ function occurrenceFilter(q: ToDooQuery, from: string, to: string, timeZone: str
   }
   if (f.overdue) {
     clauses.push(
-      "to_doo_deadline_overdue(json_extract(e.data,'$.due'),json_extract(e.data,'$.status'),?,?)=1",
+      "to_doo_deadline_overdue(json_extract(e.data,'$.due'),json_extract(e.data,'$.status'),?,?,?)=1",
     );
-    params.push(localDate(new Date(), timeZone), Date.now());
+    params.push(localDate(new Date(), timeZone), Date.now(), timeZone);
   }
   if (f.dueBefore) {
     clauses.push("to_doo_display_date(json_extract(e.data,'$.due'),?)<=?");
@@ -634,12 +647,13 @@ function where(
   }
   if (!q.all && !q.ids && !q.taskIds && (kind === 'timeBlock' || kind === 'calendarEvent') &&
       (kind !== 'timeBlock' || !f.taskScope || q.from || q.to || f.from || f.to)) {
-    clauses.push('to_doo_interval_overlap(e.data,?,?,?,?)=1');
+    clauses.push('to_doo_interval_overlap(e.data,?,?,?,?,?)=1');
     params.push(
       from,
       to,
       dateTimeInstant({ date: from, time: '00:00', timeZone }).getTime(),
       dateTimeInstant({ date: addDays(to, 1), time: '00:00', timeZone }).getTime(),
+      timeZone,
     );
   }
   if (!q.all && (q.from || q.to)) {

@@ -1,10 +1,9 @@
 import type { ToDooEntityMap } from '../../shared/to-doo-contracts';
-import { shiftToDooDate, toDooDisplayTime } from './to-doo-workbench';
+import { shiftToDooDate, toDooDateTimeMillis } from './to-doo-workbench';
 
 /** Resolve the same local-time ambiguity policy as the existing editor/display contract. */
-export function toDooTimeInstant(value: ToDooEntityMap['timeBlock']['start']): number {
-  const utc = toDooDisplayTime({ ...value, time: value.time || '00:00' }, 'UTC');
-  return Date.parse(utc.date + 'T' + utc.time + ':00Z');
+export function toDooTimeInstant(value: ToDooEntityMap['timeBlock']['start'], zone?: string): number {
+  return toDooDateTimeMillis(value, zone);
 }
 export function toDooInstantTime(instant: number, zone: string) {
   return new Intl.DateTimeFormat('en-GB', {
@@ -29,7 +28,7 @@ export function toDooBlockSegment(block: ToDooEntityMap['timeBlock'], date: stri
         }
       : null;
   }
-  const start = toDooTimeInstant(block.start);
+  const start = toDooTimeInstant(block.start, zone);
   const from = Math.max(start, toDooTimeInstant({ date, time: '00:00', timeZone: zone }));
   const to = Math.min(
     start + block.durationMinutes * 60000,

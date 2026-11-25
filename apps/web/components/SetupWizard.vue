@@ -1,12 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import {
-  Button as AButton,
-  Input as AInput,
-  Alert as AAlert,
-  Select as ASelect,
-  AutoComplete as AAutoComplete,
-} from 'ant-design-vue';
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { Button as AButton, Input as AInput, Alert as AAlert, Select as ASelect } from 'ant-design-vue';
 import type { PlatformStatus } from '../../../shared/platform-contracts';
 import { api, ApiError } from '../api';
 import SetupFeatures from './SetupFeatures.vue';
@@ -18,7 +12,6 @@ const emit = defineEmits<{ refresh: [] }>();
 const mode = ref<'new' | 'existing' | 'remote'>('new'),
   name = ref('我的知识库'),
   knowledgeRoot = ref('');
-const timeZone = ref(Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Shanghai');
 const error = ref(''),
   busy = ref(false),
   browserBusy = ref(false),
@@ -39,31 +32,6 @@ const parentPath = ref(''),
 let createRequest = crypto.randomUUID(),
   bindRequest = crypto.randomUUID(),
   createdPath = '';
-const timeZones = [
-  ...new Set([
-    timeZone.value,
-    'Asia/Shanghai',
-    'Asia/Hong_Kong',
-    'Asia/Taipei',
-    'Asia/Tokyo',
-    'Asia/Singapore',
-    'UTC',
-    'Europe/London',
-    'America/New_York',
-    'America/Los_Angeles',
-  ]),
-].map((value) => ({
-  value,
-  label:
-    value === 'Asia/Shanghai'
-      ? '中国标准时间（UTC+8）'
-      : value === 'UTC'
-        ? '协调世界时（UTC）'
-        : value.replaceAll('_', ' '),
-}));
-const recommendedZone = computed(
-  () => timeZones.find((t) => t.value === timeZone.value)?.label || timeZone.value,
-);
 const messages: Record<string, string> = {
   FORBIDDEN_KNOWLEDGE_ROOT: '这个位置不能用于保存资料，请换一个保存位置。',
   INVALID_KNOWLEDGE_ROOT: '无法使用这个文件夹。请选择已存在、可读写的文件夹，不能选择快捷链接。',
@@ -72,7 +40,6 @@ const messages: Record<string, string> = {
   INVALID_LIBRARY_NAME: '请填写简短的知识库名称，不要包含斜杠，也不要以点开头。',
   KNOWLEDGE_ROOT_CHANGED: '这个文件夹刚刚发生了变化，请重新选择后继续。',
   VALIDATION_EXPIRED: '确认时间已过，请再次点击“确认并继续”。',
-  INVALID_TIME_ZONE: '这个时区无法使用，请在高级设置中重新选择。',
   SETUP_ALREADY_COMPLETE: '知识库已设置，请刷新页面继续。',
 };
 function describe(e: unknown) {
@@ -109,14 +76,6 @@ function useFolder() {
   knowledgeRoot.value = browser.value!.path;
   changed();
 }
-function filterTimeZone(input: string, option?: { label?: unknown; value?: unknown }) {
-  return String(option?.label || option?.value)
-    .toLowerCase()
-    .includes(input.toLowerCase());
-}
-function zoneChanged() {
-  bindRequest = crypto.randomUUID();
-}
 async function complete() {
   if (
     mode.value === 'remote' ||
@@ -145,7 +104,6 @@ async function complete() {
     );
     await api('/api/platform/setup/complete', 'POST', {
       ...proof,
-      timeZone: timeZone.value,
       requestId: bindRequest,
     });
     emit('refresh');
@@ -257,11 +215,7 @@ onBeforeUnmount(() => clearInterval(timer));
               <strong>从 GitHub／Gitee 导入</strong><span>下载云端仓库到新的知识库文件夹。</span>
             </button>
           </div>
-          <GitRepositoryImport
-            v-if="mode === 'remote'"
-            :time-zone="timeZone"
-            @refresh="emit('refresh')"
-          />
+          <GitRepositoryImport v-if="mode === 'remote'" @refresh="emit('refresh')" />
           <div v-if="mode === 'new'" class="library-name-field">
             <label for="library-name">知识库名称</label>
             <AInput
@@ -344,7 +298,7 @@ onBeforeUnmount(() => clearInterval(timer));
           </div>
           <details v-if="mode !== 'remote'" class="advanced">
             <summary>高级设置</summary>
-            <p class="hint">需要自定义保存位置或时区时再修改。</p>
+            <p class="hint">需要自定义保存位置时再填写。</p>
             <template v-if="mode === 'new'"
               ><label for="setup-parent">保存到哪个文件夹</label
               ><AInput
@@ -376,24 +330,7 @@ onBeforeUnmount(() => clearInterval(timer));
                 "
             /></template>
             <p class="hint">允许保存的范围：{{ status.allowedKnowledgeBases?.join('、') }}</p>
-            <label for="setup-timezone">时区</label
-            ><AAutoComplete
-              :value="timeZone"
-              :filter-option="filterTimeZone"
-              :disabled="busy"
-              id="setup-timezone"
-              :options="timeZones"
-              @update:value="
-                (value) => {
-                  timeZone = String(value ?? '');
-                  zoneChanged();
-                }
-              "
-            />
           </details>
-          <p v-if="mode !== 'remote'" class="hint timezone">
-            时间显示：{{ recommendedZone }}，可在高级设置中修改。
-          </p>
           <footer v-if="mode !== 'remote'" class="setup-footer">
             <span>以后也可以继续添加和整理资料</span
             ><AButton
@@ -597,9 +534,6 @@ h1:focus {
 .library-name-field :deep(.ant-input) {
   min-height: 40px;
 }
-.advanced :deep(.ant-select) {
-  width: 100%;
-}
 .field-title {
   margin: 0 0 10px;
   font-size: 13px;
@@ -682,9 +616,6 @@ summary {
 .advanced[open] > summary {
   margin-bottom: 12px;
   color: var(--text);
-}
-.timezone {
-  margin-top: 18px;
 }
 .setup-footer {
   display: flex;

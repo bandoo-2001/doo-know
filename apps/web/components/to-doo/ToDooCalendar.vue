@@ -206,7 +206,7 @@ function monthBlockLabel(block: ToDooEntityMap['timeBlock']) {
     const end = block.dateEndExclusive || shiftToDooDate(start.date, Math.max(1, Math.ceil(block.durationMinutes / 1440)));
     timing += ' 至 ' + end + '（结束日期不含）';
   } else if (start.time) {
-    const end = new Date(toDooTimeInstant(block.start) + block.durationMinutes * 60000);
+    const end = new Date(toDooTimeInstant(block.start, zone) + block.durationMinutes * 60000);
     timing += '—' + toDooLocalDate(end, zone) + ' ' + toDooInstantTime(end.getTime(), zone) + ' · ' + zone;
   }
   return title + ' · ' + timing + (item?.status === 'done' ? ' · 已完成' : '');
@@ -255,7 +255,7 @@ function timelineBlocks(item: ToDooItem) {
             return block.start.date + ' 未指定时刻 · ' + block.durationMinutes + ' 分钟';
           const zone = state.snapshot!.settings.timeZone;
           const display = toDooDisplayTime(block.start, zone);
-          const end = new Date(toDooTimeInstant(block.start) + block.durationMinutes * 60000);
+          const end = new Date(toDooTimeInstant(block.start, zone) + block.durationMinutes * 60000);
           return (
             display.date +
             ' ' +
@@ -376,10 +376,7 @@ function externalSegment(event: ToDooEntityMap['calendarEvent'], date: string) {
     const endDate = end?.date || shiftToDooDate(start.date, 1);
     return start.date <= date && date < endDate ? { time: null, duration: 1440 } : null;
   }
-  const instant = (value: ToDooEntityMap['calendarEvent']['start']) => {
-    const utc = toDooDisplayTime({ ...value, time: value.time || '00:00' }, 'UTC');
-    return Date.parse(utc.date + 'T' + utc.time + ':00Z');
-  };
+  const instant = (value: ToDooEntityMap['calendarEvent']['start']) => toDooTimeInstant(value, zone);
   const startsAt = instant(event.start);
   const endsAt = event.end ? instant(event.end) : startsAt + 30 * 60000;
   const dayStart = instant({ date, time: '00:00', timeZone: zone });
@@ -463,11 +460,18 @@ async function drop(event: DragEvent, date: string, time?: string) {
   const id = event.dataTransfer?.getData('application/x-to-doo-block'),
     b = state.snapshot?.timeBlocks.find((b) => b.id === id);
   if (!b) return;
-  const start = {
+  const moved = {
     ...(b.allDay ? b.start : toDooDisplayTime(b.start, state.snapshot!.settings.timeZone)),
     date,
     ...(time ? { time } : {}),
   };
+  const start =
+    !moved.time || b.start.timeMode === 'floating'
+      ? { ...moved, timeZone: b.start.timeZone }
+      : {
+          ...toDooDisplayTime(moved, b.start.timeZone),
+          ...(b.start.timeMode ? { timeMode: b.start.timeMode } : {}),
+        };
   const occurrence = state.snapshot?.occurrences.find((o) => o.id === b.occurrenceId);
   if (b.occurrenceId && !occurrence) {
     state.error = '请先继续载入执行实例，再调整这项安排';

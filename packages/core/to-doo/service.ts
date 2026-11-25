@@ -37,7 +37,7 @@ import {
   addDays,
   addMonths,
   localDate,
-  dateTimeInstant,
+  scheduleTimeZone,
 } from './recurrence.js';
 import { validateToDooPlan, previewToDooDependentAdjustment } from './planning.js';
 import type { ToDooCommandContext } from '../../../shared/to-doo-contracts.js';
@@ -282,6 +282,15 @@ export function createToDooService(
     function effectiveRule(task: ToDooTask): ToDooTask['recurrence'] {
       return recurrenceOwner(task)?.recurrence ?? null;
     }
+    const workspaceTimeZone = () => state.settings.get('settings')?.timeZone ?? 'UTC';
+    function recurringDue(date: string, rule: ToDooTask['recurrence']): ToDooOccurrence['due'] {
+      return {
+        date,
+        time: rule?.time ?? null,
+        timeZone: rule?.timeZone ?? workspaceTimeZone(),
+        ...(rule?.timeMode ? { timeMode: rule.timeMode } : {}),
+      };
+    }
     function occurrence(
       task: ToDooTask,
       cycleKey: string,
@@ -307,16 +316,7 @@ export function createToDooService(
         parentOccurrenceId: parent?.id ?? null,
         status: exception?.kind === 'skip' ? 'skipped' : 'todo',
         scheduledDate: date,
-        due:
-          exception?.due ??
-          due ??
-          (date
-            ? {
-                date,
-                time: rule?.time ?? null,
-                timeZone: rule?.timeZone ?? state.settings.get('settings')?.timeZone ?? 'UTC',
-              }
-            : null),
+        due: exception?.due ?? due ?? (date ? recurringDue(date, rule) : null),
         scheduleRevision: randomUUID(),
         titleOverride: exception?.title ?? null,
         predecessorId,
@@ -481,7 +481,10 @@ export function createToDooService(
           owner?.id === ownTask.id &&
           old.seriesSegmentId === rule.id
         ) {
-          const baseDate = localDate(new Date(completedAt!), rule.timeZone),
+          const baseDate = localDate(
+              new Date(completedAt!),
+              scheduleTimeZone(rule, workspaceTimeZone()),
+            ),
             nextDate =
               rule.completionUnit === 'month'
                 ? addMonths(baseDate, rule.interval)!
@@ -523,7 +526,7 @@ export function createToDooService(
                 put('occurrence', {
                   ...existing,
                   scheduledDate: familyDate,
-                  due: { date: familyDate, time: rule.time, timeZone: rule.timeZone },
+                  due: recurringDue(familyDate, rule),
                   scheduleRevision: randomUUID(),
                 });
             }
@@ -549,7 +552,10 @@ export function createToDooService(
       const task = get('task', taskId),
         from =
           scope === 'future'
-            ? (fromDate ?? localDate(new Date(), ruleInput?.timeZone ?? 'UTC'))
+            ? (fromDate ?? localDate(
+                new Date(now),
+                ruleInput ? scheduleTimeZone(ruleInput, workspaceTimeZone()) : 'UTC',
+              ))
             : (task.recurrence?.anchorDate ?? '0001-01-01');
       const members = descendants([taskId]).filter((t) => {
         let current = t;
@@ -927,7 +933,10 @@ export function createToDooService(
         };
       const verified = (
         cmd.payload.includeDependents ? previewToDooDependentAdjustment : validateToDooPlan
-      )(data, cmd.payload.changes, { allowedTaskIds: trustedContext.allowedTaskIds });
+      )(data, cmd.payload.changes, {
+        allowedTaskIds: trustedContext.allowedTaskIds,
+        workspaceTimeZone: current.settings.get('settings')?.timeZone,
+      });
       const now = new Date().toISOString(),
         preview = parseEntity('plan', {
           id: stableToDooId(cmd.requestId, 'preview'),
@@ -1424,7 +1433,10 @@ export function createToDooService(
           }
           const verified = (
             plan.includeDependents ? previewToDooDependentAdjustment : validateToDooPlan
-          )(data, plan.changes, { allowedTaskIds: trustedContext.allowedTaskIds });
+          )(data, plan.changes, {
+            allowedTaskIds: trustedContext.allowedTaskIds,
+            workspaceTimeZone: c.state.settings.get('settings')?.timeZone,
+          });
           if (verified.conflicts.length)
             toDooError('计划存在冲突：' + verified.conflicts.join('；'));
           if (

@@ -3,6 +3,7 @@ import {
   createToDooWorkbench,
   deriveToDooItems,
   toDooDisplayTime,
+  toDooDeadlineOverdue,
   parseToDooQuickEntry,
   toDooOutcomeResumeInput,
   toDooDependencies,
@@ -21,6 +22,30 @@ import {
   type ToDooCollections,
   type ToDooCommandResult,
 } from '../shared/to-doo-contracts';
+
+test('fixed dates keep the instant while floating dates keep the clock time', () => {
+  const fixed = { date: '2026-11-25', time: '09:00', timeZone: 'Asia/Shanghai' };
+  const floating = { ...fixed, timeMode: 'floating' as const };
+  expect(toDooDisplayTime(fixed, 'Asia/Tokyo').time).toBe('10:00');
+  expect(toDooDisplayTime(floating, 'Asia/Tokyo').time).toBe('09:00');
+  const now = Date.parse('2026-11-25T00:30:00Z');
+  expect(toDooDeadlineOverdue(fixed, 'todo', '2026-11-25', now, 'Asia/Tokyo')).toBe(false);
+  expect(toDooDeadlineOverdue(floating, 'todo', '2026-11-25', now, 'Asia/Tokyo')).toBe(true);
+});
+
+test('deadline order uses the actual instant through a daylight-saving fold', () => {
+  const data = snapshot();
+  data.settings.timeZone = 'America/New_York';
+  const [firstTask] = data.tasks;
+  const [firstOccurrence] = data.occurrences;
+  firstOccurrence!.due = { date: '2026-11-01', time: '05:45', timeZone: 'UTC' };
+  data.tasks.push({ ...firstTask!, id: 'task-b', title: 'After the clocks roll back' });
+  data.occurrences.push({
+    ...firstOccurrence!, id: 'occ-b', taskId: 'task-b',
+    due: { date: '2026-11-01', time: '06:15', timeZone: 'UTC' },
+  });
+  expect(deriveToDooItems(data, {}, 'due').map(row => row.task.id)).toEqual(['task-a', 'task-b']);
+});
 
 test.each([
   ['paused', 300],

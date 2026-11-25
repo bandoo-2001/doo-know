@@ -732,7 +732,8 @@ defineExpose({
       </template>
       <template v-if="kind === 'timeBlock'">
         <p v-if="linkedAction" class="todo-form-context">关联行动：{{ linkedAction }}</p>
-        <ToDooTimeBlockFields :block="form as any" :disabled="model.state.busy" />
+        <ToDooTimeBlockFields :block="form as any"
+          :workspace-zone="model.state.snapshot?.settings.timeZone || 'UTC'" :disabled="model.state.busy" />
       </template>
       <ToDooDisclosure
         ref="extraFields"

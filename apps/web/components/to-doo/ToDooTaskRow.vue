@@ -86,15 +86,16 @@ const hasMetadata = computed(() => {
 });
 const dates = computed(() => {
   const { item, today, timeZone } = props;
+  const block = item.blocks[0]?.start;
   const plan =
-    item.blocks[0]?.start ||
+    (block && toDooDisplayTime(block, timeZone || block.timeZone)) ||
     (item.task.recurrence && item.occurrence?.scheduledDate
       ? { date: item.occurrence.scheduledDate, time: null }
       : null);
   const due = item.occurrence?.due
     ? toDooDisplayTime(item.occurrence.due, timeZone || item.occurrence.due.timeZone)
     : null;
-  const overdue = toDooDeadlineOverdue(item.occurrence?.due, item.status, today);
+  const overdue = toDooDeadlineOverdue(item.occurrence?.due, item.status, today, undefined, timeZone);
   const same = plan && due && plan.date === due.date && plan.time === due.time;
   const values = same
     ? [{ kind: 'both', label: '计划 / 截止', value: due, overdue }]

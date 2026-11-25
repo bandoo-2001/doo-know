@@ -7,6 +7,7 @@ import ToDooListTreeSelect from './ToDooListTreeSelect.vue';
 import ToDooTaskValueSelect from './ToDooTaskValueSelect.vue';
 import ToDooTaskValueLabel from './ToDooTaskValueLabel.vue';
 import ToDooTimeBlockFields from './ToDooTimeBlockFields.vue';
+import ToDooTimeModeFields from './ToDooTimeModeFields.vue';
 import { guardToDooTaskAction } from '../../to-doo-action-guard';
 import { validateToDooTaskDraft, type ToDooDraftIssue } from '../../to-doo-draft-validation';
 
@@ -23,7 +24,7 @@ import {
   Textarea as ATextarea,
 } from 'ant-design-vue';
 import type { TreeEntry } from '../../../../shared/contracts';
-import type { ToDooDateTime, ToDooEntityKind } from '../../../../shared/to-doo-contracts';
+import type { ToDooDateTime, ToDooEntityKind, ToDooRecurrence } from '../../../../shared/to-doo-contracts';
 import {
   toDooLocalDate,
   toDooDisplayTime,
@@ -41,8 +42,10 @@ import ToDooIcon from './ToDooIcon.vue';
 import ToDooListIcon from './ToDooListIcon.vue';
 import ToDooTaskMenu from './ToDooTaskMenu.vue';
 import {
+  isToDooTimeZone,
   toDooDateLabel,
   toDooDraftPayload,
+  toDooDraftRepeatClock,
   type ToDooTaskPlacement,
 } from '../../to-doo-presentation';
 const confirmAction = useToDooConfirm();
@@ -397,6 +400,7 @@ function currentDetail(taskId: string, occurrenceId: string) {
   );
 }
 const local = props.model.newTaskDraft(props.parentTaskId, props.listId);
+const repeatClock = computed(() => toDooDraftRepeatClock(local));
 const quick = computed(() =>
   parseToDooQuickEntry(
     local.title,
@@ -446,7 +450,7 @@ watch(
 const zone = computed(() => state.snapshot?.settings.timeZone || 'UTC');
 const today = computed(() => toDooLocalDate(new Date(), zone.value));
 function displaySchedule(value: ToDooDateTime) {
-  const shown = toDooDisplayTime(value, zone.value);
+  const shown = isToDooTimeZone(value.timeZone) ? toDooDisplayTime(value, zone.value) : value;
   return toDooDateLabel(shown.date, today.value) + (shown.time ? ' ' + shown.time : '');
 }
 const scheduledBlocks = computed(() => form.value?.blocks.filter(value => !value.deletedAt) || []);
@@ -458,13 +462,12 @@ const planSummary = computed(() => {
 const deadlineSummary = computed(() =>
   form.value?.occurrence?.due ? displaySchedule(form.value.occurrence.due) : '设置截止日期',
 );
-const deadlineOverdue = computed(() =>
-  toDooDeadlineOverdue(
-    form.value?.occurrence?.due,
-    form.value?.occurrence?.status || 'unavailable',
-    today.value,
-  ),
-);
+const deadlineOverdue = computed(() => {
+  const deadline = form.value?.occurrence?.due;
+  return !!deadline && isToDooTimeZone(deadline.timeZone) && toDooDeadlineOverdue(
+    deadline, form.value?.occurrence?.status || 'unavailable', today.value, undefined, zone.value,
+  );
+});
 const currentList = computed(() => state.snapshot?.lists.find((list) => list.id === form.value?.task.listId));
 const currentListName = computed(() =>
   form.value?.task.listId
@@ -527,18 +530,26 @@ function due(value: string, field: 'date' | 'time') {
     time: null,
     timeZone: zone.value,
   };
-  form.value.occurrence.due = { ...current, [field]: value || null };
+  const updated = { ...current, [field]: value || null };
+  if (!updated.time) {
+    delete updated.timeMode;
+    if (!isToDooTimeZone(updated.timeZone)) updated.timeZone = zone.value;
+  }
+  form.value.occurrence.due = updated;
 }
-function repeat(frequency: string) {
+function repeat(frequency: ToDooRecurrence['frequency'] | '') {
   if (!form.value) return;
+  const current = form.value.task.recurrence;
+  if (current?.frequency === frequency) return;
   form.value.task.recurrence = frequency
     ? {
         id: crypto.randomUUID(),
-        frequency: frequency as any,
+        frequency,
         interval: 1,
         anchorDate: form.value.occurrence?.scheduledDate || toDooLocalDate(new Date(), zone.value),
-        time: null,
-        timeZone: zone.value,
+        time: current?.time || null,
+        timeZone: current?.timeZone || zone.value,
+        ...(current?.time && current.timeMode ? { timeMode: current.timeMode } : {}),
         weekdays: [],
         until: null,
         count: null,
@@ -549,6 +560,15 @@ function repeat(frequency: string) {
         completionUnit: 'day',
       }
     : null;
+}
+function repeatTime(value: string | null) {
+  const rule = form.value?.task.recurrence;
+  if (!rule) return;
+  rule.time = value || null;
+  if (!rule.time) {
+    delete rule.timeMode;
+    if (!isToDooTimeZone(rule.timeZone)) rule.timeZone = zone.value;
+  }
 }
 function monthly(mode: string) {
   const rule = form.value?.task.recurrence;
@@ -894,6 +914,10 @@ defineExpose({
                   :min="0"
               /></label>
             </div>
+            <ToDooTimeModeFields v-if="local.planTime" v-model:time-mode="local.planTimeMode"
+              v-model:time-zone="local.planTimeZone" :workspace-zone="zone" :disabled="state.busy" label="计划" />
+            <ToDooTimeModeFields v-if="local.dueTime" v-model:time-mode="local.dueTimeMode"
+              v-model:time-zone="local.dueTimeZone" :workspace-zone="zone" :disabled="state.busy" label="截止" />
             <label
               >重复<ToDooSelect v-model="local.frequency" aria-label="重复"
                 ><option :value="null">不重复</option>
@@ -913,6 +937,14 @@ defineExpose({
                   "
                 >周{{ day }}</ACheckbox>
             </div>
+            <template v-if="local.frequency && repeatClock.time">
+              <small class="todo-form-help">
+                重复时间 {{ repeatClock.time }}，取自{{ repeatClock.source === 'plan' ? '计划' : '截止' }}时间。
+              </small>
+              <ToDooTimeModeFields :time-mode="repeatClock.timeMode" v-model:time-zone="local.recurrenceTimeZone"
+                :default-zone="repeatClock.timeZone" :workspace-zone="zone" :disabled="state.busy"
+                label="重复" @update:time-mode="local.recurrenceTimeMode = $event" />
+            </template>
             <ToDooReminders v-model="local.reminders" :date-based="false" />
             <label>完成标准<ATextarea v-model:value="local.criteria" :rows="3"></ATextarea></label>
           </div>
@@ -1132,7 +1164,10 @@ defineExpose({
                 <label>截止日期<ToDooDateField type="date" aria-label="截止日期" :value="form.occurrence?.due?.date || ''" @input="due($event, 'date')" /></label>
                 <label>截止时间<ToDooDateField type="time" aria-label="截止时间" :value="form.occurrence?.due?.time || ''" @input="due($event, 'time')" /></label>
               </div>
-              <label v-if="form.occurrence?.due">截止时区<AInput v-model:value="form.occurrence.due.timeZone" /></label>
+              <ToDooTimeModeFields v-if="form.occurrence?.due?.time"
+                v-model:time-mode="form.occurrence.due.timeMode"
+                v-model:time-zone="form.occurrence.due.timeZone"
+                :workspace-zone="zone" :disabled="state.busy" label="截止" required />
               <AButton :disabled="state.busy || !form.occurrence?.due" @click="due('', 'date')">清除截止日期</AButton>
             </section>
             <section v-if="detailPanel === 'priority'" class="todo-form">
@@ -1140,7 +1175,7 @@ defineExpose({
             </section>
             <section v-if="detailPanel === 'plan'" class="todo-form">
               <div v-for="block in form.blocks.filter(value => !value.deletedAt)" :key="block.id" class="todo-form todo-plan-editor">
-                <ToDooTimeBlockFields :block="block" :disabled="state.busy" />
+                <ToDooTimeBlockFields :block="block" :workspace-zone="zone" :disabled="state.busy" />
                 <AButton type="text" danger :disabled="state.busy" @click="removePlan(block.id)">移除这段安排</AButton>
               </div>
               <p v-if="!form.blocks.some(value => !value.deletedAt)" class="todo-muted">还没有安排时间，可添加一段或多段安排。</p>
@@ -1229,9 +1264,8 @@ defineExpose({
                         type="date" /></label
                     ><label
                       >重复时间<ToDooDateField
-                        :model-value="form.task.recurrence.time" @update:model-value="form.task.recurrence.time = $event || null"
+                        :model-value="form.task.recurrence.time" @update:model-value="repeatTime"
                         type="time" /></label
-                    ><label>时区<AInput v-model:value="form.task.recurrence.timeZone" /></label
                     ><label
                       >结束日期<ToDooDateField
                         :model-value="form.task.recurrence.until" @update:model-value="form.task.recurrence.until = $event || null"
@@ -1246,6 +1280,10 @@ defineExpose({
                         :min="1" :max="100000" :precision="0"
                     /></label>
                   </div>
+                  <ToDooTimeModeFields v-if="form.task.recurrence.time"
+                    v-model:time-mode="form.task.recurrence.timeMode"
+                    v-model:time-zone="form.task.recurrence.timeZone"
+                    :workspace-zone="zone" :disabled="state.busy" label="重复" required />
 
                   <div v-if="form.task.recurrence.frequency === 'monthly'" class="todo-form">
                     <label

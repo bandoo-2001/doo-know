@@ -68,9 +68,12 @@ function label(block: ToDooEntityMap['timeBlock']) {
         :disabled="disabled"
         @change="setDate"
       />
-      <small v-if="primary?.start.time && primary.start.timeZone !== zone" class="todo-muted"
-        >按 {{ primary.start.timeZone }} 填写</small
-      >
+      <small v-if="primary?.start.time && primary.start.timeMode === 'floating'" class="todo-muted">
+        固定时间 · 跟随 {{ zone }}
+      </small>
+      <small v-else-if="primary?.start.time && primary.start.timeZone !== zone" class="todo-muted">
+        按 {{ primary.start.timeZone }} 填写
+      </small>
       <AButton
         type="text"
         class="todo-plan-time"

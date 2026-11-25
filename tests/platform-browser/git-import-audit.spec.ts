@@ -178,7 +178,11 @@ test('actual local Git read and clone recover from a name conflict and activate 
   await expect(page.getByLabel('仓库克隆地址', { exact: true })).toHaveValue(fixture.remoteUrl);
   const libraryName = `Audit imported ${info.project.name}`;
   await page.getByLabel('导入后的知识库名称', { exact: true }).fill(libraryName);
+  const cloneRequest = page.waitForRequest(
+    (request) => request.url().endsWith('/api/platform/git/jobs') && request.method() === 'POST',
+  );
   await page.getByRole('button', { name: '导入并继续', exact: true }).click();
+  expect((await cloneRequest).postDataJSON()).not.toHaveProperty('timeZone');
   await expect(page.getByRole('heading', { name: '选择需要的功能', exact: true })).toBeVisible({
     timeout: 30000,
   });

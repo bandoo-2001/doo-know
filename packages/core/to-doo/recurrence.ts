@@ -108,13 +108,29 @@ function localParts(at: Date, timeZone: string) {
 export function localDate(at: Date, timeZone: string): string {
   return localParts(at, timeZone).date;
 }
-export function dateTimeInstant(value: ToDooDateTime, allDayTime = '23:59'): Date {
+export function scheduleTimeZone(
+  value: Pick<ToDooDateTime, 'timeZone' | 'timeMode'>,
+  workspaceTimeZone?: string,
+): string {
+  return value.timeMode === 'floating' ? (workspaceTimeZone ?? value.timeZone) : value.timeZone;
+}
+export function scheduleDisplayDate(value: ToDooDateTime, workspaceTimeZone: string): string {
+  return value.time === null || value.timeMode === 'floating'
+    ? value.date
+    : localDate(dateTimeInstant(value), workspaceTimeZone);
+}
+export function dateTimeInstant(
+  value: ToDooDateTime,
+  allDayTime = '23:59',
+  workspaceTimeZone?: string,
+): Date {
   const time = value.time ?? allDayTime,
-    target = value.date + 'T' + time;
+    target = value.date + 'T' + time,
+    timeZone = scheduleTimeZone(value, workspaceTimeZone);
   const targetMs = Date.parse(target + ':00Z');
   let guess = targetMs;
   for (let i = 0; i < 5; i++) {
-    const p = localParts(new Date(guess), value.timeZone),
+    const p = localParts(new Date(guess), timeZone),
       localMs = Date.parse(p.date + 'T' + p.time + ':00Z');
     const delta = targetMs - localMs;
     if (!delta) break;
@@ -123,7 +139,7 @@ export function dateTimeInstant(value: ToDooDateTime, allDayTime = '23:59'): Dat
   const matches: number[] = [];
   for (const delta of [-120, -60, 0, 60, 120]) {
     const candidate = guess + delta * 60000,
-      p = localParts(new Date(candidate), value.timeZone);
+      p = localParts(new Date(candidate), timeZone);
     if (p.date + 'T' + p.time === target) matches.push(candidate);
   }
   if (matches.length) return new Date(Math.min(...matches));
@@ -131,7 +147,7 @@ export function dateTimeInstant(value: ToDooDateTime, allDayTime = '23:59'): Dat
   let best: number | undefined, bestLocal: string | undefined;
   for (let offset = -180; offset <= 180; offset++) {
     const candidate = guess + offset * 60000,
-      p = localParts(new Date(candidate), value.timeZone),
+      p = localParts(new Date(candidate), timeZone),
       key = p.date + 'T' + p.time;
     if (
       key >= target &&

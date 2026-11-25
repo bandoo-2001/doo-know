@@ -4,7 +4,7 @@ import type {
   ToDooStatistics,
   ToDooStatisticsAuthorization,
 } from '../../../shared/to-doo-contracts.js';
-import { addDays, dateTimeInstant, localDate } from './recurrence.js';
+import { addDays, dateTimeInstant, localDate, scheduleDisplayDate } from './recurrence.js';
 import { sumHabitAmounts } from '../../../shared/to-doo-habits.js';
 
 type StatisticsData = Pick<
@@ -83,6 +83,8 @@ export function aggregateToDooStatistics(
     byList: Object.create(null),
     ...(period ? { completedByDay } : {}),
   };
+  const today = localDate(scope.now, scope.timeZone);
+  const now = scope.now.getTime();
   for (const row of occurrences) {
     if (leafTasks.has(row.taskId) && !['cancelled', 'skipped'].includes(row.status)) {
       const listId = leafTasks.get(row.taskId)!.listId ?? 'inbox';
@@ -97,17 +99,15 @@ export function aggregateToDooStatistics(
         if (period) completedByDay[day] = (completedByDay[day] ?? 0) + 1;
       }
     } else if (leafTasks.has(row.taskId) && ['todo', 'doing', 'blocked'].includes(row.status)) {
-      const day = row.due
-        ? row.due.time === null
-          ? row.due.date
-          : localDate(dateTimeInstant(row.due), scope.timeZone)
-        : row.scheduledDate;
+      const due = row.due;
+      const day = due ? scheduleDisplayDate(due, scope.timeZone) : row.scheduledDate;
       if (within(day)) {
         result.pending++;
         if (
-          row.due &&
-          dateTimeInstant(row.due).getTime() + (row.due.time === null ? 59999 : 0) <
-            scope.now.getTime()
+          due &&
+          (due.time === null
+            ? due.date < today
+            : dateTimeInstant(due, undefined, scope.timeZone).getTime() < now)
         )
           result.overdue++;
       }

@@ -228,6 +228,67 @@ test('a pristine composer placeholder accepts the explicit context when opened f
   expect(model.hasNewTaskDraft()).toBe(false);
 });
 
+test('task creation serializes fixed and floating clocks independently and omits a clock from date-only fields', () => {
+  const draft = createToDooWorkbench(async () => undefined).newTaskDraft();
+  Object.assign(draft, {
+    title: '核对日期与时区',
+    dueDate: '2026-12-16',
+    dueTime: '08:30',
+    dueTimeMode: 'floating',
+    dueTimeZone: 'Europe/London',
+    planDate: '2026-12-15',
+    planTime: '22:30',
+    planTimeMode: 'fixed',
+    planTimeZone: 'America/New_York',
+    frequency: 'daily',
+    recurrenceTimeMode: 'floating',
+    recurrenceTimeZone: 'Asia/Tokyo',
+  });
+  expect(toDooDraftPayload(draft, 'Asia/Shanghai')).toMatchObject({
+    due: { date: '2026-12-16', time: '08:30', timeZone: 'Asia/Shanghai', timeMode: 'floating' },
+    plan: { date: '2026-12-15', time: '22:30', timeZone: 'America/New_York' },
+    recurrence: { time: '22:30', timeZone: 'Asia/Shanghai', timeMode: 'floating' },
+  });
+
+  draft.dueTime = '';
+  draft.planTime = '';
+  const allDay = toDooDraftPayload(draft, 'Asia/Shanghai');
+  expect(allDay.due).toEqual({ date: '2026-12-16', time: null, timeZone: 'Asia/Shanghai' });
+  expect(allDay.plan).toEqual({ date: '2026-12-15', time: null, timeZone: 'Asia/Shanghai' });
+  expect(allDay.recurrence).not.toHaveProperty('timeMode');
+});
+
+test('repetition inherits the timed deadline when a plan lacks a time', () => {
+  const draft = createToDooWorkbench(async () => undefined).newTaskDraft();
+  Object.assign(draft, {
+    dueDate: '2026-12-16',
+    dueTime: '09:00',
+    dueTimeMode: 'floating',
+    planDate: '2026-12-15',
+    frequency: 'daily',
+  });
+  const rule = () => toDooDraftPayload(draft, 'Asia/Shanghai').recurrence;
+  expect(rule()).toMatchObject({
+    anchorDate: '2026-12-16',
+    time: '09:00',
+    timeZone: 'Asia/Shanghai',
+    timeMode: 'floating',
+  });
+
+  draft.recurrenceTimeZone = 'Europe/London';
+  expect(rule()).toMatchObject({ anchorDate: '2026-12-16', time: '09:00', timeZone: 'Europe/London' });
+  expect(rule()).not.toHaveProperty('timeMode');
+
+  draft.recurrenceTimeZone = '';
+  draft.dueTimeMode = 'fixed';
+  draft.dueTimeZone = 'America/New_York';
+  expect(rule()).toMatchObject({ anchorDate: '2026-12-16', time: '09:00', timeZone: 'America/New_York' });
+
+  draft.planTime = '18:15';
+  draft.planTimeZone = 'Asia/Tokyo';
+  expect(rule()).toMatchObject({ anchorDate: '2026-12-15', time: '18:15', timeZone: 'Asia/Tokyo' });
+});
+
 test('every supported effective direct filter is visible in a readable summary', () => {
   const summary = (presentation as any).toDooFilterSummary({
     query: '报告',

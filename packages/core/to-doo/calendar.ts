@@ -46,9 +46,9 @@ function dateTime(property: ICAL.Property | null, defaultZone?: string): ToDooDa
   const value = property.getFirstValue() as ICAL.Time;
   if (!value || typeof value.toString !== 'function')
     throw new CalendarFormatError('Invalid calendar date');
-  const zone = String(
-    property.getParameter('tzid') || (value.zone?.tzid === 'UTC' ? 'UTC' : defaultZone || ''),
-  );
+  const tzid = property.getParameter('tzid');
+  const utc = value.zone?.tzid === 'UTC';
+  const zone = String(tzid || (utc ? 'UTC' : defaultZone || ''));
   if (!zone || !validZone(zone))
     throw new CalendarFormatError(
       'Calendar time zone must be explicitly mapped to a supported IANA zone',
@@ -65,6 +65,7 @@ function dateTime(property: ICAL.Property | null, defaultZone?: string): ToDooDa
       ? null
       : `${String(value.hour).padStart(2, '0')}:${String(value.minute).padStart(2, '0')}`,
     timeZone: zone,
+    ...(!value.isDate && !tzid && !utc ? { timeMode: 'floating' as const } : {}),
   };
 }
 export function parseCalendar(
@@ -133,9 +134,9 @@ export function parseCalendar(
       );
       startTime.addDuration(duration);
       end = {
+        ...start,
         date: startTime.toString().slice(0, 10),
         time: start.time ? startTime.toString().slice(11, 16) : null,
-        timeZone: start.timeZone,
       };
     }
     const recurrenceProperty = component.getFirstProperty('recurrence-id');
@@ -224,12 +225,18 @@ function formatTime(value: ToDooDateTime): { parameter: string; value: string } 
     throw new CalendarFormatError('Invalid calendar date or time zone');
   const date = value.date.replace(/-/g, '');
   if (value.time === null) return { parameter: ';VALUE=DATE', value: date };
+  const local = date + 'T' + value.time.replace(':', '') + '00';
+  if (value.timeMode === 'floating') return { parameter: '', value: local };
   return {
     parameter: value.timeZone === 'UTC' ? '' : ';TZID=' + value.timeZone,
-    value: date + 'T' + value.time.replace(':', '') + '00' + (value.timeZone === 'UTC' ? 'Z' : ''),
+    value: local + (value.timeZone === 'UTC' ? 'Z' : ''),
   };
 }
-function rawDate(value: string, zone: string): { parameter: string; value: string } {
+function rawDate(
+  value: string,
+  zone: string,
+  timeMode?: ToDooDateTime['timeMode'],
+): { parameter: string; value: string } {
   if (!/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}Z?)?$/.test(value))
     throw new CalendarFormatError('Invalid recurrence date');
   if (value.length === 10) return formatTime({ date: value, time: null, timeZone: zone });
@@ -237,6 +244,7 @@ function rawDate(value: string, zone: string): { parameter: string; value: strin
     date: value.slice(0, 10),
     time: value.slice(11, 16),
     timeZone: value.endsWith('Z') ? 'UTC' : zone,
+    timeMode: value.endsWith('Z') ? undefined : timeMode,
   });
   result.value = result.value.replace(
     /00Z?$/,
@@ -318,9 +326,9 @@ export function expandCalendar(
         continue;
       }
       const start = {
+        ...item.start,
         date: date.slice(0, 10),
         time: item.start.time === null ? null : date.slice(11, 16),
-        timeZone: item.start.timeZone,
       };
       let end: ToDooDateTime | null = null;
       if (span !== null) {
@@ -328,9 +336,9 @@ export function expandCalendar(
           Date.parse(start.date + 'T' + (start.time ?? '00:00') + ':00Z') + span,
         );
         end = {
+          ...item.end!,
           date: value.toISOString().slice(0, 10),
           time: item.end!.time === null ? null : value.toISOString().slice(11, 16),
-          timeZone: item.end!.timeZone,
         };
       }
       append({
@@ -429,7 +437,7 @@ export function exportCalendar(
   const zones = new Map<string, { from: number; to: number }>();
   for (const item of items)
     for (const value of [item.start, item.end])
-      if (value?.time && value.timeZone !== 'UTC') {
+      if (value?.time && value.timeMode !== 'floating' && value.timeZone !== 'UTC') {
         const year = Number(value.date.slice(0, 4)),
           range = zones.get(value.timeZone);
         zones.set(value.timeZone, {
@@ -468,7 +476,9 @@ export function exportCalendar(
       }
     }
     if (item.recurrenceId) {
-      const recurrence = rawDate(item.recurrenceId, item.recurrenceTimeZone ?? item.start.timeZone);
+      const recurrence = rawDate(
+        item.recurrenceId, item.recurrenceTimeZone ?? item.start.timeZone, item.start.timeMode,
+      );
       lines.push('RECURRENCE-ID' + recurrence.parameter + ':' + recurrence.value);
     }
     for (const [field, values] of [
@@ -476,7 +486,7 @@ export function exportCalendar(
       ['RDATE', item.additionalDates],
     ] as const)
       for (const value of values) {
-        const date = rawDate(value, item.start.timeZone);
+        const date = rawDate(value, item.start.timeZone, item.start.timeMode);
         lines.push(field + date.parameter + ':' + date.value);
       }
     lines.push('END:' + component);

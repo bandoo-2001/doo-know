@@ -1,8 +1,9 @@
-import type { ToDooCommand, ToDooEntityMap, ToDooFilter } from '../../shared/to-doo-contracts';
+import type { ToDooCommand, ToDooDateTime, ToDooEntityMap, ToDooFilter } from '../../shared/to-doo-contracts';
 import type { ToDooTaskFilter } from './navigation';
 import {
   parseToDooQuickEntry,
   shiftToDooDate,
+  toDooDraftRecurrenceMode,
   toDooLocalDate,
   type ToDooNewTaskDraft,
 } from './to-doo-workbench';
@@ -133,10 +134,48 @@ export function prepareToDooQuickDraft(
   return value;
 }
 
+export function isToDooTimeZone(value: string): boolean {
+  if (value.length > 128) return false;
+  try {
+    new Intl.DateTimeFormat('en', { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function toDooScheduleFields(
+  time: string | null,
+  workspaceZone: string,
+  timeMode?: ToDooDateTime['timeMode'],
+  timeZone?: string,
+): Pick<ToDooDateTime, 'time' | 'timeZone' | 'timeMode'> {
+  const floating = time && timeMode === 'floating';
+  return {
+    time,
+    timeZone: time && !floating ? timeZone || workspaceZone : workspaceZone,
+    ...(floating ? { timeMode: 'floating' as const } : {}),
+  };
+}
+
+export function toDooDraftRepeatClock(draft: ToDooNewTaskDraft) {
+  const plan = !!draft.planTime;
+  const sourceMode = plan ? draft.planTimeMode : draft.dueTimeMode;
+  const sourceZone = plan ? draft.planTimeZone : draft.dueTimeZone;
+  return {
+    source: plan ? 'plan' : 'due',
+    date: plan ? draft.planDate : draft.dueDate,
+    time: draft.planTime || draft.dueTime || null,
+    timeMode: toDooDraftRecurrenceMode(draft),
+    timeZone: draft.recurrenceTimeZone || (sourceMode === 'floating' ? '' : sourceZone) || '',
+  };
+}
+
 export function toDooDraftPayload(
   draft: ToDooNewTaskDraft,
   timeZone: string,
 ): Extract<ToDooCommand, { action: 'create_task' }>['payload'] {
+  const repeat = toDooDraftRepeatClock(draft);
   return {
     title: draft.title.trim(),
     initialStatus: draft.initialStatus,
@@ -149,16 +188,22 @@ export function toDooDraftPayload(
     ...(draft.sectionId !== undefined ? { sectionId: draft.sectionId } : {}),
     estimateMinutes: draft.estimate === '' ? null : draft.estimate,
     tagIds: draft.tagIds,
-    due: draft.dueDate ? { date: draft.dueDate, time: draft.dueTime || null, timeZone } : null,
-    plan: draft.planDate ? { date: draft.planDate, time: draft.planTime || null, timeZone } : null,
+    due: draft.dueDate ? {
+      date: draft.dueDate,
+      ...toDooScheduleFields(draft.dueTime || null, timeZone, draft.dueTimeMode, draft.dueTimeZone),
+    } : null,
+    plan: draft.planDate ? {
+      date: draft.planDate,
+      ...toDooScheduleFields(draft.planTime || null, timeZone, draft.planTimeMode, draft.planTimeZone),
+    } : null,
     recurrence: draft.frequency
       ? {
           id: draft.recurrenceId,
           frequency: draft.frequency,
           interval: 1,
-          anchorDate: draft.planDate || draft.dueDate || toDooLocalDate(new Date(), timeZone),
-          time: draft.planTime || null,
-          timeZone,
+          anchorDate: (repeat.time && repeat.date) || draft.planDate || draft.dueDate ||
+            toDooLocalDate(new Date(), timeZone),
+          ...toDooScheduleFields(repeat.time, timeZone, repeat.timeMode, repeat.timeZone),
           weekdays: draft.weekdays,
           until: null,
           count: null,

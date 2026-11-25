@@ -19,7 +19,7 @@ test.beforeEach(async ({ request }) => {
   expect((await request.post('/__test/setup/reset')).ok()).toBe(true);
 });
 
-test('new library handles invalid names, conflicts and timezone correction without creating twice', async ({
+test('new library handles invalid names, conflicts and expired validation without creating twice', async ({
   page,
 }) => {
   await login(page);
@@ -29,23 +29,30 @@ test('new library handles invalid names, conflicts and timezone correction witho
   await page.getByLabel('知识库名称', { exact: true }).fill('personal');
   await page.getByRole('button', { name: '确认并继续', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('已经存在');
-  await page.getByLabel('知识库名称', { exact: true }).fill('时区重试');
+  await page.getByLabel('知识库名称', { exact: true }).fill('绑定重试');
   await page.getByText('高级设置', { exact: true }).click();
-  await page.getByLabel('时区', { exact: true }).fill('Invalid/Zone');
+  await expect(page.getByLabel('保存到哪个文件夹', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('时区', { exact: true })).toHaveCount(0);
   let creates = 0;
   page.on('request', (r) => {
     if (new URL(r.url()).pathname === '/api/platform/setup/create' && r.method() === 'POST')
       creates++;
   });
+  let bindings = 0;
+  await page.route('**/api/platform/setup/complete', async (route) => {
+    expect(route.request().postDataJSON()).not.toHaveProperty('timeZone');
+    if (++bindings === 1)
+      await route.fulfill({ status: 409, json: { code: 'VALIDATION_EXPIRED' } });
+    else await route.continue();
+  });
   await page.getByRole('button', { name: '确认并继续', exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText('时区无法使用');
-  await page.getByLabel('时区', { exact: true }).fill('Asia/Shanghai');
+  await expect(page.getByRole('alert')).toContainText('确认时间已过');
   await page.getByRole('button', { name: '确认并继续', exact: true }).click();
   await expect(page.getByRole('heading', { name: '选择需要的功能', exact: true })).toBeVisible();
   expect(creates).toBe(1);
   const f = JSON.parse(await readFile('.local/setup-e2e.json', 'utf8'));
   expect(
-    (await readdir(join(dirname(f.knowledgeRoot), '时区重试'))).filter(
+    (await readdir(join(dirname(f.knowledgeRoot), '绑定重试'))).filter(
       (name) => name !== '_doo-data',
     ),
   ).toEqual([]);
@@ -58,6 +65,12 @@ test('new library handles invalid names, conflicts and timezone correction witho
   await expect(page.locator('.sidebar .brand')).toContainText('DooKnow');
   await page.reload();
   await expect(page.locator('.sidebar .brand')).toContainText('DooKnow');
+  await page.goto('/?view=settings&section=library');
+  const library = page.locator('.settings-card').filter({
+    has: page.getByRole('heading', { name: '当前知识库', exact: true }),
+  });
+  await expect(library.getByText('知识库可用', { exact: true })).toBeVisible();
+  await expect(library).not.toContainText('时区');
 });
 
 test('existing library rejects forbidden paths, browses folders and preserves original notes', async ({
