@@ -230,12 +230,12 @@ github_fetch() (
   }
   printf -v cleanup_path '%q' "$work"
   trap "rm -rf -- $cleanup_path" EXIT
-  github_fetch 'bandoo-2001/doo-know' '785649676' "$work/install.sh" "" 'https://github.com/bandoo-2001/doo-know/releases/download/v1.1.0-rc.73/install.sh' || {
-    echo '未能取得 DooKnow v1.1.0-rc.73 的安装脚本。请修复上方错误后重跑原安装命令。' >&2
+  github_fetch 'bandoo-2001/doo-know' '794526661' "$work/install.sh" "" 'https://github.com/bandoo-2001/doo-know/releases/download/v1.1.0-rc.74/install.sh' || {
+    echo '未能取得 DooKnow v1.1.0-rc.74 的安装脚本。请修复上方错误后重跑原安装命令。' >&2
     return 1
   }
-  if ! printf '%s  %s\n' '406c2f04c9305ceb210183717bbd047cc987ecac770aa31fa8654571276c6dd8' "$work/install.sh" | sha256sum --status -c -; then
-    echo 'DooKnow v1.1.0-rc.73 安装脚本的 SHA-256 校验失败。请从项目 README 重新获取安装命令，并检查代理缓存或发行制品是否异常。' >&2
+  if ! printf '%s  %s\n' '20292a6bb3b3799e8ff9786d4ccf8f5e76de0b1657e8f6b2fcbe973f0989940c' "$work/install.sh" | sha256sum --status -c -; then
+    echo 'DooKnow v1.1.0-rc.74 安装脚本的 SHA-256 校验失败。请从项目 README 重新获取安装命令，并检查代理缓存或发行制品是否异常。' >&2
     return 1
   fi
   bash "$work/install.sh" "$@"
