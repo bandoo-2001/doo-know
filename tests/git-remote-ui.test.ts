@@ -236,6 +236,21 @@ it('blocks pull and commit while a note has unsaved changes', async () => {
   expect(api.mock.calls.filter((call) => call[1] === 'POST')).toEqual([]);
   expect(view.error).toContain('保存');
 });
+it('does not offer to retry an old failed import after the owner has successfully imported a repository', async () => {
+  api.mockImplementation(async (url: string) =>
+    url.endsWith('/status') ? {
+      ...status(),
+      jobs: [
+        { id: 'imported', kind: 'clone', status: 'succeeded', phase: 'complete' },
+        { id: 'previous', kind: 'clone', status: 'failed', phase: 'checking_dependency', error: 'FORBIDDEN_KNOWLEDGE_ROOT' },
+      ],
+    } : { items: [] },
+  );
+  const view = await mount('GitRemotePanel.vue');
+  expect(view.job).toBeUndefined();
+  expect(renderedButton('核对并重试任务')).toBeUndefined();
+});
+
 it('resumes an existing unknown job without posting another operation', async () => {
   const unknown = {
     id: 'unknown',

@@ -58,6 +58,7 @@ const messages: Record<string, string> = {
   GIT_JOB_BUSY: '另一个仓库任务正在进行，请等待完成。',
   GIT_NOT_INSTALLED: '系统 Git 尚未准备好，请让部署者安装 Git 2.39 或更新版本。',
   GIT_DISABLED: '请先启用 Git 版本管理。',
+  CONFIG_VERSION_CONFLICT: 'Git 署名已在其他位置更新，请重新读取已保存设置。',
   PORTABLE_GIT_SETTINGS_UNAVAILABLE: '暂时无法读取仓库中的 Git 署名设置。',
   GIT_UNSUPPORTED_TREE: '云端包含链接或子模块等不支持的文件，不会覆盖本地资料。',
   DIRECTORY_EXISTS: '目标文件夹已经存在，请换一个知识库名称或保存位置。',

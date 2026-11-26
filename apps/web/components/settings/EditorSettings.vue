@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import Icon from '../Icon.vue';
-import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { Button as AButton, Select as ASelect, Switch as ASwitch } from 'ant-design-vue';
-import { editorPreferences, setEditorPreferences } from '../../preferences';
+import { editorSettingsDraft as draft, editorPreferencesPersisted, hasUnsavedEditorSettings, discardEditorSettingsDraft, setEditorPreferences } from '../../preferences';
 import { documentEditorEnabled } from '../../editor/compatibility';
 import SettingsActionCard from './SettingsActionCard.vue';
 import SettingsOverlay from './SettingsOverlay.vue';
 const documentEditingEnabled = documentEditorEnabled();
 const emit = defineEmits<{ 'preferences-changed': [] }>();
-const draft = reactive({ ...editorPreferences });
 const notice = ref('');
 const shortcutsOpen = ref(false);
 const shortcuts = [
@@ -31,11 +30,7 @@ onBeforeUnmount(() => appearanceQuery?.removeEventListener('change', updateSyste
 const previewTheme = computed(() =>
   draft.theme === 'system' ? (systemDark.value ? 'dark' : 'light') : draft.theme,
 );
-const dirty = computed(() =>
-  Object.keys(draft).some(
-    (key) => draft[key as keyof typeof draft] !== editorPreferences[key as keyof typeof draft],
-  ),
-);
+const dirty = computed(hasUnsavedEditorSettings);
 const readingLabels = { comfortable: '舒适宽度', wide: '宽屏阅读', full: '铺满区域' };
 const previewWidth = computed(
   () => ({ comfortable: '78%', wide: '92%', full: '100%' })[draft.readingWidth],
@@ -50,18 +45,20 @@ watch(
   { flush: 'sync' },
 );
 function cancel() {
-  Object.assign(draft, editorPreferences);
+  discardEditorSettingsDraft();
   notice.value = '已取消未保存的更改';
 }
 
-watch(editorPreferences, (value) => Object.assign(draft, value));
+watch(() => draft.editorKind, (kind) => {
+  if (documentEditingEnabled && kind === 'document' && draft.mode === 'split') draft.mode = 'edit';
+}, { flush: 'sync' });
 function save() {
-  setEditorPreferences({
+  const persisted = setEditorPreferences({
     ...draft,
     ...(!documentEditingEnabled && draft.mode === 'split' ? { editorKind: 'source' as const } : {}),
   });
-  Object.assign(draft, editorPreferences);
-  notice.value = '编辑器偏好已保存';
+  discardEditorSettingsDraft();
+  notice.value = persisted ? '编辑器偏好已保存' : '偏好已应用到当前页面。浏览器存储不可用，刷新后需要重新设置。';
   emit('preferences-changed');
 }
 function reset() {
@@ -97,8 +94,8 @@ function reset() {
           >
         </div>
         <p class="editor-settings-status" role="status">
-          <span :class="notice && !dirty ? 'settings-success' : 'settings-muted'">{{
-            notice || (dirty ? '有未保存的更改' : '当前偏好已保存')
+          <span :class="notice && !dirty && editorPreferencesPersisted ? 'settings-success' : 'settings-muted'">{{
+            notice || (dirty ? '有未保存的更改' : editorPreferencesPersisted ? '当前偏好已保存' : '当前偏好仅在此页面生效')
           }}</span>
         </p>
       </div>

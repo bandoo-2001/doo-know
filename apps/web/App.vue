@@ -10,7 +10,7 @@ import { api, ApiError, refreshCsrf, resetCsrf } from './api';
 import { clearMcpSettings, hasUnsavedMcpSettings } from './mcp-settings-draft';
 import { clearFeatures } from './features';
 import { hasUnsavedGitSettings } from './git/settings-draft';
-import { initializeEditorPreferences, resolvedTheme } from './preferences';
+import { discardEditorSettingsDraft, hasUnsavedEditorSettings, initializeEditorPreferences, resolvedTheme } from './preferences';
 import { initializeAppShortcuts } from './app-shortcuts';
 import LoadingState from './components/LoadingState.vue';
 const PageLoading = defineComponent({
@@ -167,6 +167,7 @@ async function logoutPlatform() {
   }
 }
 function completeLogout() {
+  discardEditorSettingsDraft();
   clearMcpSettings();
   clearFeatures();
   resetCsrf();
@@ -236,11 +237,14 @@ async function checkInitialSession() {
     ready.value = true;
   }
 }
+function sourceUnavailable() {
+  if (loggedIn.value && platform.value?.phase === 'ready') void refreshPlatform();
+}
 function sessionExpired() {
   if (loggedIn.value) expired.value = true;
 }
 function protectFeatureDrafts(event: BeforeUnloadEvent) {
-  if (!hasUnsavedMcpSettings() && !hasUnsavedGitSettings()) return;
+  if (!hasUnsavedMcpSettings() && !hasUnsavedGitSettings() && !hasUnsavedEditorSettings()) return;
   event.preventDefault();
   event.returnValue = '';
 }
@@ -248,11 +252,13 @@ onMounted(async () => {
   window.addEventListener('beforeunload', protectFeatureDrafts);
   if (!token) {
     window.addEventListener('dooknow-session-expired', sessionExpired);
+    window.addEventListener('dooknow-source-unavailable', sourceUnavailable);
     await checkInitialSession();
   } else ready.value = true;
 });
 onBeforeUnmount(() => {
   window.removeEventListener('dooknow-session-expired', sessionExpired);
+  window.removeEventListener('dooknow-source-unavailable', sourceUnavailable);
   window.removeEventListener('beforeunload', protectFeatureDrafts);
   clearMcpSettings();
   clearFeatures();
@@ -334,7 +340,16 @@ onBeforeUnmount(() => {
           </template>
           <LoadingState v-else variant="page" label="正在打开知识库…" />
         </section>
-        <SetupWizard v-else-if="platform" :status="platform" @refresh="refreshPlatform" />
+        <SetupWizard
+          v-else-if="platform"
+          :status="platform"
+          :username="username"
+          :checking="platformBusy"
+          :logout-busy="platformLogoutBusy"
+          :logout-error="platformLogoutError"
+          @refresh="refreshPlatform"
+          @logout="logoutPlatform"
+        />
         <NModal
           :show="loggedIn && expired"
           :mask-closable="false"

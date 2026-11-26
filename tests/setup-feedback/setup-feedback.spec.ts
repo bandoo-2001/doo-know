@@ -261,6 +261,18 @@ test.describe('unavailable source presentation', () => {
     await button(page, '重新检查').click();
     const after = await slot.api('/api/platform/status');
     expect(after.phase).toBe(before.phase);
+    await expect(page.getByText('已重新检查，知识库仍未就绪。', { exact: true })).toBeVisible();
+    await expect(page.locator('.bound-path code')).toHaveText(before.knowledgeRoot);
+    await button(page, '打开设置与诊断').click();
+    const drawer = page.getByRole('dialog', { name: '设置与诊断', exact: true });
+    await expect(drawer.getByRole('button', { name: '下载脱敏诊断', exact: true })).toBeVisible();
+    await drawer.getByRole('tab', { name: '账号与安全', exact: true }).click();
+    await expect(drawer.getByRole('heading', { name: '登录设备', exact: true })).toBeVisible();
+    await drawer.getByRole('tab', { name: '通用与编辑', exact: true }).click();
+    await expect(drawer.getByRole('button', { name: '保存偏好', exact: true })).toBeVisible();
+    await drawer.getByRole('button', { name: '关闭设置与诊断', exact: true }).click();
+    await button(page, '退出登录').click();
+    await expect(page.getByRole('button', { name: '登录', exact: true })).toBeVisible();
   });
 });
 

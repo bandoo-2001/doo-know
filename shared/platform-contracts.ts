@@ -48,8 +48,10 @@ export type PlatformPhase =
   | 'ready'
   | 'source_unavailable'
   | 'configuration_error';
+export type KnowledgeSourceProblem = 'missing' | 'replaced' | 'symlink' | 'not_directory' | 'permission_denied' | 'unavailable';
 export interface PlatformStatus {
   phase: PlatformPhase;
+  sourceProblem?: KnowledgeSourceProblem;
   setupRequired: boolean;
   configurationSource: 'deployment' | 'application' | 'none';
   knowledgeRoot?: string;

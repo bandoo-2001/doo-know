@@ -1,3 +1,4 @@
+import { setFeatureSwitch } from '../support/settings-navigation';
 import { readFile } from 'node:fs/promises';
 import type { Locator, Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -203,6 +204,7 @@ for (const viewport of [
           mutations++;
       });
       await page.goto('/?view=settings&section=library');
+      await setFeatureSwitch(page, 'Git 版本管理', true);
       const panel = page.getByRole('region', { name: '云端同步面板', exact: true });
       const open = panel.getByRole('button', { name: /^(管理同步|关联云端仓库)$/ });
       await expect(

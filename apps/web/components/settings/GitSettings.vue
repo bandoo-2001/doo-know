@@ -16,6 +16,7 @@ import {
 } from '../../features';
 import { gitStatus, refreshGitStatus } from '../../git/status';
 import { gitError } from '../../git-sync';
+import { ApiError } from '../../api';
 import {
   gitAuthorDraft,
   hasUnsavedGitSettings,
@@ -43,7 +44,11 @@ watch(
 );
 
 function readAuthors() {
-  if (git.value) loadGitAuthorDraft(git.value, true);
+  if (git.value) {
+    loadGitAuthorDraft(git.value, true);
+    error.value = '';
+    notice.value = '';
+  }
 }
 async function run(work: () => Promise<void>) {
   if (busy.value) return;
@@ -53,7 +58,10 @@ async function run(work: () => Promise<void>) {
   try {
     await work();
   } catch (failure) {
+    if (!active) return;
     error.value = gitError(failure);
+    if (failure instanceof ApiError && failure.data.code === 'CONFIG_VERSION_CONFLICT')
+      await refreshFeatures().catch(() => {});
   } finally {
     busy.value = false;
   }

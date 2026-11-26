@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { copyText } from '../copy-text';
 import Icon from './Icon.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
@@ -78,7 +79,7 @@ async function load() {
 async function copy(value: string, label: string) {
   notice.value = '';
   try {
-    await navigator.clipboard.writeText(value);
+    await copyText(value);
     notice.value = label + '已复制';
   } catch {
     notice.value = '无法自动复制，请选中下方内容手动复制。';
@@ -210,7 +211,7 @@ watch(() => [props.feature.state, props.feature.configVersion], load);
     <div v-if="endpoint" class="guide-value">
       <span>{{ path === 'oauth' ? 'OAuth MCP 服务地址' : 'API Key MCP 服务地址' }}</span
       ><code>{{ endpoint }}</code
-      ><AButton size="small" :disabled="dirty" @click="copy(endpoint, '连接地址')"
+      ><AButton size="small" @click="copy(endpoint, '连接地址')"
         >复制连接地址</AButton
       >
     </div>

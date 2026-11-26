@@ -1,3 +1,4 @@
+import { setFeatureSwitch } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 import { showSource } from '../support/editor-navigation';
@@ -274,7 +275,10 @@ test('Git 连接草稿在取消凭据编辑后保留，凭据秘密不会再次�
       new URL(response.url()).pathname === '/api/platform/git/credentials' && response.request().method() === 'GET',
       { timeout: test.info().timeout },
     ),
-    page.goto('/?view=settings&section=library'),
+    (async () => {
+      await page.goto('/?view=settings&section=library');
+      await setFeatureSwitch(page, 'Git 版本管理', true);
+    })(),
   ]);
   const panel = page.getByRole('region', { name: '云端同步面板', exact: true });
   for (const response of [status, credentials]) {

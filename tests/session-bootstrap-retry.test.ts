@@ -31,7 +31,7 @@ async function mount(waitUntilReady = true) {
   new Function('require', 'module', 'exports', source)((id: string) => {
     if (id === 'vue') return Vue;
     if (id === './api') return { api, ApiError, refreshCsrf: csrf, resetCsrf() {} };
-    if (id === './preferences') return { resolvedTheme: Vue.ref('light'), initializeEditorPreferences() {} };
+    if (id === './preferences') return { resolvedTheme: Vue.ref('light'), initializeEditorPreferences() {}, discardEditorSettingsDraft() {}, hasUnsavedEditorSettings: () => false };
     if (id === './app-shortcuts') return AppShortcuts;
     if (id === './platform-theme') return PlatformTheme;
       if (id === './git/settings-draft') return { hasUnsavedGitSettings: () => false };

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { copyText } from '../copy-text';
 import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue';
 import { Alert as AAlert, Button as AButton, Input as AInput, Select as ASelect } from 'ant-design-vue';
 import type { McpApiClientView } from '../../../shared/mcp-api-contracts';
@@ -301,7 +302,7 @@ function dismissSecret() {
 }
 async function copySecret() {
   try {
-    await navigator.clipboard.writeText(secret.value);
+    await copyText(secret.value);
     if (active) notice.value = 'API Key 已复制。';
   } catch {
     if (active) error.value = '无法自动复制，请选中密钥手动复制。';

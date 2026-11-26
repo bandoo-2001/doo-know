@@ -29,6 +29,7 @@ const values = computed(() => mcpSettingsDraft.value?.values);
 const stale = computed(
   () => !!mcp.value && mcpSettingsDraft.value?.configVersion !== mcp.value.configVersion,
 );
+const enableBlocked = computed(() => stale.value || hasUnsavedMcpSettings());
 const busy = ref(false);
 const error = ref('');
 const notice = ref('');
@@ -109,6 +110,7 @@ async function run(work: () => Promise<void>) {
 onMounted(() => void run(refreshFeatures));
 
 function toggle(enabled: boolean) {
+  if (enabled && enableBlocked.value) return;
   void run(async () => {
     await setFeatureEnabled('mcp', enabled);
   });
@@ -167,16 +169,17 @@ function save() {
           aria-label="启用 MCP 服务"
           :checked="mcp?.desiredEnabled ?? false"
           :loading="busy"
-          :disabled="!mcp || busy"
+          :disabled="!mcp || busy || (!mcp.desiredEnabled && enableBlocked)"
           @change="(enabled) => toggle(enabled === true)"
         />
       </div>
+      <p v-if="mcp && !mcp.desiredEnabled && enableBlocked" role="status">保存当前权限和连接配置后即可启用 MCP。</p>
       <AAlert v-if="error" type="error" show-icon :message="error" />
       <AAlert v-else-if="mcp?.error" type="warning" show-icon :message="mcp.error" />
       <AButton
         v-if="(!mcp && error) || mcp?.state === 'failed'"
         size="small"
-        :disabled="busy"
+        :disabled="busy || (mcp?.state === 'failed' && enableBlocked)"
         @click="mcp?.state === 'failed' ? toggle(true) : reload()"
       >
         {{ mcp?.state === 'failed' ? '重试启用' : '重试读取设置' }}

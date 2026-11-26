@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { computed, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { Button as AButton, Input as AInput, Alert as AAlert, Select as ASelect } from 'ant-design-vue';
 import type { PlatformStatus } from '../../../shared/platform-contracts';
 import { api, ApiError } from '../api';
@@ -7,8 +7,13 @@ import SetupFeatures from './SetupFeatures.vue';
 import SetupImport from './SetupImport.vue';
 import GitRepositoryImport from './GitRepositoryImport.vue';
 import Icon from './Icon.vue';
-const props = defineProps<{ status: PlatformStatus }>();
-const emit = defineEmits<{ refresh: [] }>();
+import LibraryUnavailable from './LibraryUnavailable.vue';
+const props = defineProps<{
+  status: PlatformStatus; username?: string;
+  checking?: boolean; logoutBusy?: boolean; logoutError?: string;
+}>();
+const recovering = computed(() => ['source_unavailable', 'configuration_error'].includes(props.status.phase));
+const emit = defineEmits<{ refresh: []; logout: [] }>();
 const mode = ref<'new' | 'existing' | 'remote'>('new'),
   name = ref('我的知识库'),
   knowledgeRoot = ref('');
@@ -159,10 +164,10 @@ onBeforeUnmount(() => clearInterval(timer));
   <main class="setup-page" :aria-busy="busy">
     <header class="setup-brand">
       <Icon name="book" :size="29" /> DooKnow
-      <span class="welcome">欢迎使用</span>
+      <span v-if="!recovering" class="welcome">欢迎使用</span>
     </header>
     <section class="setup-card">
-      <ol class="setup-steps" aria-label="首次设置进度">
+      <ol v-if="!recovering" class="setup-steps" aria-label="首次设置进度">
         <li
           v-for="(label, i) in ['准备知识库', '选择功能', '开始使用']"
           :key="label"
@@ -396,15 +401,16 @@ onBeforeUnmount(() => clearInterval(timer));
         <h1>还差一个登录账号</h1>
         <p>请在部署设备上运行安装命令，完成账号创建后刷新此页。</p>
       </div>
-      <div v-else class="setup-state">
-        <h1>暂时无法打开知识库</h1>
-        <p>原有资料和设置已保留。请检查保存位置是否可用，再重试。</p>
-        <AButton type="primary" @click="emit('refresh')">重新检查</AButton>
-        <details class="advanced">
-          <summary>查看详细信息</summary>
-          {{ status.code || status.phase }}
-        </details>
-      </div>
+      <LibraryUnavailable
+        v-else
+        :status="status"
+        :username="username || ''"
+        :checking="checking"
+        :logout-busy="logoutBusy"
+        :logout-error="logoutError"
+        @refresh="emit('refresh')"
+        @logout="emit('logout')"
+      />
       <AAlert
         v-if="error"
         type="error"
@@ -422,7 +428,7 @@ onBeforeUnmount(() => clearInterval(timer));
         </template>
       </AAlert>
     </section>
-    <p class="setup-note">你的资料，由你掌握。</p>
+    <p v-if="!recovering" class="setup-note">你的资料，由你掌握。</p>
   </main>
 </template>
 <style scoped>

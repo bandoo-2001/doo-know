@@ -63,7 +63,10 @@ export type FeatureTitle = 'MCP 服务' | 'Git 版本管理';
 export async function openFeatureSettings(page: Page, title: FeatureTitle) {
   const mcp = title === 'MCP 服务';
   await openSettingsSection(page, mcp ? 'MCP 连接' : '知识库与存储');
-  await expect(page.getByRole('switch', { name: '启用 ' + title, exact: true })).toBeEnabled();
+  await expect(page.getByRole('switch', { name: '启用 ' + title, exact: true })).toBeVisible();
+  await expect(mcp
+    ? page.getByRole('switch', { name: '启用 OAuth 连接', exact: true })
+    : page.getByLabel('提交作者', { exact: true })).toBeVisible();
   if (mcp) await openLegacyMcpSettings(page);
 }
 

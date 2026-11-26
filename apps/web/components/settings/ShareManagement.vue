@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { copyText } from '../../copy-text';
 import Icon from '../Icon.vue';
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import {
@@ -76,7 +77,7 @@ async function revoke(id: string) {
 }
 async function copy(url: string) {
   try {
-    await navigator.clipboard.writeText(new URL(url, location.origin).href);
+    await copyText(new URL(url, location.origin).href);
     notice.value = '共享链接已复制';
   } catch {
     error.value = '无法访问剪贴板，请从下方链接手动复制。';

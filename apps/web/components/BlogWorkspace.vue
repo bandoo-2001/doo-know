@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { copyText } from '../copy-text';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import DOMPurify from 'dompurify';
 import Icon from './Icon.vue';
@@ -227,7 +228,7 @@ async function copyUrl() {
   const url = selected.value?.post.url;
   if (!url) return;
   try {
-    await navigator.clipboard.writeText(new URL(url, location.origin).href);
+    await copyText(new URL(url, location.origin).href);
     state.notice = '文章链接已复制。';
   } catch {
     state.errors[state.selectedId] = '复制失败，请从固定链接栏手动复制。';

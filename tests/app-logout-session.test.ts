@@ -86,7 +86,7 @@ async function mount(authenticated = true) {
       if (id === './app-shortcuts') return AppShortcuts;
     if (id === './platform-theme') return PlatformTheme;
       if (id === './preferences')
-        return { initializeEditorPreferences: vi.fn(), resolvedTheme: Vue.ref('light') };
+        return { initializeEditorPreferences: vi.fn(), resolvedTheme: Vue.ref('light'), discardEditorSettingsDraft: vi.fn(), hasUnsavedEditorSettings: () => false };
       if (id.endsWith('/Workspace.vue')) return { __esModule: true, default: workspace };
       if (id.endsWith('/Login.vue')) return { __esModule: true, default: login };
       if (id.endsWith('.vue')) return { __esModule: true, default: provider };

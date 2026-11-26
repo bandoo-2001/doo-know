@@ -90,7 +90,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
       revoke: (clientId) => Promise.resolve(revokeMcpClient(auth, db, context.ownerId, clientId)),
       connection: () => transports.connection(),
     }),
-    () => platform.settings.configured()?.knowledgeRoot,
+    () => platform.settings.configured() ? platform.get().config.knowledgeRoot : undefined,
   );
   const transports = mcpTransports(app, features, auth, config, db, platform);
   await platform.activate();

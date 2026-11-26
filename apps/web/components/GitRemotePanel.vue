@@ -50,6 +50,12 @@ const error = ref(''),
   loading = ref(false),
   editorOpen = ref(false);
 const credentialHelpId = useId();
+const jobResultLabels: Partial<Record<GitJob['status'], string>> = {
+  failed: '任务失败',
+  needs_reconciliation: '任务结果待核对',
+  cancelled: '任务已取消',
+  succeeded: '任务完成',
+};
 const credentialName = ref(''),
   credentialKind = ref<'https' | 'ssh'>('https'),
   credentialHost = ref<GitRemoteHost>('github.com');
@@ -433,9 +439,11 @@ async function load() {
     authorName.value ||= String(gitFeature.value?.config.authorName || '');
     authorEmail.value ||= String(gitFeature.value?.config.authorEmail || '');
     if (!job.value) {
+      const latest = next.jobs[0];
       job.value =
-        next.jobs.find((entry) => jobPending(entry) || entry.status === 'needs_reconciliation') ||
-        next.jobs.find((entry) => entry.status === 'failed');
+        next.jobs.find(jobPending) ||
+        next.jobs.find((entry) => entry.status === 'needs_reconciliation') ||
+        (latest?.status === 'failed' ? latest : undefined);
       if (jobPending(job.value)) schedule(owner);
     }
   } catch (e) {
@@ -1008,7 +1016,7 @@ onMounted(() => {
       :tabindex="resumedClone ? -1 : undefined"
     >
       <strong>{{
-        job.status === 'cancelled' ? '任务已取消' : jobPhases[job.phase] || '正在处理任务'
+        jobResultLabels[job.status] || jobPhases[job.phase] || '正在处理任务'
       }}</strong>
       <template v-if="resumedClone">
         <p class="remote-code">任务编号：{{ job.id }}</p>

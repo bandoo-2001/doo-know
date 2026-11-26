@@ -63,7 +63,9 @@ export function activate(ctx: FeatureRuntimeContext) {
     tools: registry.operations.map(o => ({ name: o.name, readOnly: o.readOnly, scope: o.scope })), clients: await services.authorization!.list() }));
   ctx.registerProvider('mcp.calls', async ({ input }) => {
     const rows = ctx.storage.get<any[]>('calls') || [];
-    const start = input?.cursor ? rows.findIndex(r => r.id === input.cursor) + 1 : 0;
+    const position = input?.cursor ? rows.findIndex(r => r.id === input.cursor) : -1;
+    if (input?.cursor && position < 0) return { items: [] };
+    const start = position + 1;
     const page = rows.slice(start, start+50); return { items: page, ...(rows.length > start+50 ? { nextCursor: page.at(-1).id } : {}) };
   });
   ctx.registerCommand('mcp.revoke', async ({ input, services }) => {

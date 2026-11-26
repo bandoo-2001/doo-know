@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { copyText } from '../copy-text';
 import { computed, ref, watch } from 'vue';
 import { NModal } from 'naive-ui';
 import { Alert as AAlert, Button as AButton, Input as AInput } from 'ant-design-vue';
@@ -85,7 +86,7 @@ async function copy() {
   copied.value = false;
   copyError.value = '';
   try {
-    await navigator.clipboard.writeText(shareUrl.value);
+    await copyText(shareUrl.value);
     copied.value = true;
   } catch {
     copyError.value = '复制失败，请选中公开链接手动复制。';

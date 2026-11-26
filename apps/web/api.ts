@@ -59,6 +59,8 @@ export async function api<T = any>(
   if (!r.ok) {
     if (r.status === 401 && !url.startsWith('/api/auth/') && options.notifySessionExpired !== false)
       window.dispatchEvent(new Event('dooknow-session-expired'));
+    if (r.status === 503 && (data.code === 'SOURCE_UNAVAILABLE' || data.code === 'CONFIGURATION_CONFLICT') && !url.startsWith('/api/public/'))
+      window.dispatchEvent(new Event('dooknow-source-unavailable'));
     throw new ApiError(r.status, data);
   }
   return data;

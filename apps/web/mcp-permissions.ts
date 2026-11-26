@@ -7,7 +7,7 @@ export function domainPreset(policy: PermissionPolicy, preset: string): Permissi
   if (!knowledge) return next;
   const core = preset === 'organize' ? ['read','write','organize'] : preset === 'edit' ? ['read','write'] : ['read'];
   knowledge.enabled = true;
-  knowledge.actions = [...core,...knowledge.actions.filter(a => ['archive','index'].includes(a))];
+  knowledge.actions = [...core, ...knowledge.actions.filter(action => !['read', 'write', 'organize'].includes(action))];
   return next;
 }
 export function domainResourceMode(policy: PermissionPolicy, domain: string, mode: string): PermissionPolicy {
