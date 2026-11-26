@@ -1,5 +1,4 @@
 import { build as buildTool } from 'vite';
-import { buildPlugins } from './build-plugins.mjs';
 import { thirdPartyNotices } from './third-party-notices.mjs';
 import { renderInstaller } from './install-template.mjs';
 import {
@@ -118,12 +117,10 @@ try {
     [
       '--input-type=module',
       '-e',
-      "import Database from 'better-sqlite3'; const db=new Database(':memory:'); if(db.prepare('select 1 n').get().n!==1)process.exit(1);db.close()",
+      "import Database from 'better-sqlite3'; import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'; if(typeof McpServer!=='function')process.exit(1); const db=new Database(':memory:'); if(db.prepare('select 1 n').get().n!==1)process.exit(1);db.close()",
     ],
     { cwd: stage },
   );
-  await buildPlugins({ output, ids: ['mcp', 'git'], baseURL: source });
-  cpSync(join(output, 'catalog.json'), join(stage, 'catalog.json'));
   const searchMetadata = resolve('.local/platform-execution/search-artifacts/search-runtime.json');
   if (!existsSync(searchMetadata)) throw Error('请先构建独立检索包');
   const search = JSON.parse(readFileSync(searchMetadata, 'utf8'));

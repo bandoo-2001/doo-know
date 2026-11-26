@@ -3,13 +3,13 @@ import Ajv from 'ajv';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import type { PluginServices } from '../packages/plugin-sdk/index.js';
+import type { IntegrationServices } from '../packages/core/integration-ports.js';
 import { KnowledgeError } from '../packages/core/knowledge/errors.js';
 import { BlogError } from '../packages/core/blog/errors.js';
-import { requireScope } from '../plugins/mcp/server/auth.js';
-import { createOperations, registerOperations } from '../plugins/mcp/server/operations.js';
-import * as errors from '../plugins/mcp/server/errors.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
+import { requireScope } from '../apps/server/mcp/auth.js';
+import { createOperations, registerOperations } from '../apps/server/mcp/operations.js';
+import * as errors from '../apps/server/mcp/errors.js';
+import { hostClient } from '../apps/server/mcp/service.js';
 
 const principal = { id: 'error-fixture-owner', clientId: 'error-fixture-client', scopes: ['knowledge:read'], allowedPrefixes: ['00-Inbox'] };
 const privateMarker = 'PRIVATE_BODY_OR_BACKEND_MESSAGE';
@@ -23,7 +23,7 @@ it('returns the specific missing scope instead of making an agent guess the auth
 it.each(['direct', 'details'])('keeps a safe backend conflict version from %s without returning its message or other details', async (location) => {
   const conflict = new KnowledgeError(409, 'VERSION_CONFLICT', privateMarker, false, { privateText: privateMarker });
   Object.assign(location === 'direct' ? conflict : conflict.details, { currentModifiedAt: '1234567890123456789' });
-  const services = { knowledge: { update: async () => { throw conflict; } } } as unknown as PluginServices;
+  const services = { knowledge: { update: async () => { throw conflict; } } } as unknown as IntegrationServices;
   const client = hostClient(() => services, () => ({}));
   let failure: unknown;
   try { await client.update(principal, { noteId: 'fixture-note', content: privateMarker, requestId: 'conflict-fixture' }); } catch (error) { failure = error; }
@@ -34,7 +34,7 @@ it.each(['direct', 'details'])('keeps a safe backend conflict version from %s wi
 
 it('keeps a recognized backend scope while discarding its private details', async () => {
   const denied = Object.assign(new KnowledgeError(403, 'INSUFFICIENT_SCOPE', privateMarker, false, { privateText: privateMarker }), { requiredScope: 'knowledge:index' });
-  const services = { knowledge: { status: async () => { throw denied; } } } as unknown as PluginServices;
+  const services = { knowledge: { status: async () => { throw denied; } } } as unknown as IntegrationServices;
   let failure: unknown;
   try { await hostClient(() => services, () => ({})).status(principal, {}); } catch (error) { failure = error; }
   expect(errors.errorBody(failure)).toMatchObject({ error: { code: 'INSUFFICIENT_SCOPE', requiredScope: 'knowledge:index' } });
@@ -64,7 +64,7 @@ it.each(['publish_blog_post', 'unpublish_blog_post'] as const)('recovers a %s pu
   const services = { knowledge: {}, blog: {
     publish: refuseStalePublication, unpublish: refuseStalePublication,
     status: async () => ({ siteEnabled: true, post, publicationVersion: 7, source: { noteId: 'fixture-note', title: 'Fixture source', relativePath: '00-Inbox/fixture.md', modifiedAt: '456', contentHash: 'b'.repeat(64) } }),
-  } } as unknown as PluginServices;
+  } } as unknown as IntegrationServices;
   const registry = createOperations({ objectIdSecret: 'error-publication-fixture-secret-at-least-32-characters' }, hostClient(() => services, () => ({})));
   const server = new McpServer({ name: 'error-publication-fixture', version: '1.1.1' });
   registerOperations(server, registry, { ...principal, scopes: ['knowledge:read', 'knowledge:write', 'blog:read', 'blog:publish'] }, {});
@@ -103,7 +103,7 @@ it.each(['publish_blog_post', 'unpublish_blog_post'] as const)('recovers a %s pu
 });
 
 it('keeps the original request ID when the backend cannot confirm whether a write committed', async () => {
-  const services = { knowledge: { create: async () => { throw new Error(privateMarker); } } } as unknown as PluginServices;
+  const services = { knowledge: { create: async () => { throw new Error(privateMarker); } } } as unknown as IntegrationServices;
   const client = hostClient(() => services, () => ({}));
   let failure: unknown;
   try { await client.create(principal, { requestId: 'original-write', content: privateMarker }); } catch (error) { failure = error; }
@@ -115,7 +115,7 @@ it('keeps the original request ID when the backend cannot confirm whether a writ
 it('keeps a confirmed write receipt after disconnect instead of replacing success with recovery advice', async () => {
   const controller = new AbortController();
   const receipt = { id: 'fixture-note', relativePath: '00-Inbox/fixture.md', modifiedAt: '123', contentHash: 'a'.repeat(64), sizeBytes: 3, indexState: 'pending' };
-  const services = { knowledge: { create: async () => { controller.abort(); return receipt; } } } as unknown as PluginServices;
+  const services = { knowledge: { create: async () => { controller.abort(); return receipt; } } } as unknown as IntegrationServices;
   const result = await hostClient(() => services, () => ({})).create(principal, { requestId: 'confirmed-write' }, { signal: controller.signal });
   expect(result).toEqual(receipt);
 });
@@ -138,7 +138,7 @@ it('returns at most eight safe field issues without reflecting unknown keys, mes
 
 it.each(['', '123x', '1'.repeat(31), privateMarker])('omits malformed backend versions and arbitrary scope metadata (%s)', async (currentModifiedAt) => {
   const backend = Object.assign(new KnowledgeError(409, 'VERSION_CONFLICT', privateMarker, false, { currentModifiedAt, arbitrary: privateMarker }), { requiredScope: privateMarker });
-  const services = { knowledge: { update: async () => { throw backend; } } } as unknown as PluginServices;
+  const services = { knowledge: { update: async () => { throw backend; } } } as unknown as IntegrationServices;
   let failure: unknown;
   try { await hostClient(() => services, () => ({})).update(principal, { requestId: 'bad-version' }); } catch (error) { failure = error; }
   const body = errors.errorBody(failure);

@@ -31,9 +31,9 @@ it.each(['non-fast-forward', 'timeout'])(
       status: () => ({ knowledgeRoot: local, bindingVersion: 1 }),
       get: () => ({ config: { knowledgeRoot: local }, knowledge: { indexing: { refresh: async () => ({}) } } }),
     };
-    const plugins: any = { list: () => [{ id: 'git', state: 'enabled', installedVersion: '1.1.0' }] };
+    const features: any = { enabled: () => true };
     const service = gitRemoteService({ dataRoot, secret: 'fixture-only-long-enough-key', origin: 'http://localhost' } as any,
-      db, platform, plugins, { exec: (cwd, args, opts) => {
+      db, platform, features, { exec: (cwd, args, opts) => {
         if (!args.includes('push')) return runner(cwd, args, opts);
         pushes++;
         return Promise.resolve({ code: 1, stdout: Buffer.from('To ' + url + '\n!\tHEAD:refs/heads/' + branch + '\t[remote failure] (remote failed to report status)\nDone\n'), stderr: Buffer.from('error: failed to push some refs\n') });
@@ -69,7 +69,7 @@ it('marks interrupted jobs for reconciliation after restart without replaying re
     origin: 'http://localhost',
   };
   const platform: any = { status: () => ({ knowledgeRoot: root, bindingVersion: 7 }) },
-    plugins: any = { list: () => [] };
+    features: any = { enabled: () => false };
   let commands = 0;
   const options = {
     exec: async () => {
@@ -77,7 +77,7 @@ it('marks interrupted jobs for reconciliation after restart without replaying re
       return { code: 1, stdout: Buffer.alloc(0), stderr: Buffer.alloc(0) };
     },
   };
-  let service = gitRemoteService(config, db, platform, plugins, options);
+  let service = gitRemoteService(config, db, platform, features, options);
   try {
     const input = {
       kind: 'push' as const,
@@ -89,7 +89,7 @@ it('marks interrupted jobs for reconciliation after restart without replaying re
     db.prepare("UPDATE git_remote_jobs SET status='running',phase='pushing' WHERE id=?").run(
       task.id,
     );
-    service = gitRemoteService(config, db, platform, plugins, options);
+    service = gitRemoteService(config, db, platform, features, options);
     expect(service.job('owner', task.id)).toMatchObject({
       status: 'needs_reconciliation',
       error: 'GIT_TASK_INTERRUPTED',
@@ -133,10 +133,9 @@ it('connects an existing library, pushes a fixed commit once, checks remote upda
       knowledge: { indexing: { refresh: async () => ({}) } },
     }),
   };
-  const plugins: any = {
-    list: () => [{ id: 'git', state: 'enabled', installedVersion: '1.1.0' }],
-    install: async () => {},
-    enable: async () => {},
+  const features: any = {
+    enabled: () => true,
+    setEnabled: async () => {},
   };
   const runner = localGitTransport(db, { 'https://github.com/fixture/library.git': remote });
   let losePushReply = true,
@@ -149,7 +148,7 @@ it('connects an existing library, pushes a fixed commit once, checks remote upda
     } as any,
     db,
     platform,
-    plugins,
+    features,
     {
       exec: async (cwd, args, opts) => {
         const r = await runner(cwd, args, opts);
@@ -255,14 +254,13 @@ it('clones into a new allowed directory, binds automatically and never replaces 
   await createAuth(config, db);
   const platform = platformRuntime(config, db);
   let enabled = false;
-  const plugins: any = {
-    list: () => (enabled ? [{ id: 'git', state: 'enabled' }] : []),
-    install: async () => {},
-    enable: async () => {
+  const features: any = {
+    enabled: () => enabled,
+    setEnabled: async () => {
       enabled = true;
     },
   };
-  const service = gitRemoteService(config, db, platform, plugins, {
+  const service = gitRemoteService(config, db, platform, features, {
     exec: localGitTransport(db, { 'https://gitee.com/fixture/notes.git': remote }),
   });
   const finish = async (input: any) => {

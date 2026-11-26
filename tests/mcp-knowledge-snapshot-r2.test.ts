@@ -6,7 +6,7 @@ import { pluginRuntimeFixture } from './support/plugin-runtime.js';
 import { openDatabase } from '../packages/core/db.js';
 import { noteService } from '../packages/core/notes.js';
 import { snapshotService } from '../packages/core/knowledge/snapshots.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
+import { hostClient } from '../apps/server/mcp/service.js';
 
 const closes: (() => Promise<void>)[] = [];
 afterEach(async () => {

@@ -6,6 +6,8 @@ import { api } from '../../api';
 import type { ManagementOverview } from '../../../../shared/management-contracts';
 import StorageSettings from '../StorageSettings.vue';
 import GitRemotePanel from '../GitRemotePanel.vue';
+import GitSettings from './GitSettings.vue';
+import { features } from '../../features';
 import ShareManagement from './ShareManagement.vue';
 import TransferPanel from './TransferPanel.vue';
 import OrganizationOperations from './OrganizationOperations.vue';
@@ -62,7 +64,8 @@ onMounted(() => void load());
     <TransferPanel @open-note="emit('open-note', $event)" @changed="emit('changed')" />
     <OrganizationOperations @changed="emit('changed')" />
     <section class="settings-card"><StorageSettings /></section>
-    <section class="settings-card"><GitRemotePanel @changed="emit('changed')" /></section>
+    <GitSettings @changed="emit('changed')" />
+    <section v-if="features.git?.state === 'enabled'" class="settings-card"><GitRemotePanel @changed="emit('changed')" /></section>
     <ShareManagement />
   </div>
 </template>

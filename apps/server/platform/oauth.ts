@@ -1,3 +1,4 @@
+import { readFeatureConfig } from '../../../packages/core/feature-settings.js';
 import { verifyOAuthQueryParams } from '@better-auth/oauth-provider';
 import { createLocalJWKSet, jwtVerify } from 'jose';
 import type { createAuth } from '../auth.js';
@@ -21,15 +22,15 @@ export function serializeOAuth<T>(db: AppDatabase, work: () => Promise<T>): Prom
   void task.then(release, release); return task;
 }
 export function mcpPolicy(db: AppDatabase) {
-  const hasPlugins = db.prepare("SELECT 1 FROM sqlite_master WHERE name='platform_plugins'").get();
-  const row = hasPlugins && db.prepare("SELECT config_json,state FROM platform_plugins WHERE id='mcp' AND installed=1").get() as any;
-  const config = row ? JSON.parse(row.config_json) : {};
+  const running = readFeatureConfig(db, 'mcp', true);
+  const config = running || {};
   return { readOnly: config.readOnly !== false, allowIndex: config.allowIndex === true, allowPublish: config.allowPublish === true,
     allowToDoo: config.allowToDoo === true, allowToDooWrite: config.allowToDooWrite === true,
     toDooListIds: Array.isArray(config.toDooListIds) ? config.toDooListIds as string[] : [],
     toDooDomains: Array.isArray(config.toDooDomains) ? config.toDooDomains as string[] : ['tasks'],
     allowedPrefixes: Array.isArray(config.allowedPrefixes) ? config.allowedPrefixes as string[] : webPrincipal.allowedPrefixes,
-    enabled: row?.state === 'enabled',
+    enabled: !!running,
+    oauthEnabled: !!running && config.oauthEnabled !== false,
     permissionPolicy: config.permissionPolicy ? normalizePermissionPolicy(config.permissionPolicy) : undefined };
 }
 export async function oauthConsentRequest(auth: OwnerAuth, config: HostConfig, db: AppDatabase, headers: Headers, raw: unknown) {
@@ -47,6 +48,7 @@ export async function oauthConsentRequest(auth: OwnerAuth, config: HostConfig, d
   const requestedScopes = [...new Set((query.get('scope') || '').split(/\s+/).filter(Boolean))];
   if (requestedScopes.some(s => !oauthScopes.includes(s))) fail(400, 'INVALID_OAUTH_SCOPE');
   const policy = mcpPolicy(db);
+  if (!policy.oauthEnabled) fail(409, 'MCP_DISABLED');
   const allowedPolicy = policy.permissionPolicy ? normalizePermissionPolicy(policy.permissionPolicy) : undefined;
   if (allowedPolicy) for (const [domain, grant] of Object.entries(allowedPolicy.domains)) {
     if (grant.ownerId !== session.user.id) grant.enabled = false;

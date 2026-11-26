@@ -1,29 +1,30 @@
-import { configurePlugin, returnToNotes } from '../support/settings-navigation';
+import { openFeatureSettings, setFeatureSwitch, returnToNotes } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-test('installs Git interactions, initializes when missing, previews all changes and displays real history', async ({
+test('enables Git version management, initializes when missing, previews all changes and displays real history', async ({
   page,
   context,
 }, info) => {
-  // Installation, initialization, stale-preview recovery, commit and history run sequentially.
+  // Enablement, initialization, stale-preview recovery, commit and history run sequentially.
   test.setTimeout(90000);
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const mobile = info.project.name === 'mobile';
   await page.goto('/');
-  await configurePlugin(page, 'Git 版本管理');
+  await openFeatureSettings(page, 'Git 版本管理');
   await page.getByLabel('提交作者', { exact: true }).fill('Browser Fixture');
   await page.getByLabel('作者邮箱', { exact: true }).fill('browser@example.invalid');
-  await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
-  const enable = page
-    .locator('.plugin-settings')
-    .getByRole('button', { name: '启用插件', exact: true });
-  if (await enable.isVisible()) await enable.click();
+  const saveAuthor = page.getByRole('button', { name: '保存提交署名', exact: true });
+  if (await saveAuthor.isEnabled()) {
+    await saveAuthor.click();
+    await expect(page.getByText('提交署名已保存。', { exact: true })).toBeVisible();
+  }
+  await setFeatureSwitch(page, 'Git 版本管理', true);
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const headers = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token };
-  const statusResponse = await page.request.post('/api/plugins/git/call', {
+  const statusResponse = await page.request.post('/api/platform/git/actions', {
     headers,
     data: { kind: 'provider', id: 'git.status', input: {} },
   });
@@ -74,7 +75,7 @@ test('installs Git interactions, initializes when missing, previews all changes 
   await writeFile(file, (await readFile(file, 'utf8')) + '\n\n# External change before confirm\n');
   await page.getByRole('button', { name: '确认提交', exact: true }).click();
   await expect(
-    page.getByText('预览后文件或暂存区发生变化，请重新预览', { exact: true }),
+    page.getByText('预览后文件或暂存区发生变化，请重新预览。', { exact: true }),
   ).toBeVisible();
   await page.getByRole('button', { name: '预览全部变更', exact: true }).click();
   await expect(page.getByRole('button', { name: '确认提交', exact: true })).toBeVisible({
@@ -82,7 +83,7 @@ test('installs Git interactions, initializes when missing, previews all changes 
   });
   await page.getByRole('button', { name: '确认提交', exact: true }).click();
   await expect(page.getByText(/提交 [a-f0-9]{40} 已完成/)).toBeVisible({ timeout: 15000 });
-  await page.getByRole('button', { name: '关闭插件面板', exact: true }).click();
+  await page.getByRole('button', { name: '关闭提交面板', exact: true }).click();
   if (mobile) await page.getByRole('button', { name: '关闭侧栏', exact: true }).click();
   await clickNoteAction(page, '历史版本');
   const history = page.locator('.note-history-dialog');
@@ -102,18 +103,19 @@ test('a large note keeps its Git history readable and explains why restore is di
 }, info) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
-  await configurePlugin(page, 'Git 版本管理');
+  await openFeatureSettings(page, 'Git 版本管理');
   await page.getByLabel('提交作者', { exact: true }).fill('Browser Fixture');
   await page.getByLabel('作者邮箱', { exact: true }).fill('browser@example.invalid');
-  await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
-  const enable = page
-    .locator('.plugin-settings')
-    .getByRole('button', { name: '启用插件', exact: true });
-  if (await enable.isVisible()) await enable.click();
+  const saveAuthor = page.getByRole('button', { name: '保存提交署名', exact: true });
+  if (await saveAuthor.isEnabled()) {
+    await saveAuthor.click();
+    await expect(page.getByText('提交署名已保存。', { exact: true })).toBeVisible();
+  }
+  await setFeatureSwitch(page, 'Git 版本管理', true);
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const headers = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token };
   const call = async (kind: 'command' | 'provider', id: string, input: unknown = {}) => {
-    const response = await page.request.post('/api/plugins/git/call', {
+    const response = await page.request.post('/api/platform/git/actions', {
       headers,
       data: { kind, id, input },
     });
@@ -143,7 +145,7 @@ test('a large note keeps its Git history readable and explains why restore is di
   page.on('request', (request) => {
     if (
       request.method() === 'POST' &&
-      request.url().endsWith('/api/plugins/git/call') &&
+      request.url().endsWith('/api/platform/git/actions') &&
       request.postDataJSON()?.id === 'git.restore'
     )
       restoreRequests++;

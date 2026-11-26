@@ -47,7 +47,7 @@ export interface RestoreVerification {
   knowledgeRoot?: string;
   profileFile: string;
   restoreReceipt: string;
-  pluginsDisabled: true;
+  featuresDisabled: true;
   sessionsRevoked: true;
   sharesRevoked: true;
   searchNeedsPreparation: true;

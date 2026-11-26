@@ -70,8 +70,7 @@ import { settingsSections, normalizeSettingsSection } from '../settings';
 import { editorPreferences, setEditorPreferences } from '../preferences';
 import { createEditorViewTransitions } from '../editor/view-transitions';
 import type { SettingsSection } from '../../../shared/settings-contracts';
-import PluginSlot from './PluginSlot.vue';
-import PluginPanel from './PluginPanel.vue';
+import GitCommitDialog from './GitCommitDialog.vue';
 import GitRemotePanel from './GitRemotePanel.vue';
 import { gitUnsaved, type WorkspaceChangeDetail } from '../git-sync';
 import NoteActions from './NoteActions.vue';
@@ -86,7 +85,7 @@ import { searchNeedle } from '../../../shared/search-matching';
 import { previewSource } from '../preview-source';
 import { markdownDestination, markdownAnchorLines } from '../markdown-links';
 import { noteDraftBase } from '../drafts';
-import { clearPluginDrafts } from '../plugin-drafts';
+import { clearMcpSettings } from '../mcp-settings-draft';
 import {
   createWorkspaceNavigation,
   readWorkspaceRoute,
@@ -95,7 +94,8 @@ import {
   type WorkspaceNavigationState,
   type ToDooAppSection,
 } from '../navigation';
-import { refreshPlugins, disposePluginUIs, pluginRegistry } from '../plugins';
+import { refreshFeatures, clearFeatures, features } from '../features';
+import { clearGitStatus, refreshGitStatus } from '../git/status';
 import type { NoteInfo, FileReply, OutlinePage, FileOperation, SearchOutput, MoveNoteResult } from '../../../shared/knowledge-contracts';
 const DocumentProperties=defineAsyncComponent(()=>import('./DocumentProperties.vue'));
 const EditorInsertMenu=defineAsyncComponent(()=>import('./EditorInsertMenu.vue'));
@@ -381,9 +381,17 @@ function returnGitSave() {
 const gitSyncOpen = ref(false);
 const gitSyncOverlay = ref<InstanceType<typeof SettingsOverlay>>();
 const gitPanelBusy = ref(false), gitPanelDirty = ref(false);
-const gitAvailable = computed(() =>
-  pluginRegistry.value.installed?.some((entry) => entry.id === 'git' && entry.state === 'enabled'),
-);
+const gitAvailable = computed(() => features.value.git?.state === 'enabled');
+const mcpAvailable = computed(() => features.value.mcp?.state === 'enabled');
+const gitCommitOpen = ref(false);
+watch(gitAvailable, (enabled) => {
+  if (enabled) void refreshGitStatus().catch(() => {});
+  else {
+    gitCommitOpen.value = false;
+    gitSyncOpen.value = false;
+    clearGitStatus();
+  }
+});
 const createMenuOpen = ref(false);
 const webCaptureOpen = ref(false);
 let webCaptureIntent = 0;
@@ -790,19 +798,10 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
     selected.value = '';
   }, intent);
 }
-const pluginContext = computed(() => ({
-  noteId: note.value?.id,
-  relativePath: note.value?.relativePath,
-  expectedModifiedAt: note.value?.modifiedAt,
-  folderPath: folder.value,
-  note: { selected: !!note.value, dirty: dirty.value },
-  workspace: { ready: true },
-}));
-let pluginTimer: ReturnType<typeof setInterval> | undefined;
-function pluginNotice(event: Event) {
-  tell((event as CustomEvent).detail.message);
-}
+let featuresTimer: ReturnType<typeof setInterval> | undefined;
+let gitStatusTimer: ReturnType<typeof setInterval> | undefined;
 function workspaceChanged(event: Event) {
+  void refreshGitStatus().catch(() => {});
   const change = (event as CustomEvent<WorkspaceChangeDetail>).detail;
   const id = change?.scope === 'workspace' ? note.value?.id : change?.noteId;
   void run(async () => {
@@ -2724,15 +2723,15 @@ onMounted(() => {
       vectorReady.value = !!state.components?.vectorReady;
     })
     .catch(() => {});
-  void refreshPlugins().catch(() => {});
-  pluginTimer = setInterval(() => {
-    void refreshPlugins().catch(() => {});
+  void refreshFeatures().catch(() => {});
+  featuresTimer = setInterval(() => {
+    void refreshFeatures().catch(() => {});
     void refreshCollection();
   }, 5000);
   window.addEventListener('focus', refreshCollection);
   document.addEventListener('visibilitychange', refreshCollection);
   window.addEventListener('dooknow-workspace-changed', workspaceChanged);
-  window.addEventListener('dooknow-notice', pluginNotice);
+  gitStatusTimer = setInterval(() => void refreshGitStatus().catch(() => {}), 10_000);
   void run(async () => {
     const intent = navigationIntent;
     await refresh();
@@ -2768,14 +2767,15 @@ onBeforeUnmount(() => {
   searchEpoch++;
   editorViews.cancel();
   gitUnsaved.value = false;
-  clearPluginDrafts();
+  clearMcpSettings();
   navigation.dispose();
-  clearInterval(pluginTimer);
+  clearInterval(featuresTimer);
   window.removeEventListener('focus', refreshCollection);
   document.removeEventListener('visibilitychange', refreshCollection);
-  void disposePluginUIs();
+  clearFeatures();
+  clearGitStatus();
   window.removeEventListener('dooknow-workspace-changed', workspaceChanged);
-  window.removeEventListener('dooknow-notice', pluginNotice);
+  clearInterval(gitStatusTimer);
   clearTimeout(searchTimer);
   clearTimeout(noticeTimer);
   window.removeEventListener('dooknow-open-whiteboard', openDiagramEvent);
@@ -3052,16 +3052,7 @@ async function closeNotebookDrawer() {
             @menu="showTreeMenu"
           />
         </div>
-        <div
-          v-if="
-            gitAvailable ||
-            pluginRegistry.contributions.some(
-              (c) => c.slot === 'navigation' || c.slot === 'libraryAction',
-            )
-          "
-          class="sidebar-tools"
-        >
-          <span class="sidebar-section-title">扩展工具</span>
+        <div v-if="gitAvailable || mcpAvailable" class="sidebar-tools">
           <button
             v-if="gitAvailable"
             type="button"
@@ -3071,8 +3062,12 @@ async function closeNotebookDrawer() {
             <Icon name="refresh" :size="17" /><span>云端同步</span>
             <Icon class="sidebar-tool-chevron" name="chevron" :size="13" />
           </button>
-          <PluginSlot slot-name="navigation" :context="pluginContext" sidebar />
-          <PluginSlot slot-name="libraryAction" :context="pluginContext" sidebar />
+          <button v-if="gitAvailable" type="button" class="sidebar-tool-button" @click="gitCommitOpen = true">
+            <Icon name="clock" :size="17" /><span>提交全部变更</span>
+          </button>
+          <button v-if="mcpAvailable" type="button" class="sidebar-tool-button" @click="settings('mcp')">
+            <Icon name="link" :size="17" /><span>MCP 连接</span>
+          </button>
         </div>
       </div>
     </aside>
@@ -3296,8 +3291,7 @@ async function closeNotebookDrawer() {
               @export-html="exportReading(false)"
               @print="exportReading(true)"
                 @delete="confirmDelete"
-                ><button type="button" @click="captureNoteTask"><Icon name="task" />创建关联任务</button><PluginSlot slot-name="noteAction" :context="pluginContext"
-              /></NoteActions>
+                ><button type="button" @click="captureNoteTask"><Icon name="task" />创建关联任务</button></NoteActions>
             </div>
           </div>
           <span v-if="note.shared" id="note-sharing-state" class="sr-only">已分享，保存后的修改将同步公开。点击分享可管理公开状态。</span>
@@ -3622,7 +3616,7 @@ async function closeNotebookDrawer() {
         @navigate="navigateApp"
         @return-app="returnFromApp"
         @menu-select="drawer = false"
-        @open-plugin-settings="settings('plugins')"
+        @open-mcp-settings="settings('mcp')"
         @open-note="openBlogNote"
         @note-created="run(refresh)"
       />
@@ -3724,7 +3718,7 @@ async function closeNotebookDrawer() {
       @close="webCaptureOpen = false"
       @saved="webCaptureSaved"
     />
-    <PluginPanel />
+    <GitCommitDialog v-if="gitAvailable" v-model="gitCommitOpen" />
     <ToDooReminderCards
       :show-missed-summary="activeAppMenu?.id !== 'to-doo'"
       @open="openReminderTarget"

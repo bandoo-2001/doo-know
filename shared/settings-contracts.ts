@@ -4,7 +4,7 @@ export type SettingsSection =
   | 'search'
   | 'status'
   | 'backup'
-  | 'plugins'
+  | 'mcp'
   | 'account'
   | 'about';
 export interface EditorPreferences {

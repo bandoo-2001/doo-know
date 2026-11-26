@@ -79,9 +79,10 @@ async function mount(authenticated = true) {
       if (id === 'ant-design-vue/es/locale/zh_CN') return { default: {} };
       if (id === './ant-design') return { antTheme: {} };
       if (id === './api') return { api: mockApi, refreshCsrf: vi.fn(), resetCsrf: vi.fn() };
-      if (id === './plugin-drafts')
-        return { clearPluginDrafts: clearDrafts, hasUnsavedPluginDrafts: () => false };
-      if (id === './plugins') return { disposePluginUIs: disposePlugins };
+      if (id === './git/settings-draft') return { hasUnsavedGitSettings: () => false };
+      if (id === './mcp-settings-draft')
+        return { clearMcpSettings: clearDrafts, hasUnsavedMcpSettings: () => false };
+      if (id === './features') return { clearFeatures: disposePlugins };
       if (id === './app-shortcuts') return AppShortcuts;
     if (id === './platform-theme') return PlatformTheme;
       if (id === './preferences')

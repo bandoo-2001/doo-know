@@ -5,7 +5,7 @@ import {
   toDooSchemaDocument,
   toDooEntityFields,
 } from '../shared/mcp-to-doo-tools';
-import { resultSize } from '../plugins/mcp/server/budgets';
+import { resultSize } from '../apps/server/mcp/budgets';
 import { toDooCommandSchema, toDooEntitySchemas } from '../shared/to-doo-contracts';
 
 it('publishes every command and entity schema with precise create and optional patch fields', () => {

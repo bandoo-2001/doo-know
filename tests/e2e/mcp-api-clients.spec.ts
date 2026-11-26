@@ -5,7 +5,7 @@ import { invalidateRemoteAuth } from '../../packages/core/auth/remote-auth.js';
 import type { Page } from '@playwright/test';
 import type { McpApiClientView } from '../../shared/mcp-api-contracts';
 import { test, expect } from '../support/browser-test';
-import { configurePlugin, returnToNotes } from '../support/settings-navigation';
+import { openFeatureSettings, setFeatureSwitch, returnToNotes } from '../support/settings-navigation';
 
 // Complete credentials must never enter traces, videos or screenshots.
 test.use({ trace: 'off', screenshot: 'off', video: 'off' });
@@ -67,20 +67,16 @@ async function create(page: Page, name: string) {
 test.beforeEach(async ({ page, context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
-  await configurePlugin(page, 'MCP 服务');
-  const registry = await (await page.request.get('/api/platform/plugins')).json();
-  const plugin = registry.installed.find((entry: any) => entry.id === 'mcp');
-  if (plugin.config.apiKeyEnabled === false) {
-    await mutate(page, '/api/platform/plugins/mcp/config', 'PUT', {
-      values: { apiKeyEnabled: true },
-      configVersion: plugin.configVersion,
+  await openFeatureSettings(page, 'MCP 服务');
+  const { mcp } = await (await page.request.get('/api/platform/features')).json();
+  if (mcp.config.apiKeyEnabled === false) {
+    await mutate(page, '/api/platform/mcp/config', 'PUT', {
+      values: { apiKeyEnabled: true }, configVersion: mcp.configVersion,
     });
-    await page.getByRole('button', { name: '刷新插件状态', exact: true }).click();
+    await page.reload();
+    await openFeatureSettings(page, 'MCP 服务');
   }
-  const enable = page
-    .locator('.plugin-settings')
-    .getByRole('button', { name: '启用插件', exact: true });
-  if (await enable.isVisible()) await enable.click();
+  await setFeatureSwitch(page, 'MCP 服务', true);
   await expect(page.getByRole('button', { name: '创建 API 客户端', exact: true })).toBeEnabled();
 });
 
@@ -152,7 +148,7 @@ test('keeps one-time credentials out of persistent plugin drafts and clears the 
   const created = await create(page, 'Transient ' + crypto.randomUUID());
   await expect(page.getByLabel('新 API Key', { exact: true })).toBeVisible();
   await returnToNotes(page);
-  await configurePlugin(page, 'MCP 服务');
+  await openFeatureSettings(page, 'MCP 服务');
   await expect(page.getByLabel('新 API Key', { exact: true })).toHaveCount(0);
   const row = page.getByRole('article', { name: created.name, exact: true });
   await expect(row).toBeVisible();

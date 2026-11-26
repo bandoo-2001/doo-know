@@ -410,14 +410,11 @@ test('窄且低的深色视窗保留弹窗边界、可滚动内容与清晰文�
 });
 
 test('工作区 Git 返回保存仅确认一次，取消保留凭据草稿，放弃后回到未保存笔记', async ({ page }) => {
-  const { configurePlugin, returnToNotes, showSidebar } =
+  const { openFeatureSettings, setFeatureSwitch, returnToNotes, showSidebar } =
     await import('../support/settings-navigation');
   await page.goto('/');
-  await configurePlugin(page, 'Git 版本管理');
-  const enable = page
-    .locator('.plugin-settings')
-    .getByRole('button', { name: '启用插件', exact: true });
-  if (await enable.isVisible()) await enable.click();
+  await openFeatureSettings(page, 'Git 版本管理');
+  await setFeatureSwitch(page, 'Git 版本管理', true);
   await returnToNotes(page);
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const original = '# Return to save fixture\n';

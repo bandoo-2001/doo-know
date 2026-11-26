@@ -1,3 +1,4 @@
+import { featureCapabilities } from '../shared/feature-config.js';
 import { expect, it } from 'vitest';
 import { createHash, randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
@@ -6,11 +7,11 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
-import { pluginHost } from '../apps/server/plugins/host.js';
-import { pluginServices } from '../apps/server/plugins/services.js';
+import { initializeFeatureSettings } from '../packages/core/feature-settings.js';
+import { integrationServices } from '../apps/server/features/services.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
-import { createOperations, registerOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
+import { createOperations, registerOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
 import { webPrincipal } from '../packages/core/knowledge/core.js';
 
 const toolNames = [
@@ -25,8 +26,8 @@ const sha256 = (text: string) => createHash('sha256').update(text).digest('hex')
 async function workflowFixture() {
   const f = await pluginRuntimeFixture();
   try {
-    pluginHost(f.config, f.db);
-    const manifest = JSON.parse(await readFile(new URL('../plugins/mcp/manifest.json', import.meta.url), 'utf8'));
+    initializeFeatureSettings(f.db);
+    const manifest = { version: '2.0.5', capabilities: featureCapabilities.mcp };
     const capabilities = ['knowledge:read', 'knowledge:write', 'knowledge:index', 'knowledge:archive', 'blog:read', 'blog:publish'];
     // Only fixture configuration and grants use SQL. Business outcomes below
     // must be produced by the real core through the registered MCP tools.
@@ -38,7 +39,7 @@ async function workflowFixture() {
     const principal = { ...f.principal, scopes: [...capabilities], clientId: grant.clientId,
       grantId: grant.id, grantVersion: grant.version, tokenIssuedAt: grant.notBefore,
       tokenExpiresAt: Math.floor(Date.now() / 1000) + 300, pluginId: 'mcp' };
-    const services = pluginServices(f.platform, f.db, 'mcp', capabilities,
+    const services = integrationServices(f.platform, f.db, 'mcp', capabilities,
       { ownerId: principal.id, principal, channel: 'mcp' });
     const registry = createOperations({ objectIdSecret: 'agent-workflow-fixture-object-secret-at-least-32-characters' },
       hostClient(() => services, () => ({ externalWebOrigin: 'https://notes.example' })));

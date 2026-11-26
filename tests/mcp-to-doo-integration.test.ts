@@ -1,14 +1,14 @@
 import { expect, it } from 'vitest';
 import { pluginRuntimeFixture } from './support/plugin-runtime';
-import { pluginHost } from '../apps/server/plugins/host';
-import { pluginServices } from '../apps/server/plugins/services';
-import { createOperations } from '../plugins/mcp/server/operations';
-import { hostClient } from '../plugins/mcp/server/service';
+import { initializeFeatureSettings } from '../packages/core/feature-settings.js';
+import { integrationServices } from '../apps/server/features/services';
+import { createOperations } from '../apps/server/mcp/operations';
+import { hostClient } from '../apps/server/mcp/service';
 
 it('creates, reads and completes real portable task instances through the authorized SDK', async () => {
   const f = await pluginRuntimeFixture();
   try {
-    pluginHost(f.config, f.db);
+    initializeFeatureSettings(f.db);
     f.db
       .prepare(
         "INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.2.0',1,'{}','{}','enabled',?)",
@@ -25,7 +25,7 @@ it('creates, reads and completes real portable task instances through the author
       );
     const p = { ...f.principal, scopes: [...f.principal.scopes, 'to-doo:read', 'to-doo:write'] };
     f.config.agent!.policies = [p];
-    const services = pluginServices(f.platform, f.db, 'mcp', p.scopes, {
+    const services = integrationServices(f.platform, f.db, 'mcp', p.scopes, {
       ownerId: p.id,
       principal: p,
       channel: 'mcp',

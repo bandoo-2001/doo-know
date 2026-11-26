@@ -46,20 +46,20 @@ test('Git credential help follows platform and authentication choices without su
   await expect(dialog.getByLabel('SSH 私钥', { exact: true })).toBeVisible();
 });
 
-test('feature prerequisites and guides are available before installing plugins or downloading search', async ({
+test('feature prerequisites and guides are available before enabling built-in features or downloading search', async ({
   page,
 }) => {
   await page.getByRole('button', { name: '确认并继续', exact: true }).click();
   await expect(page.getByRole('heading', { name: '选择需要的功能', exact: true })).toBeVisible();
   const changes: string[] = [];
   page.on('request', (r) => {
-    if (r.method() === 'POST' && /plugin-installations|search-runtime\/prepare/.test(r.url()))
+    if (r.method() !== 'GET' && /enabled|search-runtime\/prepare/.test(r.url()))
       changes.push(r.url());
   });
-  await page.getByText('如何开始连接', { exact: true }).click();
-  await expect(page.getByText('这里的 API Key 由 DooKnow 创建', { exact: false })).toBeVisible();
-  await page.getByText('如何开始记录与同步', { exact: true }).click();
-  await expect(page.getByText('提交署名不是仓库登录账号', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: '设置 MCP 连接', exact: true }).click();
+  await expect(page.getByText('OAuth 需要客户端和授权浏览器可达的 HTTPS 站点。', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '设置版本记录', exact: true }).click();
+  await expect(page.getByLabel('提交作者', { exact: true })).toBeVisible();
   const searchGuide = page
     .locator('details')
     .filter({ has: page.locator('summary', { hasText: '如何开始搜索' }) });

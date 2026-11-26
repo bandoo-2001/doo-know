@@ -8,7 +8,7 @@ import { openDatabase, type AppDatabase } from '../packages/core/db.js';
 import { noteService } from '../packages/core/notes.js';
 import { mutationCore, webPrincipal } from '../packages/core/knowledge/core.js';
 import { createKnowledgeDataDomain, readKnowledgeDataFile, refreshKnowledgeData, writeKnowledgeDataFile } from '../packages/core/knowledge-data.js';
-import { portablePluginData } from '../apps/server/plugins/portable.js';
+import { portableGitSettings } from '../apps/server/git/portable-settings.js';
 import { portableBlog } from '../packages/core/blog/portable.js';
 import { renameRootInPlace } from '../apps/server/platform/root-migration.js';
 
@@ -39,19 +39,19 @@ function fixture() {
     write: (data) => { db.prepare('UPDATE user_content SET value=?').run(data.value); },
   });
   const domain = generic();
-  const pluginState = {
+  const gitState = {
     schemaVersion: 1,
-    plugin: { id: 'saved-data', version: '1.0.0', apiVersion: '^1.0.0' },
-    config: {}, userData: { draft: 'Pending draft' },
+    plugin: { id: 'git', version: '1.0.0', apiVersion: '^1.0.0' },
+    config: { authorName: 'Portable Author' }, userData: { draft: 'Pending draft' },
   };
-  writeKnowledgeDataFile(config.knowledgeRoot, 'plugins/saved-data/state.json', JSON.stringify({ format: 1, revision: 'initial', data: { ...pluginState, userData: {} } }));
-  const plugins = portablePluginData(db, () => config.knowledgeRoot);
-  expect(plugins.dependencies([])).toMatchObject([{ id: 'saved-data', state: 'unavailable' }]);
-  db.prepare('INSERT INTO portable_plugin_data VALUES(?,?,?,?)').run(config.knowledgeRoot, 'saved-data', 'draft', JSON.stringify('Pending draft'));
+  writeKnowledgeDataFile(config.knowledgeRoot, 'plugins/git/state.json', JSON.stringify({ format: 1, revision: 'initial', data: { ...gitState, userData: {} } }));
+  const plugins = portableGitSettings(db, () => config.knowledgeRoot);
+  expect(plugins.read({})).toEqual({ authorName: 'Portable Author' });
+  db.prepare('INSERT INTO portable_plugin_data VALUES(?,?,?,?)').run(config.knowledgeRoot, 'git', 'draft', JSON.stringify('Pending draft'));
   const library = JSON.parse(readKnowledgeDataFile(config.knowledgeRoot, 'library/state.json')!.toString()).data;
   db.prepare('INSERT INTO note_favorites VALUES(?,?)').run('owner', note.id);
   library.favorites.push({ username: 'owner', noteId: note.id });
-  for (const [path, data] of [['library/state.json', library], ['plugins/saved-data/state.json', pluginState]] as const) {
+  for (const [path, data] of [['library/state.json', library], ['plugins/git/state.json', gitState]] as const) {
     const pending = JSON.stringify({ format: 1, revision: 'pending-' + path, data });
     db.prepare('UPDATE knowledge_data_state SET pending=?,pending_digest=?,pending_base=digest,pending_version=dirty WHERE root=? AND path=?')
       .run(pending, createHash('sha256').update(pending).digest('hex'), config.knowledgeRoot, path);
@@ -76,8 +76,8 @@ for (const cached of [true, false])
     expect(f.rows()).toEqual(before.map((row: any) => ({ ...row, root: f.target })));
     const notes = cached ? f.notes : noteService(f.config, f.db);
     expect(notes.getNote(f.note.id).content).toBe('# Keep');
-    const plugins = cached ? f.plugins : portablePluginData(f.db, () => f.config.knowledgeRoot);
-    expect(plugins.userData('saved-data').get('draft')).toBe('Pending draft');
+    const plugins = cached ? f.plugins : portableGitSettings(f.db, () => f.config.knowledgeRoot);
+    expect(plugins.read({})).toEqual({ authorName: 'Portable Author' });
     const domain = cached ? f.domain : f.generic();
     domain.refresh();
     const blog = portableBlog({ ...f.config }, f.db);
@@ -88,7 +88,7 @@ for (const cached of [true, false])
     refreshKnowledgeData(f.db);
     expect(JSON.parse(readKnowledgeDataFile(f.target, 'library/state.json')!.toString()).data.favorites).toEqual([{ username: 'owner', noteId: f.note.id }]);
     expect(JSON.parse(readKnowledgeDataFile(f.target, 'apps/rename-test/state.json')!.toString()).data.value).toBe('Unsaved local content');
-    expect(JSON.parse(readKnowledgeDataFile(f.target, 'plugins/saved-data/state.json')!.toString()).data.userData).toEqual({ draft: 'Pending draft' });
+    expect(JSON.parse(readKnowledgeDataFile(f.target, 'plugins/git/state.json')!.toString()).data.userData).toEqual({ draft: 'Pending draft' });
     f.db.prepare('UPDATE user_content SET value=?').run('Written after rename');
     expect(f.db.prepare('SELECT dirty FROM knowledge_data_state WHERE path=?').get('apps/rename-test/state.json')).toEqual({ dirty: 1 });
     domain.flush();
@@ -119,7 +119,7 @@ it('rolls portable SQL, triggers, cached services and pending bytes back when of
   expect(f.config.knowledgeRoot).toBe(f.oldRoot);
   expect(existsSync(f.target)).toBe(false);
   expect(f.notes.getNote(f.note.id).content).toBe('# Keep');
-  expect(f.plugins.userData('saved-data').get('draft')).toBe('Pending draft');
+  expect(f.plugins.read({})).toEqual({ authorName: 'Portable Author' });
   f.domain.refresh();
   f.reopen();
   expect(noteService(f.config, f.db).getNote(f.note.id).content).toBe('# Keep');

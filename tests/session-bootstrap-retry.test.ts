@@ -34,8 +34,9 @@ async function mount(waitUntilReady = true) {
     if (id === './preferences') return { resolvedTheme: Vue.ref('light'), initializeEditorPreferences() {} };
     if (id === './app-shortcuts') return AppShortcuts;
     if (id === './platform-theme') return PlatformTheme;
-    if (id === './plugin-drafts') return { clearPluginDrafts() {}, hasUnsavedPluginDrafts: () => false };
-    if (id === './plugins') return { disposePluginUIs: async () => {} };
+      if (id === './git/settings-draft') return { hasUnsavedGitSettings: () => false };
+    if (id === './mcp-settings-draft') return { clearMcpSettings() {}, hasUnsavedMcpSettings: () => false };
+    if (id === './features') return { clearFeatures: async () => {} };
     if (id === './ant-design') return { antTheme: {} };
     if (id === 'naive-ui' || id === 'ant-design-vue') return {};
     if (id === 'ant-design-vue/es/locale/zh_CN' || id.endsWith('.vue')) return { default: {}, __esModule: true };

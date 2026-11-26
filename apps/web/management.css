@@ -215,8 +215,6 @@ html[data-theme='dark'] .document-format-row,
 html[data-theme='dark'] .mobile-bar,
 html[data-theme='dark'] .account-settings,
 html[data-theme='dark'] .maintenance-settings,
-html[data-theme='dark'] .plugin-card,
-html[data-theme='dark'] .plugin-config,
 html[data-theme='dark'] .search-runtime-settings,
 html[data-theme='dark'] .storage-settings article,
 html[data-theme='dark'] .utility-row {
@@ -252,8 +250,7 @@ html[data-theme='dark'] .cm-activeLineGutter {
 }
 html[data-theme='dark'] .markdown pre,
 html[data-theme='dark'] .markdown code,
-html[data-theme='dark'] .storage-help pre,
-html[data-theme='dark'] .plugin-form-footer {
+html[data-theme='dark'] .storage-help pre {
   background: var(--surface);
   color: var(--text);
 }

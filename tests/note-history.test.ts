@@ -78,7 +78,7 @@ describe('complete revision comparison', () => {
         expect.objectContaining({ content: '+<img src=x onerror="bad()"> 中文', newNumber: 2 }),
       ]),
     );
-    const { DiffBody, readDiff } = await import('../packages/plugin-ui/diff-view');
+    const { DiffBody, readDiff } = await import('../apps/web/git/diff-view');
     const document = await readDiff({ diff: result.diff });
     expect(document.status).toBe('ready');
     const html = await renderToString(h(DiffBody, { document, diff: result.diff }));

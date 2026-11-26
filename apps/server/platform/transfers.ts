@@ -588,7 +588,7 @@ export function registerTransferRoutes(
           assets: assetCount,
           files: [...files],
           warnings: [...new Set(warnings)].slice(0, 200),
-          includes: '选定目录内 Markdown、Excalidraw 白板和可用的受支持引用附件；不含数据库、凭据、插件或历史版本',
+          includes: '选定目录内 Markdown、Excalidraw 白板和可用的受支持引用附件；不含数据库、凭据或历史版本',
         };
         await writeFile(join(stage, 'dooknow-export.json'), JSON.stringify(manifest, null, 2), {
           mode: 0o600,
@@ -681,7 +681,6 @@ export function registerTransferRoutes(
           dataRoot: join(attempt, 'data'),
           knowledgeRoot: join(attempt, 'knowledge'),
           profileFile: join(attempt, 'config/profile.json'),
-          pluginRoot: join(attempt, 'plugins'),
         },
         maxBytes: 2 * 1024 ** 3,
         maxEntries: 100000,
@@ -704,7 +703,7 @@ export function registerTransferRoutes(
       }
       const verification: RestoreVerification = {
         ...result,
-        pluginsDisabled: true,
+        featuresDisabled: true,
         sessionsRevoked: true,
         sharesRevoked: true,
         searchNeedsPreparation: true,

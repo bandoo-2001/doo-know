@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import type { TreeEntry } from '../../../shared/contracts';
 import Icon from './Icon.vue';
-import PluginSlot from './PluginSlot.vue';
-defineProps<{ entries: TreeEntry[]; selected: string; depth?: number; menuPath?: string }>();
+import { features } from '../features';
+import { gitStatus } from '../git/status';
+import { gitDecoration } from '../git/decoration';
+const props = defineProps<{ entries: TreeEntry[]; selected: string; depth?: number; menuPath?: string }>();
+const decorations = computed(() => {
+  const changes = features.value.git?.state === 'enabled' ? gitStatus.value?.changes || [] : [];
+  return new Map(changes.length ? props.entries.map((entry) => [entry.path, gitDecoration(changes, entry.path)]) : []);
+});
 const emit = defineEmits<{
   select: [entry: TreeEntry];
   menu: [entry: TreeEntry, event: MouseEvent | KeyboardEvent];
@@ -47,14 +53,9 @@ function menuKey(entry: TreeEntry, event: KeyboardEvent) {
             entry.name
           }}</span>
         </button>
-        <PluginSlot
-          slot-name="fileDecoration"
-          :context="{
-            relativePath: entry.path,
-            file: { path: entry.path },
-            workspace: { ready: true },
-          }"
-        />
+        <span v-if="decorations.get(entry.path)" class="dooknow-git-decoration" role="img"
+          :aria-label="decorations.get(entry.path)?.title" :title="decorations.get(entry.path)?.title"
+          :style="{ backgroundColor: decorations.get(entry.path)?.color }" />
         <button
           type="button"
           class="tree-more"
@@ -80,6 +81,7 @@ function menuKey(entry: TreeEntry, event: KeyboardEvent) {
   </ul>
 </template>
 <style>
+.dooknow-git-decoration { width: 8px; height: 8px; border-radius: 50%; margin: 0 4px; flex-shrink: 0; }
 .tree-more {
   display: flex;
   align-items: center;

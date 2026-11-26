@@ -18,7 +18,7 @@ export interface HostConfig extends Omit<AppConfig, 'knowledgeRoot'> {
   secretFile?: string;
   applicationRoot?: string;
   profileFile?: string;
-  pluginCatalog?: import('../packages/plugin-contracts/index.js').PluginCatalogEntry[];
+  /** Used to locate old installation files during an explicit purge. */
   pluginRoot?: string;
   serviceName?: string;
   serviceManaged?: boolean;

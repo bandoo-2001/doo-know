@@ -2,16 +2,16 @@ import { it, expect } from 'vitest';
 import { execFileSync } from 'node:child_process';
 import { mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
-import { activate } from '../plugins/git/server/index.js';
+import { activate } from '../apps/server/git/operations.js';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
-import { pluginServices } from '../apps/server/plugins/services.js';
-import type { PluginContext, PluginCall } from '../packages/plugin-sdk/index.js';
+import { integrationServices } from '../apps/server/features/services.js';
+import type { FeatureRuntimeContext, FeatureCall } from '../packages/core/integration-ports.js';
 async function fixture() {
   const f = await pluginRuntimeFixture(),
-    commands = new Map<string, (c: PluginCall) => any>(),
-    providers = new Map<string, (c: PluginCall) => any>(),
+    commands = new Map<string, (c: FeatureCall) => any>(),
+    providers = new Map<string, (c: FeatureCall) => any>(),
     data = new Map<string, any>();
-  const services = pluginServices(
+  const services = integrationServices(
     f.platform,
     f.db,
     'git',
@@ -39,7 +39,7 @@ async function fixture() {
     },
     onDispose: () => {},
     onConfigure: () => {},
-  } as unknown as PluginContext;
+  } as unknown as FeatureRuntimeContext;
   activate(context);
   const call = (id: string, input: any = {}) =>
     (commands.get(id) || providers.get(id))!({ input, ownerId: f.principal.id, services });

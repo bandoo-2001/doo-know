@@ -5,7 +5,7 @@ import { join, resolve, dirname } from 'node:path';
 import type { HostConfig } from '../../../shared/platform-contracts.js';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import type { platformRuntime } from '../platform/runtime.js';
-import type { pluginHost } from '../plugins/host.js';
+import type { featureRuntime } from '../features/runtime.js';
 import {
   workspaceExclusive,
   workspaceWrite,
@@ -24,7 +24,7 @@ type Platform = Pick<
   ReturnType<typeof platformRuntime>,
   'get' | 'status' | 'settings' | 'activate'
 >;
-type Plugins = Pick<ReturnType<typeof pluginHost>, 'list' | 'install' | 'enable'>;
+type GitActivation = Pick<ReturnType<typeof featureRuntime>, 'enabled' | 'setEnabled'>;
 type Row = {
   id: string;
   owner: string;
@@ -76,7 +76,7 @@ export function gitRemoteService(
   config: HostConfig,
   db: AppDatabase,
   platform: Platform,
-  plugins: Plugins,
+  features: GitActivation,
   options: { exec?: GitExec } = {},
 ) {
   db.exec(`CREATE TABLE IF NOT EXISTS git_remote_jobs(id TEXT PRIMARY KEY,owner TEXT NOT NULL,request_id TEXT NOT NULL,kind TEXT NOT NULL,params TEXT NOT NULL,root TEXT,binding INTEGER NOT NULL,status TEXT NOT NULL,phase TEXT NOT NULL,error TEXT,result TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,UNIQUE(owner,request_id));
@@ -261,18 +261,6 @@ export function gitRemoteService(
     }
     return { ...remote, branches, defaultBranch, readVerified: true, writeVerified: false };
   }
-  async function ensurePlugin(r: Row, signal: AbortSignal) {
-    signal.throwIfAborted();
-    let p = plugins.list().find((p) => p.id === 'git');
-    if (!p) {
-      await plugins.install('git', { signal, onPhase: (value) => phase(r.id, value) });
-      signal.throwIfAborted();
-      p = plugins.list().find((p) => p.id === 'git');
-    }
-    signal.throwIfAborted();
-    if (p?.state !== 'enabled') await plugins.enable('git', () => signal.throwIfAborted());
-    signal.throwIfAborted();
-  }
   async function sameDirectory(path: string, proof: { dev: string; ino: string }) {
     const s = await lstat(path, { bigint: true }).catch(() => undefined);
     return (
@@ -352,7 +340,6 @@ export function gitRemoteService(
       remote.url
     )
       fail(409, 'GIT_CLONE_CHANGED');
-    await ensurePlugin(r, signal);
     const finalIdentity = policy(target);
     if (finalIdentity.dev !== proof.dev || finalIdentity.ino !== proof.ino)
       fail(409, 'KNOWLEDGE_ROOT_CHANGED');
@@ -379,6 +366,7 @@ export function gitRemoteService(
       'origin',
       input.credentialId || null,
     );
+    if (!features.enabled('git')) await features.setEnabled('git', true);
     return { ...receipt, knowledgeRoot: target, cloned: true, bound: true, branch: state.branch };
   }
   function pendingLocalGit(r: Row) {
@@ -577,7 +565,6 @@ export function gitRemoteService(
     const free = await statfs(parent);
     if (Number(free.bavail) * Number(free.bsize) < 512 * 1024 * 1024)
       fail(409, 'INSUFFICIENT_DISK_SPACE');
-    await ensurePlugin(r, signal);
     const remote = normalizeRemote(input.url!);
     const credential = secret(owner, input.credentialId, remote.host);
     if (input.branch) await branchValid(parent, input.branch, signal);
@@ -695,10 +682,10 @@ export function gitRemoteService(
   }
   async function work(owner: string, r: Row, input: GitJobInput, signal: AbortSignal) {
     if (
-      ['check', 'push', 'pull'].includes(input.kind) &&
-      plugins.list().find((p) => p.id === 'git')?.state !== 'enabled'
+      ['connect', 'disconnect', 'check', 'push', 'pull'].includes(input.kind) &&
+      !features.enabled('git')
     )
-      fail(409, 'GIT_PLUGIN_DISABLED');
+      fail(409, 'GIT_DISABLED');
     const cwd = r.root || config.dataRoot;
     if (!(r.kind === 'pull' && r.result && Object.hasOwn(JSON.parse(r.result), 'target')))
       phase(r.id, 'checking_dependency');
@@ -722,7 +709,6 @@ export function gitRemoteService(
       return { disconnected: true, repositoryPreserved: true };
     }
     if (input.kind === 'connect') {
-      await ensurePlugin(r, signal);
       jobBinding(r);
       let state = await repo(r.root, signal);
       if (!state) {
@@ -932,11 +918,9 @@ export function gitRemoteService(
     return view(r);
   }
   async function status(owner: string): Promise<GitRemoteStatus> {
-    const p = plugins.list().find((p) => p.id === 'git'),
-      b = binding();
+    const b = binding();
     const result: GitRemoteStatus = {
-      pluginInstalled: !!p,
-      pluginEnabled: p?.state === 'enabled',
+      enabled: features.enabled('git'),
       repository: b.root ? 'missing' : 'unbound',
       branch: null,
       head: null,
@@ -1005,9 +989,8 @@ export function gitRemoteService(
     return result;
   }
   return {
-    assertPluginIdle(id: string) {
+    assertIdle() {
       if (
-        id === 'git' &&
         db.prepare("SELECT 1 FROM git_remote_jobs WHERE status IN ('queued','running')").get()
       )
         fail(409, 'GIT_TASK_BUSY');

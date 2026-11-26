@@ -5,8 +5,8 @@ import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
 import Icon from './Icon.vue';
 import type { ReadPage } from '../../../shared/knowledge-contracts';
 import { api } from '../api';
-import { pluginRegistry } from '../plugins';
-import { createGitHistoryModel, gitRestoreMessages } from '../../../packages/plugin-ui/git-history';
+import { features } from '../features';
+import { createGitHistoryModel, gitRestoreMessages } from '../git/git-history';
 import {
   createRevisionDiff,
   HISTORY_COMPARE_MAX_BYTES,
@@ -43,13 +43,11 @@ const editorBaselineStale = ref(!!props.baselineStale);
 let savedRecordsStale = false;
 let gitBaselineStale = false;
 const gitAvailable = computed(() =>
-  pluginRegistry.value.installed.some(
-    (plugin) => plugin.id === 'git' && plugin.state === 'enabled',
-  ),
+  features.value.git?.state === 'enabled',
 );
 const git = reactive(
   createGitHistoryModel({
-    call: (kind, id, input) => api('/api/plugins/git/call', 'POST', { kind, id, input }),
+    call: (kind, id, input) => api('/api/platform/git/actions', 'POST', { kind, id, input }),
     context: () => ({ noteId: props.noteId, expectedModifiedAt: props.currentModifiedAt }),
     friendlyError: (cause) => {
       const response = cause as any;
@@ -99,7 +97,7 @@ async function loadRenderer() {
   rendererLoading.value = true;
   rendererError.value = '';
   try {
-    const module = await import('../../../packages/plugin-ui/diff-view');
+    const module = await import('../git/diff-view');
     if (props.show && generation === rendererGeneration) renderer.value = module.DiffView;
   } catch {
     if (props.show && generation === rendererGeneration)
@@ -778,7 +776,7 @@ onBeforeUnmount(() => {
         <AAlert
           v-if="!gitAvailable"
           type="warning"
-          message="Git 插件当前不可用，保存记录仍可正常使用。"
+          message="Git 版本管理当前不可用，保存记录仍可正常使用。"
           role="alert"
         />
         <AAlert

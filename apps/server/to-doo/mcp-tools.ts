@@ -1,12 +1,12 @@
 import { createHash, createHmac } from 'node:crypto';
-import type { McpDomainContext } from '../plugins/mcp-domain-context.js';
+import type { McpDomainContext } from '../mcp/mcp-domain-context.js';
 import type {
   McpManagedDomainPort,
   McpTransferBinding,
   McpTransferInfo,
 } from '../../../shared/mcp-domain-tools.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
-import type { ServiceCallOptions } from '../../../packages/plugin-sdk/index.js';
+import type { ServiceCallOptions } from '../../../packages/core/integration-ports.js';
 import {
   toDooFullToolSchemas,
   toDooFullToolMetadata,
@@ -130,7 +130,7 @@ const need = <T>(value: T | undefined, field: string): T => {
 
 export function createToDooToolPort(context: McpDomainContext): McpManagedDomainPort {
   const { runtime, db, transfers } = context;
-  // Optional To Doo data stays lazy: constructing the knowledge/plugin service
+  // Optional To Doo data stays lazy: constructing the knowledge/MCP service
   // must not initialize an unrelated optional application store.
   const todo: ToDooService = {
     snapshot: (q) => runtime.toDoo.snapshot(q),

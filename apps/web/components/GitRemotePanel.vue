@@ -12,7 +12,7 @@ import type {
   GitRemoteHost,
 } from '../../../shared/git-contracts';
 import { api, ApiError } from '../api';
-import { pluginRegistry, refreshPlugins } from '../plugins';
+import { features, refreshFeatures, saveFeatureConfig } from '../features';
 import SettingsOverlay from './settings/SettingsOverlay.vue';
 import SettingsActionCard from './settings/SettingsActionCard.vue';
 import {
@@ -69,9 +69,7 @@ const message = ref(''),
   commitUnknown = ref(false);
 const authorName = ref(''),
   authorEmail = ref('');
-const gitPlugin = computed(() =>
-  pluginRegistry.value.installed.find((entry) => entry.id === 'git'),
-);
+const gitFeature = computed(() => features.value.git);
 const editingCredentialBinding = ref<Pick<GitCredentialSummary, 'host' | 'kind'>>();
 const reuseCredentialSecret = computed(
   () =>
@@ -80,7 +78,7 @@ const reuseCredentialSecret = computed(
     editingCredentialBinding.value?.kind === credentialKind.value,
 );
 const authorReady = computed(
-  () => !!gitPlugin.value?.config.authorName && !!gitPlugin.value?.config.authorEmail,
+  () => !!gitFeature.value?.config.authorName && !!gitFeature.value?.config.authorEmail,
 );
 const running = computed(() => busy.value || jobPending(job.value));
 const repositoryPending = computed(() => state.value?.code === 'WORKSPACE_BUSY');
@@ -308,7 +306,7 @@ function cancelPreview() {
   previewMessage.value = '';
   commitRequest.value = '';
   if (previous?.token)
-    void api('/api/plugins/git/call', 'POST', {
+    void api('/api/platform/git/actions', 'POST', {
       kind: 'command',
       id: 'git.cancelPreview',
       input: { token: previous.token },
@@ -432,8 +430,8 @@ async function load() {
       branch.value = next.connection?.branch || next.branch || '';
       credentialId.value = next.connection?.credentialId || '';
     }
-    authorName.value ||= String(gitPlugin.value?.config.authorName || '');
-    authorEmail.value ||= String(gitPlugin.value?.config.authorEmail || '');
+    authorName.value ||= String(gitFeature.value?.config.authorName || '');
+    authorEmail.value ||= String(gitFeature.value?.config.authorEmail || '');
     if (!job.value) {
       job.value =
         next.jobs.find((entry) => jobPending(entry) || entry.status === 'needs_reconciliation') ||
@@ -489,7 +487,7 @@ async function completed(next: GitJob, owner = nextReceipt()) {
           }),
         );
       if (next.kind === 'push') committedHead.value = '';
-      if (['connect', 'clone'].includes(next.kind)) await refreshPlugins().catch(() => {});
+      if (['connect', 'clone'].includes(next.kind)) await refreshFeatures().catch(() => {});
       if (ownsJob(owner)) await load();
       // This accepted result changed the repository even if a newer panel task has started.
       if (!active) return;
@@ -745,21 +743,17 @@ async function removeCredential(entry: GitCredentialSummary) {
   }
 }
 async function saveAuthor() {
-  if (running.value || !gitPlugin.value || !active) return;
+  if (running.value || !gitFeature.value || !active) return;
   busy.value = true;
   error.value = '';
   try {
-    const plugin = gitPlugin.value;
-    await api('/api/platform/plugins/git/config', 'PUT', {
-      values: {
-        ...plugin.config,
-        authorName: authorName.value.trim(),
-        authorEmail: authorEmail.value.trim(),
-      },
-      configVersion: plugin.configVersion,
-    });
+    const feature = gitFeature.value;
+    await saveFeatureConfig('git', {
+      authorName: authorName.value.trim(),
+      authorEmail: authorEmail.value.trim(),
+    }, feature.configVersion);
     if (active) {
-      await refreshPlugins();
+      await refreshFeatures();
       connectionBaseline.value.authorName = authorName.value;
       connectionBaseline.value.authorEmail = authorEmail.value;
       reviewAuthorBaseline.value = { name: authorName.value, email: authorEmail.value };
@@ -799,12 +793,12 @@ async function previewCommit() {
   notice.value = '';
   try {
     if (previous)
-      await api('/api/plugins/git/call', 'POST', {
+      await api('/api/platform/git/actions', 'POST', {
         kind: 'command',
         id: 'git.cancelPreview',
         input: { token: previous.token },
       });
-    const next = await api<any>('/api/plugins/git/call', 'POST', {
+    const next = await api<any>('/api/platform/git/actions', 'POST', {
       kind: 'command',
       id: 'git.preview',
       input: { message: explanation },
@@ -814,7 +808,7 @@ async function previewCommit() {
       previewMessage.value = explanation;
       commitRequest.value = crypto.randomUUID();
     } else if (next?.token) {
-      void api('/api/plugins/git/call', 'POST', {
+      void api('/api/platform/git/actions', 'POST', {
         kind: 'command',
         id: 'git.cancelPreview',
         input: { token: next.token },
@@ -843,7 +837,7 @@ async function confirmCommit() {
   let pushed = false;
   try {
     const result = await api<{ commit: string; needsReconciliation?: boolean }>(
-      '/api/plugins/git/call',
+      '/api/platform/git/actions',
       'POST',
       {
         kind: 'command',
@@ -1141,8 +1135,7 @@ onMounted(() => {
               <p>只在本机记笔记或保留版本，不需要注册云端账号，可以先跳过云端同步。</p>
             </aside>
             <p>
-              此操作会安装并启用 Git
-              插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。
+              此操作会安装并启用 Git 版本管理。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。
             </p>
             <label
               >仓库克隆地址<input

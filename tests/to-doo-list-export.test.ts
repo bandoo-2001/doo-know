@@ -12,10 +12,10 @@ import {
   validatePortableJson,
 } from '../packages/core/to-doo/interop';
 import { createToDooToolPort } from '../apps/server/to-doo/mcp-tools';
-import { createMcpTransferStore } from '../apps/server/plugins/mcp-transfers';
+import { createMcpTransferStore } from '../apps/server/mcp/mcp-transfers';
 import { requireScope } from '../packages/core/agent/auth';
 import { pluginRuntimeFixture } from './support/plugin-runtime';
-import type { McpDomainContext } from '../apps/server/plugins/mcp-domain-context';
+import type { McpDomainContext } from '../apps/server/mcp/mcp-domain-context';
 import type { ToDooService } from '../shared/to-doo-contracts';
 
 const cleanups: (() => Promise<void>)[] = [];

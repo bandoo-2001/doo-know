@@ -347,7 +347,7 @@ onBeforeUnmount(() => clearInterval(timer));
         <template v-if="step === 2">
           <p class="eyebrow">按自己的需要选择</p>
           <h1 ref="heading" tabindex="-1">选择需要的功能</h1>
-          <p class="intro">知识库已经可以使用。这些功能都可以跳过，以后在设置中添加。</p>
+          <p class="intro">知识库已经可以使用。这些功能可以稍后在设置中启用。</p>
           <SetupFeatures />
           <footer class="setup-footer">
             <AButton :disabled="busy" @click="go(3)">暂时跳过</AButton

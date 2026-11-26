@@ -1,8 +1,8 @@
 import { expect, it } from 'vitest';
 import { z } from 'zod';
-import { annotateError, BridgeError, errorBody, invalidInput } from '../plugins/mcp/server/errors.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
-import type { PluginServices } from '../packages/plugin-sdk/index.js';
+import { annotateError, BridgeError, errorBody, invalidInput } from '../apps/server/mcp/errors.js';
+import { hostClient } from '../apps/server/mcp/service.js';
+import type { IntegrationServices } from '../packages/core/integration-ports.js';
 import type { Principal } from '../shared/knowledge-contracts.js';
 const p: Principal = { id: 'owner', clientId: 'client', scopes: ['to-doo:read', 'to-doo:write'], allowedPrefixes: [] };
 
@@ -29,7 +29,7 @@ it('recovers lifecycle writes using their dedicated authorized receipt path', ()
 });
 it('reports host input validation as invalid input before a write, not an unknown committed outcome', async () => {
   const schema = z.object({ expectedVersion: z.number().int() }).strict();
-  const services = { knowledge: {}, blogTools: { call: async (_name: string, input: unknown) => schema.parse(input) } } as unknown as PluginServices;
+  const services = { knowledge: {}, blogTools: { call: async (_name: string, input: unknown) => schema.parse(input) } } as unknown as IntegrationServices;
   const client = hostClient(() => services, () => ({}));
   let failure: unknown;
   try { await client.domainTool(p, 'blog', 'update_blog_draft', { requestId: 'original', expectedVersion: 'private invalid value' }, true); } catch (e) { failure = e; }

@@ -6,8 +6,8 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
-import { createKnowledgeToolPort } from '../apps/server/plugins/knowledge-tools.js';
-import { createMcpTransferStore } from '../apps/server/plugins/mcp-transfers.js';
+import { createKnowledgeToolPort } from '../apps/server/mcp/knowledge-tools.js';
+import { createMcpTransferStore } from '../apps/server/mcp/mcp-transfers.js';
 import { diagramOperationPreviewRegistry } from '../packages/core/knowledge/diagram-operation-previews.js';
 import { portablePreviewRegistry } from '../packages/core/portable-delivery/previews.js';
 import { sha256, beginOperation } from '../packages/core/knowledge/operations.js';
@@ -20,9 +20,9 @@ import { emptyWhiteboard } from '../shared/whiteboard.js';
 import { requireScope } from '../packages/core/agent/auth.js';
 import type { Principal } from '../shared/knowledge-contracts.js';
 import { mcpResultFrameSize } from '../shared/mcp-frame.js';
-import { createOperations, registerOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
-import { BridgeError, annotateError, errorBody } from '../plugins/mcp/server/errors.js';
+import { createOperations, registerOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
+import { BridgeError, annotateError, errorBody } from '../apps/server/mcp/errors.js';
 
 const cleanup: Array<() => Promise<void>> = [];
 afterEach(async () => {

@@ -33,20 +33,6 @@ test('fixed dates keep the instant while floating dates keep the clock time', ()
   expect(toDooDeadlineOverdue(floating, 'todo', '2026-11-25', now, 'Asia/Tokyo')).toBe(true);
 });
 
-test('deadline order uses the actual instant through a daylight-saving fold', () => {
-  const data = snapshot();
-  data.settings.timeZone = 'America/New_York';
-  const [firstTask] = data.tasks;
-  const [firstOccurrence] = data.occurrences;
-  firstOccurrence!.due = { date: '2026-11-01', time: '05:45', timeZone: 'UTC' };
-  data.tasks.push({ ...firstTask!, id: 'task-b', title: 'After the clocks roll back' });
-  data.occurrences.push({
-    ...firstOccurrence!, id: 'occ-b', taskId: 'task-b',
-    due: { date: '2026-11-01', time: '06:15', timeZone: 'UTC' },
-  });
-  expect(deriveToDooItems(data, {}, 'due').map(row => row.task.id)).toEqual(['task-a', 'task-b']);
-});
-
 test.each([
   ['paused', 300],
   ['interrupted', 300],

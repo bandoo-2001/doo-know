@@ -3,8 +3,8 @@ import { join } from 'node:path';
 import { afterEach, expect, it } from 'vitest';
 import { randomUUID, createHash } from 'node:crypto';
 import { pluginRuntimeFixture } from './support/plugin-runtime';
-import { createKnowledgeToolPort } from '../apps/server/plugins/knowledge-tools';
-import { createMcpTransferStore } from '../apps/server/plugins/mcp-transfers';
+import { createKnowledgeToolPort } from '../apps/server/mcp/knowledge-tools';
+import { createMcpTransferStore } from '../apps/server/mcp/mcp-transfers';
 import { diagramCreationService } from '../packages/core/knowledge/diagram-creation';
 import { primaryDiagramService } from '../packages/core/knowledge/primary-diagrams';
 import { emptyWhiteboard } from '../shared/whiteboard';
@@ -104,7 +104,7 @@ it('rechecks the current note version before later source chunks are authorized'
 it('keeps semantic Markdown graph types and pending publication status in the SDK metadata contract', async () => {
   const f = await fixture(),
     info = await f.runtime.knowledge.info(f.principal, f.intent.noteId),
-    { noteInfo } = await import('../plugins/mcp/server/contracts');
+    { noteInfo } = await import('../apps/server/mcp/contracts');
   expect(info.documentType).toBe('whiteboard');
   expect(noteInfo.parse(info).documentType).toBe('whiteboard');
 });

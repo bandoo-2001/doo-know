@@ -3,8 +3,8 @@ import { compileScript, parse } from '@vue/compiler-sfc';
 import ts from 'typescript';
 import * as Vue from 'vue';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import * as gitHistory from '../packages/plugin-ui/git-history';
-import * as diffView from '../packages/plugin-ui/diff-view';
+import * as gitHistory from '../apps/web/git/git-history';
+import * as diffView from '../apps/web/git/diff-view';
 import * as noteHistory from '../apps/web/note-history';
 
 const firstCommit = 'a'.repeat(40),
@@ -17,7 +17,7 @@ const commit = (sha: string) => ({
 });
 const mockApi = vi.fn();
 const cleanups: (() => void)[] = [];
-const pluginRegistry = Vue.shallowRef({ installed: [{ id: 'git', state: 'enabled' }] });
+const features = Vue.shallowRef({ git: { id: 'git', state: 'enabled' } });
 const descriptor = parse(
   readFileSync(new URL('../apps/web/components/NoteHistoryDialog.vue', import.meta.url), 'utf8'),
 ).descriptor;
@@ -41,7 +41,7 @@ async function turn() {
 }
 function gitCalls(id?: string) {
   return mockApi.mock.calls.filter(
-    (call) => call[0] === '/api/plugins/git/call' && (!id || call[2]?.id === id),
+    (call) => call[0] === '/api/platform/git/actions' && (!id || call[2]?.id === id),
   );
 }
 async function mount() {
@@ -50,10 +50,10 @@ async function mount() {
     (id: string) => {
       if (id === 'vue') return Vue;
       if (id === '../api') return { api: mockApi };
-      if (id === '../plugins') return { pluginRegistry };
+      if (id === '../features') return { features };
       if (id === '../note-history') return noteHistory;
-      if (id === '../../../packages/plugin-ui/git-history') return gitHistory;
-      if (id === '../../../packages/plugin-ui/diff-view') return diffView;
+      if (id === '../git/git-history') return gitHistory;
+      if (id === '../git/diff-view') return diffView;
       if (id.endsWith('.vue')) return { default: {}, __esModule: true };
       if (id === 'naive-ui' || id === 'ant-design-vue') return {};
       throw Error('Unexpected history dialog dependency: ' + id);
@@ -101,7 +101,7 @@ beforeEach(() => {
   mockApi.mockReset();
   mockApi.mockImplementation(async (url: string, method = 'GET', body?: any) => {
     if (/^\/api\/notes\/[^/]+\/revisions$/.test(url) && method === 'GET') return { items: [] };
-    if (url === '/api/plugins/git/call' && method === 'POST') {
+    if (url === '/api/platform/git/actions' && method === 'POST') {
       if (body.id === 'git.history') return { items: [commit(firstCommit)] };
       if (body.id === 'git.diff')
         return { diff: 'Historical commit patch', restore: { supported: true } };
@@ -129,7 +129,7 @@ it('keeps an uncertain Git restore visible across note changes and resets to the
   let restores = 0;
   const reconciled = deferred<any>();
   mockApi.mockImplementation((...args) => {
-    if (args[0] === '/api/plugins/git/call' && args[2]?.id === 'git.restore') {
+    if (args[0] === '/api/platform/git/actions' && args[2]?.id === 'git.restore') {
       restores++;
       if (restores === 1) return Promise.reject(new TypeError('Failed to fetch'));
       return reconciled.promise;
@@ -172,7 +172,7 @@ it('replaces an in-flight Git list after a baseline change and ignores the stale
   const api = mockApi.getMockImplementation()!;
   let reads = 0;
   mockApi.mockImplementation((...args) => {
-    if (args[0] === '/api/plugins/git/call' && args[2]?.id === 'git.history') {
+    if (args[0] === '/api/platform/git/actions' && args[2]?.id === 'git.history') {
       reads++;
       return reads === 1 ? oldHistory.promise : Promise.resolve({ items: [commit(nextCommit)] });
     }

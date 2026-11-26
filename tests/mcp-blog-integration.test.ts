@@ -1,18 +1,18 @@
 import { expect, it, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
-import { pluginHost } from '../apps/server/plugins/host.js';
-import { pluginServices } from '../apps/server/plugins/services.js';
+import { initializeFeatureSettings } from '../packages/core/feature-settings.js';
+import { integrationServices } from '../apps/server/features/services.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 import { platformPolicy } from '../packages/core/auth/grants.js';
-import { createOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
-import { budgets, resultSize } from '../plugins/mcp/server/budgets.js';
+import { createOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
+import { budgets, resultSize } from '../apps/server/mcp/budgets.js';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 async function fixture() {
-  const f = await pluginRuntimeFixture(); pluginHost(f.config, f.db);
+  const f = await pluginRuntimeFixture(); initializeFeatureSettings(f.db);
   const signedScopes = ['knowledge:read', 'knowledge:write', 'blog:publish'];
   const capabilities = [...signedScopes, 'blog:read'];
   f.db.prepare("INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.1.0',1,'{}','{}','enabled',?)").run(JSON.stringify({ readOnly: false, allowPublish: true, allowedPrefixes: ['00-Inbox'] }));
@@ -22,7 +22,7 @@ async function fixture() {
   // Match the real transport: derive existing v1 aliases from the persisted grant.
   // Do not add new scopes to the old signed token or overwrite its stored grant.
   const principal = platformPolicy(f.db, tokenPrincipal)!;
-  const services = pluginServices(f.platform, f.db, 'mcp', capabilities, { ownerId: principal.id, principal, channel: 'mcp' });
+  const services = integrationServices(f.platform, f.db, 'mcp', capabilities, { ownerId: principal.id, principal, channel: 'mcp' });
   const registry = createOperations({ objectIdSecret: 'fixture-mcp-blog-reference-secret-at-least-32-characters' }, hostClient(() => services, () => ({})));
   const input = { noteId: created.id, expectedModifiedAt: created.modifiedAt, expectedContentHash: created.contentHash, expectedPublicationVersion: 0, requestId: randomUUID(), metadata: { slug: 'mcp-public-snapshot' } };
   return { ...f, principal, services, registry, created, input };

@@ -97,7 +97,7 @@ onMounted(() => void load());
       <details class="settings-muted">
         <summary>查看操作顺序</summary>
         <ol>
-          <li>先保存笔记和插件配置，再确认备份与恢复密钥可用。</li>
+          <li>先保存笔记和设置，再确认备份与恢复密钥可用。</li>
           <li>
             正式安装使用主机终端运行
             <code>dooknow update</code

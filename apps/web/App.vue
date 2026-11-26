@@ -7,8 +7,9 @@ import { antTheme } from './ant-design';
 import { platformAntTokens, platformNaiveOverrides, applyPlatformCssVariables } from './platform-theme';
 import type { PlatformStatus } from '../../shared/platform-contracts';
 import { api, ApiError, refreshCsrf, resetCsrf } from './api';
-import { clearPluginDrafts, hasUnsavedPluginDrafts } from './plugin-drafts';
-import { disposePluginUIs } from './plugins';
+import { clearMcpSettings, hasUnsavedMcpSettings } from './mcp-settings-draft';
+import { clearFeatures } from './features';
+import { hasUnsavedGitSettings } from './git/settings-draft';
 import { initializeEditorPreferences, resolvedTheme } from './preferences';
 import { initializeAppShortcuts } from './app-shortcuts';
 import LoadingState from './components/LoadingState.vue';
@@ -166,8 +167,8 @@ async function logoutPlatform() {
   }
 }
 function completeLogout() {
-  clearPluginDrafts();
-  void disposePluginUIs();
+  clearMcpSettings();
+  clearFeatures();
   resetCsrf();
   loggedIn.value = false;
   mountedWorkspace.value = false;
@@ -192,8 +193,8 @@ async function acceptSession(
   // The same owner keeps the mounted editor on reauthentication. A different
   // identity gets a new workspace and cannot inherit the previous draft scope.
   if (ownerId.value && ownerId.value !== session.user.id) {
-    clearPluginDrafts();
-    void disposePluginUIs();
+    clearMcpSettings();
+    clearFeatures();
     mountedWorkspace.value = false;
     platform.value = undefined;
   }
@@ -238,13 +239,13 @@ async function checkInitialSession() {
 function sessionExpired() {
   if (loggedIn.value) expired.value = true;
 }
-function protectPluginDrafts(event: BeforeUnloadEvent) {
-  if (!hasUnsavedPluginDrafts()) return;
+function protectFeatureDrafts(event: BeforeUnloadEvent) {
+  if (!hasUnsavedMcpSettings() && !hasUnsavedGitSettings()) return;
   event.preventDefault();
   event.returnValue = '';
 }
 onMounted(async () => {
-  window.addEventListener('beforeunload', protectPluginDrafts);
+  window.addEventListener('beforeunload', protectFeatureDrafts);
   if (!token) {
     window.addEventListener('dooknow-session-expired', sessionExpired);
     await checkInitialSession();
@@ -252,9 +253,9 @@ onMounted(async () => {
 });
 onBeforeUnmount(() => {
   window.removeEventListener('dooknow-session-expired', sessionExpired);
-  window.removeEventListener('beforeunload', protectPluginDrafts);
-  clearPluginDrafts();
-  void disposePluginUIs();
+  window.removeEventListener('beforeunload', protectFeatureDrafts);
+  clearMcpSettings();
+  clearFeatures();
 });
 </script>
 <template>

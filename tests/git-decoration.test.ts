@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { gitDecoration } from '../plugins/git/web/decoration';
+import { gitDecoration } from '../apps/web/git/decoration';
 
 it('distinguishes new, modified and deleted notes by Git color', () => {
   const changes = [

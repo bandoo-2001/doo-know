@@ -194,7 +194,7 @@ test('actual local Git read and clone recover from a name conflict and activate 
   const git = await (await page.request.get('/api/platform/git/status')).json();
   expect(git.connection.url).toBe(fixture.remoteUrl);
   expect(git.connection.branch).toBe('main');
-  expect(git.pluginInstalled).toBe(true);
+  expect(git.enabled).toBe(true);
 });
 
 test('an accepted clone whose HTTP response is lost is reconciled once without a duplicate clone', async ({

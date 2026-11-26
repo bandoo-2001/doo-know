@@ -1,28 +1,28 @@
+import { featureCapabilities } from '../shared/feature-config.js';
 import { expect, it } from 'vitest';
-import { readFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
-import { pluginHost } from '../apps/server/plugins/host.js';
-import { pluginServices } from '../apps/server/plugins/services.js';
+import { initializeFeatureSettings } from '../packages/core/feature-settings.js';
+import { integrationServices } from '../apps/server/features/services.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 import { currentBlogInstanceId, policyScopes } from '../packages/core/auth/permissions.js';
-import { createOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
+import { createOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
 import type { PermissionPolicy } from '../shared/permissions.js';
 
 async function fixture(actions: string[]) {
-  const f = await pluginRuntimeFixture(); pluginHost(f.config, f.db);
+  const f = await pluginRuntimeFixture(); initializeFeatureSettings(f.db);
   const library = f.platform.get().knowledge.organization.context(f.principal);
   const policy: PermissionPolicy = { version: 2, domains: {
     knowledge: { enabled: true, ownerId: f.principal.id, instanceId: library.libraryId, actions: ['read'], resources: { mode: 'all' } },
     blog: { enabled: true, ownerId: f.principal.id, instanceId: currentBlogInstanceId(f.db), actions: ['read', ...actions], resources: { mode: 'all' } },
   } };
   const ceiling: PermissionPolicy = { ...policy, domains: { ...policy.domains, blog: { ...policy.domains.blog, actions: ['read','write','manage','publish'] } } };
-  const manifest = JSON.parse(await readFile(new URL('../plugins/mcp/manifest.json', import.meta.url), 'utf8'));
+  const manifest = { version: '2.0.5', capabilities: featureCapabilities.mcp };
   f.db.prepare("INSERT INTO platform_plugins(id,installed_version,manifest_json,files_json,config_json,state) VALUES('mcp',?,?,'[]',?,'enabled')").run(manifest.version, JSON.stringify(manifest), JSON.stringify({ oauthEnabled: true, apiKeyEnabled: false, permissionPolicy: ceiling }));
   const grant = oauthGrantStore(f.db).approveV2(f.principal.id, 'blog-full-grants', policy);
   const principal = { ...f.principal, ownerId: f.principal.id, clientId: grant.clientId, grantId: grant.id, grantVersion: grant.version, tokenIssuedAt: grant.notBefore, tokenExpiresAt: Math.floor(Date.now() / 1000) + 120, pluginId: 'mcp', scopes: policyScopes(policy), allowedPrefixes: [], permissionPolicy: policy, policyVersion: 2 as const };
-  const services = () => pluginServices(f.platform, f.db, 'mcp', manifest.capabilities, { ownerId: principal.id, principal, channel: 'mcp' });
+  const services = () => integrationServices(f.platform, f.db, 'mcp', manifest.capabilities, { ownerId: principal.id, principal, channel: 'mcp' });
   const registry = createOperations({ objectIdSecret: 'blog-grants-integration-object-secret-thirty-two' }, hostClient(services, () => ({})));
   return { ...f, principal, policy, ceiling, registry, setCeiling: (value: PermissionPolicy) => f.db.prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'").run(JSON.stringify({ oauthEnabled: true, apiKeyEnabled: false, permissionPolicy: value })) };
 }

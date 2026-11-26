@@ -220,24 +220,24 @@ export const setupScenes: Scene[] = [
     await expect(env.page.getByRole('heading', { name: '准备你的知识库', exact: true })).toBeVisible();
   }, { importantStates: exact('PB-011', 'existing same-name folder stops import') }),
   scene('features-unadded', 'PB-012', 'Actual optional features after real library binding', async env => {
-    await features(env); await expect(env.page.locator('.feature-state').filter({ hasText: '可选 · 随时添加' })).toHaveCount(2);
+    await features(env); await expect(env.page.locator('.feature-state').filter({ hasText: '尚未启用' })).toHaveCount(2);
   }, { importantStates: exact('PB-012', 'not added; added but needs configuration; enabled') }),
-  scene('features-mcp-added', 'PB-012', 'Actual MCP installation and expanded configuration', async env => {
-    await features(env); await btn(env, '添加连接设置').click(); await expect(env.page.locator('#setup-feature-mcp .plugin-settings')).toBeVisible({ timeout: 90000 });
-    await expect(env.page.locator('.feature-state').filter({ hasText: '已添加 · 还需完成设置' })).toHaveCount(1);
+  scene('features-mcp-added', 'PB-012', 'Actual built-in MCP configuration', async env => {
+    await features(env); await btn(env, '设置 MCP 连接').click(); await expect(env.page.locator('#setup-feature-mcp [aria-label="MCP 服务设置"]')).toBeVisible({ timeout: 90000 });
+    await expect(env.page.locator('.feature-state').filter({ hasText: '尚未启用' })).toHaveCount(2);
   }, { importantStates: exact('PB-012', 'not added; added but needs configuration; enabled', 'installation pending/succeeded/result needs reconciliation', 'expanded MCP/Git configuration; expanded content-search setup') }),
   scene('features-mcp-enabled', 'PB-012', 'Actual enabled optional MCP connection', async env => {
-    await features(env); await btn(env, '添加连接设置').click(); const configuration = env.page.locator('#setup-feature-mcp .plugin-settings');
-    await expect(configuration).toBeVisible({ timeout: 90000 }); await configuration.getByRole('button', { name: '启用插件', exact: true }).click();
-    await expect(env.page.locator('.feature-state').filter({ hasText: '已启用 · 可继续检查设置' })).toHaveCount(1);
+    await features(env); await btn(env, '设置 MCP 连接').click(); const configuration = env.page.locator('#setup-feature-mcp [aria-label="MCP 服务设置"]');
+    await expect(configuration).toBeVisible({ timeout: 90000 }); await configuration.getByRole('switch', { name: '启用 MCP 服务', exact: true }).click();
+    await expect(env.page.locator('.feature-state').filter({ hasText: '已启用' })).toHaveCount(1);
   }, { importantStates: exact('PB-012', 'not added; added but needs configuration; enabled') }),
   scene('features-search', 'PB-012', 'Actual expanded content-search setup', async env => {
     await features(env); await btn(env, '设置内容搜索').click(); await expect(env.page.locator('#setup-feature-search')).toBeVisible();
   }, { importantStates: exact('PB-012', 'expanded MCP/Git configuration; expanded content-search setup') }),
-  scene('features-read-error', 'PB-012', 'Actual optional-feature registry transport failure leaves skip guidance', async env => {
-    await features(env); await expect(env.page.getByRole('alert')).toContainText('可以先跳过'); await expect(btn(env, '暂时跳过')).toBeEnabled();
-  }, { before: async env => { await env.page.route('**/api/platform/plugins', route => route.abort('failed')); },
-    fault: 'Only optional plugin registry reads fail; real library create/validate/bind requests continue.',
+  scene('features-read-error', 'PB-012', 'Actual feature state transport failure leaves skip guidance', async env => {
+    await features(env); await expect(env.page.getByRole('alert')).toContainText('暂时无法读取功能状态'); await expect(btn(env, '暂时跳过')).toBeEnabled();
+  }, { before: async env => { await env.page.route('**/api/platform/features', route => route.abort('failed')); },
+    fault: 'Only feature state reads fail; real library create/validate/bind requests continue.',
     importantStates: exact('PB-012', 'catalog unavailable; read/install error with skip guidance') }),
   scene('ready', 'PB-013', 'Actual ready summary after real create/validate/bind', async env => {
     await ready(env); await expect(env.page.locator('.ready-summary')).toContainText(env.fixture.knowledgeRoot);

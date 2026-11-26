@@ -3,11 +3,11 @@ import { randomUUID } from 'node:crypto';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { createOperations, registerOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
-import { resultSize, budgets } from '../plugins/mcp/server/budgets.js';
+import { createOperations, registerOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
+import { resultSize, budgets } from '../apps/server/mcp/budgets.js';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
-import { createMcpTransferStore } from '../apps/server/plugins/mcp-transfers.js';
+import { createMcpTransferStore } from '../apps/server/mcp/mcp-transfers.js';
 import { createBlogToolPort } from '../apps/server/blog/mcp-tools.js';
 import { requireScope } from '../packages/core/agent/auth.js';
 import { blogHash } from '../packages/core/blog/resources.js';
@@ -172,7 +172,7 @@ it('discovers and executes studio tools through real MCP SDK within duplicated e
   } finally { await client.close(); await server.close(); await f.close(); }
 });
 it('routes decoration version conflicts to design state while preserving settings/article recovery', async () => {
-  const { annotateError, BridgeError, errorBody } = await import('../plugins/mcp/server/errors.js');
+  const { annotateError, BridgeError, errorBody } = await import('../apps/server/mcp/errors.js');
   for (const name of ['update_blog_design','publish_blog_design','restore_blog_design','begin_blog_design_upload','commit_blog_design_media']) {
     expect(errorBody(annotateError(new BridgeError('VERSION_CONFLICT', 409), name, {}))).toMatchObject({ error: { recovery: { tool: 'get_blog_design', requestIdPolicy: 'new_after_review' } } });
   }

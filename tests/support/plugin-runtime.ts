@@ -5,7 +5,7 @@ import type { AppConfig } from '../../shared/contracts.js';
 import { initializeOwner } from '../../apps/server/auth.js';
 import { openDatabase } from '../../packages/core/db.js';
 import { platformRuntime } from '../../apps/server/platform/runtime.js';
-import { pluginServices } from '../../apps/server/plugins/services.js';
+import { integrationServices } from '../../apps/server/features/services.js';
 import { testPassword } from './credentials.js';
 export async function pluginRuntimeFixture() {
   const root = await mkdtemp(join(tmpdir(), 'dooknow-plugin-runtime-'));
@@ -21,7 +21,7 @@ export async function pluginRuntimeFixture() {
   config.agent = { serviceToken: 'fixture-only-service-token', assertionSecret: 'fixture-only-assertion-secret',
     issuer: 'fixture', audience: 'fixture', policies: [principal] };
   const platform = platformRuntime(config, db); await platform.activate();
-  const services = pluginServices(platform, db, 'mcp', principal.scopes,
+  const services = integrationServices(platform, db, 'mcp', principal.scopes,
     { ownerId: owner, principal, channel: 'mcp' });
   return { root, config, db, platform, principal, services,
     close: async () => { await platform.close(); db.close(); await rm(root, { recursive: true, force: true }); } };

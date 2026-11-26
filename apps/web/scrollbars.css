@@ -50,7 +50,7 @@ html[data-theme='dark'] {
   .folder-view,
   .collection-scroll,
   .settings-overlay-body,
-  .plugin-panel-content
+  .git-commit-content
 ) {
   scrollbar-gutter: stable;
   overscroll-behavior: contain;

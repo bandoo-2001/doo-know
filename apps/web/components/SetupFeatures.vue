@@ -1,202 +1,69 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Button as AButton, Alert as AAlert } from 'ant-design-vue';
-import { api } from '../api';
-import {
-  installPlugin,
-  jobPhases,
-  jobPending,
-  gitError,
-  type PluginInstallation,
-} from '../git-sync';
-import { pluginRegistry, refreshPlugins } from '../plugins';
-import PluginManager from './PluginManager.vue';
+import { features, refreshFeatures } from '../features';
+import GitSettings from './settings/GitSettings.vue';
+import MCPSettings from './settings/MCPSettings.vue';
 import SearchRuntimeSettings from './SearchRuntimeSettings.vue';
 import Icon from './Icon.vue';
-const expanded = ref(''),
-  busy = ref(''),
-  error = ref('');
-const registryReady = ref(false),
-  registryBusy = ref(false);
-const installation = ref<PluginInstallation>();
-const controller = new AbortController();
-let active = true;
-onBeforeUnmount(() => {
-  active = false;
-  controller.abort();
-});
-const features = [
+const expanded = ref('');
+const error = ref('');
+const integrations = [
   {
     id: 'mcp',
     icon: 'share',
-    title: '让 ChatGPT 使用你的资料',
-    description: '连接后，可在你授权的范围内查找和阅读资料。',
-    detail:
-      '准备支持 MCP 的客户端；使用 OAuth 远程连接时，还需客户端能访问的 HTTPS 地址。暂时没有也可以先跳过。',
-    guideTitle: '如何开始连接',
-    steps: [
-      '点击“添加连接设置”，选择允许访问的业务、资料范围和读写权限，保存配置。',
-      '启用插件，在“MCP 连接指南”中选择 OAuth 或 API Key，复制对应的服务地址。',
-      '在支持 MCP 的客户端填写服务地址并完成授权，再按连接指南检查实际工具调用。',
-    ],
-    note: '这里的 API Key 由 DooKnow 创建，用于访问你的资料；无需填写 OpenAI API 密钥。',
+    title: '连接 MCP 客户端',
+    description: '授权 ChatGPT 等客户端查找和使用你的资料。',
+    action: '设置 MCP 连接',
   },
   {
     id: 'git',
     icon: 'clock',
     title: '记录文件版本',
-    description: '查看修改记录，在需要时恢复以前的内容。',
-    detail: '只在本机记录版本，无需 GitHub／Gitee 账号；同步云端才需要自己的仓库和访问凭据。',
-    guideTitle: '如何开始记录与同步',
-    steps: [
-      '点击“添加版本记录”，设置提交署名和邮箱，用来标记每次修改的作者。',
-      '启用后在工作区手动提交，保存一个可以回看的本地版本。',
-      '需要云端同步时，再关联自己的 GitHub／Gitee 仓库、添加凭据，先测试读取连接，再手动推送。',
-    ],
-    note: '提交署名不是仓库登录账号。版本记录和云端同步都不能代替独立备份。',
+    description: '查看修改记录、恢复资料，并按需同步 GitHub 或 Gitee。',
+    action: '设置版本记录',
   },
-];
-function installed(id: string) {
-  return pluginRegistry.value.installed.find((p) => p.id === id);
-}
-function available(id: string) {
-  return (
-    registryReady.value &&
-    (!!installed(id) || pluginRegistry.value.catalog.some((item) => item.id === id))
-  );
-}
-async function readRegistry() {
-  registryReady.value = false;
-  await refreshPlugins();
-  if (active) registryReady.value = true;
-}
-async function configure(id: string) {
-  if (busy.value || registryBusy.value || !available(id)) return;
-  error.value = '';
-  busy.value = id;
-  try {
-    if (!installed(id))
-      await installPlugin(id, {
-        signal: controller.signal,
-        onUpdate: (job) => {
-          if (active) installation.value = job;
-        },
-      });
-    if (!active) return;
-    await readRegistry();
-    expanded.value = expanded.value === id ? '' : id;
-  } catch (e) {
-    if (active) error.value = gitError(e) + ' 你可以先跳过，以后在设置中添加。';
-  } finally {
-    busy.value = '';
-  }
-}
-async function readFeatures() {
-  if (busy.value || registryBusy.value) return;
-  registryBusy.value = true;
+] as const;
+async function load() {
   error.value = '';
   try {
-    await readRegistry();
-    if (!active) return;
-    const receipt = await api<{ items: PluginInstallation[] }>(
-      '/api/platform/plugin-installations',
-    );
-    const pending = receipt.items.find(jobPending);
-    if (pending) {
-      busy.value = pending.pluginId;
-      await installPlugin(pending.pluginId, {
-        receiptId: pending.id,
-        signal: controller.signal,
-        onUpdate: (job) => {
-          if (active) installation.value = job;
-        },
-      });
-      if (active) {
-        await readRegistry();
-        busy.value = '';
-      }
-    }
-  } catch (e) {
-    if (active)
-      error.value = installation.value
-        ? gitError(e)
-        : '暂时无法读取可选功能。你可以先跳过，以后再设置。';
-  } finally {
-    if (active) {
-      busy.value = '';
-      registryBusy.value = false;
-    }
+    await refreshFeatures();
+  } catch {
+    error.value = '暂时无法读取功能状态，可以重试或继续设置。';
   }
 }
-onMounted(readFeatures);
+onMounted(load);
 </script>
+
 <template>
   <div class="setup-features">
-    <AAlert v-if="error" type="warning" show-icon role="alert" :message="error" />
-    <AButton :loading="registryBusy" :disabled="registryBusy || !!busy" @click="readFeatures"
-      >重新读取可选功能</AButton
-    >
-    <p v-if="installation" role="status">
-      {{ jobPhases[installation.phase] || '准备安装' }} ·
-      {{
-        jobPending(installation)
-          ? '任务在服务器上继续，可以稍后回来查看。'
-          : installation.status === 'succeeded'
-            ? '安装完成'
-            : '结果待核对，请刷新后重试。'
-      }}
-    </p>
-    <article v-for="feature in features" :key="feature.id" class="feature">
+    <AAlert v-if="error" type="warning" show-icon :message="error">
+      <template #action><AButton size="small" @click="load">重试</AButton></template>
+    </AAlert>
+    <article v-for="feature in integrations" :key="feature.id" class="feature">
       <div class="feature-main">
         <span class="feature-icon" aria-hidden="true"><Icon :name="feature.icon" /></span>
         <div>
           <h2>{{ feature.title }}</h2>
           <p>{{ feature.description }}</p>
-          <span class="feature-state">{{
-            !registryReady
-              ? registryBusy
-                ? '正在确认可用性…'
-                : '尚未确认可用性，请重新读取或暂时跳过'
-              : installed(feature.id)?.state === 'enabled'
-                ? '已启用 · 可继续检查设置'
-                : installed(feature.id)
-                  ? '已添加 · 还需完成设置'
-                  : '可选 · 随时添加'
+          <span v-if="features[feature.id]" class="feature-state">{{
+            features[feature.id]?.state === 'enabled' ? '已启用' : '尚未启用'
           }}</span>
         </div>
       </div>
-      <p class="feature-detail">{{ feature.detail }}</p>
       <AButton
-        :loading="busy === feature.id"
-        :disabled="!!busy || registryBusy || !available(feature.id)"
         :aria-expanded="expanded === feature.id"
-        :aria-controls="`setup-feature-${feature.id}`"
-        @click="configure(feature.id)"
-        >{{ installed(feature.id) ? '查看' : '添加'
-        }}{{ feature.id === 'mcp' ? '连接设置' : '版本记录' }}</AButton
+        :aria-controls="'setup-feature-' + feature.id"
+        @click="expanded = expanded === feature.id ? '' : feature.id"
+        >{{ feature.action }}</AButton
       >
-      <span
-        v-if="
-          registryReady &&
-          !pluginRegistry.catalog.some((p) => p.id === feature.id) &&
-          !installed(feature.id)
-        "
-        class="unavailable"
-        >暂未提供此功能，可以稍后再设置</span
-      >
-      <details class="feature-help">
-        <summary>{{ feature.guideTitle }}</summary>
-        <ol>
-          <li v-for="step in feature.steps" :key="step">{{ step }}</li>
-        </ol>
-        <p>{{ feature.note }}</p>
-      </details>
       <div
         v-if="expanded === feature.id"
-        :id="`setup-feature-${feature.id}`"
+        :id="'setup-feature-' + feature.id"
         class="feature-config"
       >
-        <PluginManager :focus-plugin="feature.id" />
+        <MCPSettings v-if="feature.id === 'mcp'" />
+        <GitSettings v-else />
       </div>
     </article>
     <article class="feature">
@@ -256,7 +123,6 @@ onMounted(readFeatures);
 }
 .feature-detail,
 .feature-help,
-.unavailable,
 .feature-config {
   grid-column: 1 / -1;
 }
@@ -340,13 +206,6 @@ summary:focus-visible {
 }
 .feature-help[open] summary {
   margin-bottom: 7px;
-}
-.unavailable {
-  display: block;
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.8;
 }
 @media (max-width: 600px) {
   .feature {

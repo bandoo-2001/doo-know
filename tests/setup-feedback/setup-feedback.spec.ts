@@ -171,35 +171,23 @@ test.describe('accepted clone receipt', () => {
   });
 });
 
-test('failed optional registry blocks unsupported installs and recovers only after a real successful retry', async ({
+test('onboarding retries reading the built-in feature state without enabling either service', async ({
   page,
   slot,
 }, info) => {
-  let fail = true,
-    installs = 0;
-  await page.route('**/api/platform/plugins', (route) =>
+  let fail = true;
+  await page.route('**/api/platform/features', (route) =>
     fail ? route.abort('failed') : route.continue(),
   );
-  page.on('request', (request) => {
-    if (
-      request.method() === 'POST' &&
-      new URL(request.url()).pathname === '/api/platform/plugin-installations'
-    )
-      installs++;
-  });
   await features(page, slot);
-  await expect(page.getByRole('alert')).toContainText('暂时无法读取可选功能');
-  await expect(button(page, '添加连接设置')).toBeDisabled();
-  await expect(button(page, '添加版本记录')).toBeDisabled();
-  await expect(page.locator('.feature-state').filter({ hasText: '尚未确认可用性' })).toHaveCount(2);
-  await expect(page.getByText('暂未提供此功能，可以稍后再设置', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('alert')).toContainText('暂时无法读取功能状态');
   await expect(button(page, '暂时跳过')).toBeEnabled();
-  expect(installs).toBe(0);
-  await page.screenshot({ path: info.outputPath('registry-unavailable.png'), fullPage: false });
+  await page.screenshot({ path: info.outputPath('features-unavailable.png'), fullPage: false });
   fail = false;
-  await button(page, '重新读取可选功能').click();
-  await expect(button(page, '添加连接设置')).toBeEnabled();
-  expect(installs).toBe(0);
+  await button(page, '重试').click();
+  await expect(page.getByRole('alert').filter({ hasText: '暂时无法读取功能状态' })).toHaveCount(0);
+  await button(page, '设置 MCP 连接').click();
+  await expect(page.getByRole('switch', { name: '启用 MCP 服务', exact: true })).toHaveAttribute('aria-checked', 'false');
 });
 
 test('file receipt distinguishes one-byte-over-limit and tiny nonempty files, and only the selected finish action spins', async ({

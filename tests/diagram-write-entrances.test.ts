@@ -7,8 +7,8 @@ import { diagramCreationService } from '../packages/core/knowledge/diagram-creat
 import { primaryDiagramService } from '../packages/core/knowledge/primary-diagrams';
 import { diagramRendererVersions, renderPreparedDiagramDocument } from '../shared/diagram-primary';
 import { emptyWhiteboard } from '../shared/whiteboard';
-import { createKnowledgeToolPort } from '../apps/server/plugins/knowledge-tools';
-import { createMcpTransferStore } from '../apps/server/plugins/mcp-transfers';
+import { createKnowledgeToolPort } from '../apps/server/mcp/knowledge-tools';
+import { createMcpTransferStore } from '../apps/server/mcp/mcp-transfers';
 import { requireScope } from '../packages/core/agent/auth';
 import type { PatchEdit } from '../shared/knowledge-contracts';
 const cleanups: (() => Promise<void>)[] = [];

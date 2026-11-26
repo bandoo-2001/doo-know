@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync, readFileSyn
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { openDatabase } from '../packages/core/db.js';
-import { createMcpTransferStore } from '../apps/server/plugins/mcp-transfers.js';
+import { createMcpTransferStore } from '../apps/server/mcp/mcp-transfers.js';
 import type { Principal } from '../shared/knowledge-contracts.js';
 import type { McpTransferBinding } from '../shared/mcp-domain-tools.js';
 

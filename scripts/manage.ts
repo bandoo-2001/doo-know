@@ -51,8 +51,7 @@ import {
   UPGRADE_SOURCE_UNAVAILABLE_EXIT,
 } from '../apps/server/platform/updates.js';
 import { platformSettings } from '../apps/server/platform/settings.js';
-import { satisfies } from 'semver';
-import { HOST_PLUGIN_API } from '../packages/plugin-contracts/index.js';
+import { prepareFeatureSettings } from '../packages/core/feature-settings.js';
 import { rmSync } from 'node:fs';
 import { privateFile } from '../packages/core/agent/config.js';
 import { prepareUninstallPurge } from '../apps/server/platform/uninstall-purge.js';
@@ -83,7 +82,6 @@ const { values, positionals } = parseArgs({
     version: { type: 'string' },
     'knowledge-root': { type: 'string' },
     'key-file': { type: 'string' },
-    'plugin-root': { type: 'string' },
     'service-name': { type: 'string' },
     'install-root': { type: 'string' },
     'auth-secret-file': { type: 'string' },
@@ -390,7 +388,7 @@ function effectiveConfig() {
 async function main() {
   if (values.help) {
     console.log(
-      'dooknow install | start | stop | restart | status | doctor | update | rollback | backup | restore | reset-password | uninstall\n备份：backup --destination <文件> [--key-file <私钥文件>]\n恢复到空目录：restore --source <备份> --key-file <私钥文件> --profile <新配置> --data-root <空目录> --knowledge-root <空目录>\n更新：update [--source <受控发行源>] [--version <版本>]\n卸载：uninstall [--purge]；--purge 清理插件、检索依赖、模型、缓存及向量索引，保留原文、数据库、配置、密钥和备份',
+      'dooknow install | start | stop | restart | status | doctor | update | rollback | backup | restore | reset-password | uninstall\n备份：backup --destination <文件> [--key-file <私钥文件>]\n恢复到空目录：restore --source <备份> --key-file <私钥文件> --profile <新配置> --data-root <空目录> --knowledge-root <空目录>\n更新：update [--source <受控发行源>] [--version <版本>]\n卸载：uninstall [--purge]；--purge 清理旧版独立安装包、检索依赖、模型、缓存及向量索引，保留原文、数据库、配置、密钥和备份',
     );
     return;
   }
@@ -409,13 +407,12 @@ async function main() {
         dataRoot: values['data-root'],
         knowledgeRoot: values['knowledge-root'],
         profileFile,
-        pluginRoot: values['plugin-root'],
       },
       origin: values.origin,
     });
     console.log(JSON.stringify(result, null, 2));
     console.log(
-      '已恢复到新目录；旧会话、分享及远程授权已撤销。运行 install 接管此配置后重新启用插件。',
+      '已恢复到新目录；旧会话、分享及远程授权已撤销。运行 install 接管此配置后按需启用 Git 和 MCP。',
     );
     return;
   }
@@ -462,10 +459,7 @@ async function main() {
       throw Error('迁移前必须停止所有数据进程');
     const db = openDatabase(config.dataRoot);
     try {
-      const [{ createAuth }, { pluginHost }] = await Promise.all([
-        import('../apps/server/auth.js'),
-        import('../apps/server/plugins/host.js'),
-      ]);
+      const { createAuth } = await import('../apps/server/auth.js');
       await createAuth(config, db);
       let source = config.knowledgeRoot;
       try {
@@ -484,14 +478,7 @@ async function main() {
           throw new UpgradeSourceUnavailableError(source);
         throw error;
       }
-      pluginHost(config, db);
-      for (const row of db
-        .prepare('SELECT manifest_json FROM platform_plugins WHERE installed=1')
-        .all() as any[]) {
-        const manifest = JSON.parse(row.manifest_json);
-        if (!satisfies(HOST_PLUGIN_API, manifest.apiVersion))
-          throw Error('已安装插件与此宿主版本不兼容');
-      }
+      prepareFeatureSettings(db);
       if (
         db.pragma('integrity_check', { simple: true }) !== 'ok' ||
         (db.pragma('foreign_key_check') as any[]).length
@@ -607,8 +594,8 @@ async function main() {
       }
     });
     console.log(values.purge
-      ? '已卸载程序与用户服务，并清理插件、检索依赖、模型、缓存及向量索引；知识库原文、数据库、配置、密钥及备份均已保留。'
-      : '已卸载程序与用户服务；知识库、数据、插件、模型、配置及备份均已保留。');
+      ? '已卸载程序与用户服务，并清理旧版独立安装包、检索依赖、模型、缓存及向量索引；知识库原文、数据库、配置、密钥及备份均已保留。'
+      : '已卸载程序与用户服务；知识库、数据、模型、配置及备份均已保留。');
     return;
   }
   if (command === 'status' || command === 'doctor') {

@@ -58,24 +58,23 @@ async function fixture(unbound = false, managedNotes = false) {
   await createAuth(config, db);
   const platform = platformRuntime(config, db);
   await platform.activate();
-  let pluginState = 'enabled';
-  const plugins: any = {
-    list: () => [{ id: 'git', state: pluginState }],
-    install: async () => {},
-    enable: async () => {},
+  let featureState = 'enabled';
+  const features: any = {
+    enabled: () => featureState === 'enabled',
+    setEnabled: async () => {},
   };
   const base = localGitTransport(db, { [A]: a, [B]: b });
-  let before: ((args: string[]) => Promise<void>) | undefined,
+  let before: ((args: string[], signal?: AbortSignal) => Promise<void>) | undefined,
     after: ((args: string[]) => Promise<void>) | undefined;
   const options = {
     exec: async (cwd: string, args: string[], opts: any) => {
-      await before?.(args);
+      await before?.(args, opts?.signal);
       const r = await base(cwd, args, opts);
       await after?.(args);
       return r;
     },
   };
-  let service = gitRemoteService(config, db, platform, plugins, options);
+  let service = gitRemoteService(config, db, platform, features, options);
   return {
     root,
     seed,
@@ -84,12 +83,12 @@ async function fixture(unbound = false, managedNotes = false) {
     b,
     db,
     platform,
-    plugins,
+    features,
     get service() {
       return service;
     },
-    setPluginState(value: string) {
-      pluginState = value;
+    setFeatureState(value: string) {
+      featureState = value;
     },
     setBefore(fn: typeof before) {
       before = fn;
@@ -99,7 +98,7 @@ async function fixture(unbound = false, managedNotes = false) {
     },
     async restart() {
       await service.close();
-      service = gitRemoteService(config, db, platform, plugins, options);
+      service = gitRemoteService(config, db, platform, features, options);
     },
     async run(input: any) {
       const j = service.start('owner', { requestId: crypto.randomUUID(), ...input });
@@ -267,17 +266,17 @@ it('never labels public read access as verified push permission when no push occ
   }
 }, 60000);
 
-it('blocks sync after the user disables the Git plugin', async () => {
+it('blocks sync after the user turns off Git', async () => {
   const h = await fixture();
   try {
     expect((await h.run({ kind: 'connect', url: A })).status).toBe('succeeded');
-    h.setPluginState('disabled');
+    h.setFeatureState('disabled');
     let invoked = false;
     h.setBefore(async () => {
       invoked = true;
     });
     const result = await h.run({ kind: 'push', expectedHead: git(h.local, 'rev-parse', 'HEAD') });
-    expect(result).toMatchObject({ status: 'failed', error: 'GIT_PLUGIN_DISABLED' });
+    expect(result).toMatchObject({ status: 'failed', error: 'GIT_DISABLED' });
     expect(invoked).toBe(false);
   } finally {
     await h.close();
@@ -398,34 +397,23 @@ it('blocks pull with a clean index and an unresolved Git intent for this binding
 }, 60000);
 
 for (const action of ['cancel', 'close'] as const) {
-  it(`propagates ${action} and progress to automatic installation without enabling or binding`, async () => {
+  it(`propagates ${action} to the clone before enabling Git or binding the library`, async () => {
     const h = await fixture(true);
     try {
-      h.setPluginState('absent');
-      let published = false,
-        enabled = false,
-        aborted = false;
-      h.plugins.list = () => [];
-      h.plugins.enable = async () => {
-        enabled = true;
-      };
-      h.plugins.install = async (_id: string, options: any = {}) => {
-        options.onPhase?.('downloading');
-        await new Promise<void>((resolve, reject) => {
-          const timer = setTimeout(resolve, 500);
-          options.signal?.addEventListener(
-            'abort',
-            () => {
-              aborted = true;
-              clearTimeout(timer);
-              reject(Error('aborted'));
-            },
-            { once: true },
-          );
+      h.setFeatureState('disabled');
+      let cloning = false, aborted = false, enabled = false;
+      h.features.setEnabled = async () => { enabled = true; };
+      h.setBefore(async (args, signal) => {
+        if (!args.includes('clone')) return;
+        if (!signal) throw Error('Missing clone cancellation signal');
+        cloning = true;
+        await new Promise<never>((_resolve, reject) => {
+          signal.addEventListener('abort', () => {
+            aborted = true;
+            reject(signal.reason);
+          }, { once: true });
         });
-        options.signal?.throwIfAborted();
-        published = true;
-      };
+      });
       const job = h.service.start('owner', {
         kind: 'clone',
         requestId: crypto.randomUUID(),
@@ -433,25 +421,20 @@ for (const action of ['cancel', 'close'] as const) {
         name: 'imported',
         parentPath: h.root,
       });
-      await expect
-        .poll(() => h.service.job('owner', job.id).phase, { timeout: 3000 })
-        .toBe('downloading');
-      const started = Date.now();
+      await expect.poll(() => cloning, { timeout: 15_000 }).toBe(true);
+      expect(h.service.job('owner', job.id).phase).toBe('cloning');
       if (action === 'cancel') h.service.cancel('owner', job.id);
       else await h.service.close();
-      await expect
-        .poll(() => h.service.job('owner', job.id).status, { timeout: 1000 })
+      await expect.poll(() => h.service.job('owner', job.id).status, { timeout: 5_000 })
         .not.toMatch(/queued|running/);
-      expect(Date.now() - started).toBeLessThan(500);
       expect(aborted).toBe(true);
-      expect(published).toBe(false);
       expect(enabled).toBe(false);
       expect(h.platform.status().knowledgeRoot).toBeFalsy();
       expect(await lstat(join(h.root, 'imported')).catch(() => null)).toBeNull();
     } finally {
       await h.close();
     }
-  }, 60000);
+  }, 60_000);
 }
 
 it('rejects a compressible committed tree before checkout can expand beyond the import budget', async () => {

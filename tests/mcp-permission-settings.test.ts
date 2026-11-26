@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
 
 it('offers owner-only identity-bound domain settings without granting full access by default', async () => {
-  const f = await createFixture({ pluginCatalog: [] });
+  const f = await createFixture();
   try {
     const url = '/api/platform/mcp/permissions';
     expect((await f.app.inject({ url })).statusCode).toBe(401);
@@ -26,7 +26,7 @@ it('offers owner-only identity-bound domain settings without granting full acces
 });
 
 it('persists bounded organization retention as an owner maintenance setting', async () => {
-  const f = await createFixture({ pluginCatalog: [] });
+  const f = await createFixture();
   try {
     const url = '/api/maintenance/organization-settings';
     expect((await f.app.inject({ url })).statusCode).toBe(401);
@@ -49,13 +49,13 @@ it('persists bounded organization retention as an owner maintenance setting', as
 
 it('offers the new task domain disabled for existing v2 settings without changing stored grants', async () => {
   const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
-  const { pluginHost } = await import('../apps/server/plugins/host.js');
+  const { initializeFeatureSettings } = await import('../packages/core/feature-settings.js');
   const { registerMcpPermissionRoutes } = await import('../apps/server/platform/mcp-permissions.js');
   const { default: Fastify } = await import('fastify');
   const f = await pluginRuntimeFixture();
   const app = Fastify();
   try {
-    pluginHost(f.config, f.db);
+    initializeFeatureSettings(f.db);
     f.db.prepare("INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.2.0',1,'{}','{}','enabled',?)").run(JSON.stringify({ permissionPolicy: { version: 2, domains: {} } }));
     app.addHook('onRequest', async request => { (request as any).ownerId = f.principal.id; });
     registerMcpPermissionRoutes(app, f.db, f.platform);

@@ -1,8 +1,8 @@
 import { expect, it } from 'vitest';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { createOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
+import { createOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
 
 const secret = 'mcp-maintenance-fixture-reference-secret-at-least-32-characters';

@@ -7,17 +7,9 @@ import { pathToFileURL } from 'node:url';
 import { initializeOwner } from '../apps/server/auth.js';
 import { openDatabase } from '../packages/core/db.js';
 import { testPassword } from './support/credentials.js';
-// @ts-expect-error build tool is plain ESM
-import { buildPlugins } from '../scripts/build-plugins.mjs';
 it('restarts after SIGKILL immediately after ref publication and replays exactly the original commit', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'git-process-recovery-')),
-    output = join(root, 'artifacts');
+  const root = await mkdtemp(join(tmpdir(), 'git-process-recovery-'));
   let port = 0;
-  const catalog = await buildPlugins({
-    output,
-    ids: ['git'],
-    baseURL: pathToFileURL(output + '/').href,
-  });
   const config = {
     knowledgeRoot: join(root, 'knowledge'),
     dataRoot: join(root, 'data'),
@@ -25,7 +17,6 @@ it('restarts after SIGKILL immediately after ref publication and replays exactly
     secret: 'process-recovery-fixture-secret-at-least-thirty-two-characters',
     indexing: { enabled: false, watch: false },
     fileTasks: { embedded: false },
-    pluginCatalog: catalog,
   };
   await mkdir(join(config.knowledgeRoot, '00-Inbox'), { recursive: true });
   await initializeOwner(config, 'owner', testPassword);
@@ -147,7 +138,7 @@ it('restarts after SIGKILL immediately after ref publication and replays exactly
     return { response, value: await response.json() };
   }
   const command = (id: string, input: any) =>
-    request('/api/plugins/git/call', { kind: 'command', id, input });
+    request('/api/platform/git/actions', { kind: 'command', id, input });
   try {
     await start();
     const login = await request('/api/auth/sign-in/username', {
@@ -167,11 +158,10 @@ it('restarts after SIGKILL immediately after ref publication and replays exactly
         .getSetCookie()
         .map((c) => c.split(';')[0])
         .join('; ');
-    expect((await request('/api/platform/plugins/git/install', {})).response.status).toBe(200);
     expect(
       (
         await request(
-          '/api/platform/plugins/git/config',
+          '/api/platform/git/config',
           {
             configVersion: 0,
             values: { authorName: 'Process Fixture', authorEmail: 'process@example.invalid' },
@@ -180,7 +170,7 @@ it('restarts after SIGKILL immediately after ref publication and replays exactly
         )
       ).response.status,
     ).toBe(200);
-    await request('/api/platform/plugins/git/enable', {});
+    await request('/api/platform/git/enabled', { enabled: true }, 'PUT');
     await command('git.initialize', { requestId: 'init' });
     await request('/api/notes', {
       folderPath: '00-Inbox',

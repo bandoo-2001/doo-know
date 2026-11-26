@@ -484,7 +484,7 @@ test('backup UI downloads encrypted data, reauthenticates key export and verifie
     activationRequired: true,
     sessionsRevoked: true,
     sharesRevoked: true,
-    pluginsDisabled: true,
+    featuresDisabled: true,
   });
   expect(verification.dataRoot).not.toBe(paths.dataRoot);
   expect(verification.knowledgeRoot).not.toBe(paths.knowledgeRoot);

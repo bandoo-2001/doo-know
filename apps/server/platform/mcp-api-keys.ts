@@ -1,3 +1,4 @@
+import { readFeatureConfig } from '../../../packages/core/feature-settings.js';
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import type { AppDatabase } from '../../../packages/core/db.js';
@@ -10,7 +11,6 @@ import { platformPolicy, mcpPermissionCeiling } from '../../../packages/core/aut
 import { normalizePermissionPolicy, intersectPermissionPolicies, policyScopes, resourceContains } from '../../../packages/core/auth/permissions.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { oauthGrantStore } from './oauth-grants.js';
-import { mcpPolicy } from './oauth.js';
 
 type Client = {
   owner_id: string;
@@ -83,13 +83,10 @@ function newestKey(db: AppDatabase, c: Client): KeyRow | undefined {
 }
 /** Maps the existing legacy ceiling for newly issued clients; no old credential or identity is imported. */
 function ceiling(db: AppDatabase, ownerId: string): PermissionPolicy {
-  const configured = mcpPolicy(db);
-  if (!configured.enabled) fail(409, 'MCP_SERVICE_DISABLED');
-  const row = db.prepare("SELECT config_json FROM platform_plugins WHERE id='mcp'").get() as {
-    config_json: string;
-  };
-  if (JSON.parse(row.config_json).apiKeyEnabled === false) fail(409, 'API_KEY_DISABLED');
-  return mcpPermissionCeiling(db, ownerId, JSON.parse(row.config_json));
+  const config = readFeatureConfig(db, 'mcp', true);
+  if (!config) fail(409, 'MCP_SERVICE_DISABLED');
+  if (config.apiKeyEnabled === false) fail(409, 'API_KEY_DISABLED');
+  return mcpPermissionCeiling(db, ownerId, config);
 }
 function canonical(p: PermissionPolicy) {
   return JSON.stringify(

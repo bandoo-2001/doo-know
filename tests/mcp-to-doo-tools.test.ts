@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
-import { createOperations } from '../plugins/mcp/server/operations';
-import { hostClient } from '../plugins/mcp/server/service';
+import { createOperations } from '../apps/server/mcp/operations';
+import { hostClient } from '../apps/server/mcp/service';
 import { resourceScopes } from '../shared/authorization-scopes';
 
 const principal = {

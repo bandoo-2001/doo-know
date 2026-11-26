@@ -31,8 +31,7 @@ it('rejects overlapping restore targets and a symbolic link secrets directory be
         keyFile: join(root, 'key'),
         target: {
           dataRoot: join(root, 'data'),
-          pluginRoot: join(root, 'data/plugins'),
-          profileFile: join(root, 'config/profile.json'),
+          profileFile: join(root, 'data/config/profile.json'),
         },
       }),
     ).rejects.toThrow(/独立|重叠/);

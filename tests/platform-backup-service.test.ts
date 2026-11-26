@@ -162,7 +162,7 @@ registerHooks({resolve(specifier, context, next) {
   const parts = new URL(result.url).pathname.split('/');
   const server = parts.findIndex((part, index) => part === 'apps' && parts[index + 1] === 'server');
   const tail = parts.slice(server + 2).join('/');
-  if (server >= 0 && ['app.ts', 'app.js', 'auth.ts', 'auth.js', 'plugins/host.ts', 'plugins/host.js'].includes(tail))
+  if (server >= 0 && ['app.ts', 'app.js', 'auth.ts', 'auth.js', 'features/runtime.ts', 'features/runtime.js'].includes(tail))
     throw Error('BACKUP_IMPORTED_UNRELATED_HTTP_OR_ACCOUNT_RUNTIME');
   return result;
 }});

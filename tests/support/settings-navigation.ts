@@ -58,19 +58,21 @@ export async function openSettingsSection(page: Page, label: string) {
     .click();
   await expect(page.locator('.settings-workspace')).toBeVisible();
 }
-export async function configurePlugin(page: Page, title: string) {
-  await openSettingsSection(page, '插件与连接');
-  await expect(page.getByRole('button', { name: '刷新插件状态', exact: true })).toBeEnabled();
-  const card = page.locator('.plugin-card').filter({ hasText: title });
-  if (await card.isVisible()) await card.getByRole('button', { name: '配置', exact: true }).click();
-  else {
-    await page.getByRole('tab', { name: '添加插件', exact: true }).click();
-    await page.getByRole('button', { name: '安装' + title, exact: true }).click();
-  }
-  await expect(
-    page.locator('.plugin-settings').getByRole('heading', { name: title + '设置', exact: true }),
-  ).toBeVisible();
-  if(title==='MCP 服务')await openLegacyMcpSettings(page);
+export type FeatureTitle = 'MCP 服务' | 'Git 版本管理';
+
+export async function openFeatureSettings(page: Page, title: FeatureTitle) {
+  const mcp = title === 'MCP 服务';
+  await openSettingsSection(page, mcp ? 'MCP 连接' : '知识库与存储');
+  await expect(page.getByRole('switch', { name: '启用 ' + title, exact: true })).toBeEnabled();
+  if (mcp) await openLegacyMcpSettings(page);
+}
+
+export async function setFeatureSwitch(page: Page, title: FeatureTitle, enabled: boolean) {
+  const control = page.getByRole('switch', { name: '启用 ' + title, exact: true });
+  await expect(control).toBeEnabled();
+  if (await control.getAttribute('aria-checked') !== String(enabled)) await control.click();
+  await expect(control).toHaveAttribute('aria-checked', String(enabled));
+  await expect(control).toBeEnabled();
 }
 export async function returnToNotes(page: Page) {
   await page

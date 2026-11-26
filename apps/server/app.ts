@@ -23,13 +23,13 @@ import { resolveWhiteboardResource } from '../../packages/core/knowledge/diagram
 import { releaseInfo } from './platform/release.js';
 import { searchRuntimeManager } from './platform/search-runtime.js';
 import { platformRuntime, lazyService } from './platform/runtime.js';
-import { pluginHost } from './plugins/host.js';
-import { mcpTransports } from './plugins/mcp-transport.js';
+import { featureRuntime } from './features/runtime.js';
+import { mcpTransports } from './mcp/mcp-transport.js';
 import { oauthGrantStore } from './platform/oauth-grants.js';
 import { invalidateRemoteAuth } from '../../packages/core/auth/remote-auth.js';
-import { pluginServices } from './plugins/services.js';
-import { registerPluginRoutes } from './plugins/routes.js';
-import { registerMcpTransferRoutes } from './plugins/mcp-transfer-routes.js';
+import { integrationServices } from './features/services.js';
+import { registerFeatureRoutes } from './features/routes.js';
+import { registerMcpTransferRoutes } from './mcp/mcp-transfer-routes.js';
 import { registerMcpManagementRoutes, revokeMcpClient } from './platform/mcp-management.js';
 import { registerMcpPermissionRoutes } from './platform/mcp-permissions.js';
 import { registerMcpClientPermissionRoutes } from './platform/mcp-client-permissions.js';
@@ -62,7 +62,6 @@ import { registerTransferRoutes } from './platform/transfers.js';
 import { gitRemoteService } from './git/service.js';
 import { registerGitRemoteRoutes } from './git/routes.js';
 import type { GitExec } from './git/transport.js';
-import { pluginInstallJobs, registerPluginInstallRoutes } from './plugins/install-jobs.js';
 import { registerBlogRoutes } from './blog/routes.js';
 import { registerToDooRoutes } from './to-doo/routes.js';
 import { registerWatchRoutes, watchDeviceRoutes } from './to-doo/watch-routes.js';
@@ -82,8 +81,8 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   app.addHook('onReady', async () => {
     void searchRuntime.start();
   });
-  const plugins = pluginHost(config, db, (id, capabilities, context) =>
-    pluginServices(platform, db, id, capabilities, context, undefined, {
+  const features = featureRuntime(config, db, (id, capabilities, context) =>
+    integrationServices(platform, db, id, capabilities, context, undefined, {
       list: async () => {
         const ids = new Set(listMcpApiClients(db, context.ownerId).map(client => client.clientId));
         return oauthGrantStore(db).list(context.ownerId).filter(grant => !ids.has(grant.clientId));
@@ -93,12 +92,10 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     }),
     () => platform.settings.configured()?.knowledgeRoot,
   );
-  const transports = mcpTransports(app, plugins, auth, config, db, platform);
-  await plugins.start();
+  const transports = mcpTransports(app, features, auth, config, db, platform);
   await platform.activate();
-  await transports.start();
-  const gitRemote = gitRemoteService(config, db, platform, plugins, { exec: dependencies.gitExec?.(db) });
-  const pluginInstallations = pluginInstallJobs(db, plugins, gitRemote.assertPluginIdle);
+  await features.start();
+  const gitRemote = gitRemoteService(config, db, platform, features, { exec: dependencies.gitExec?.(db) });
   const businessConfig = new Proxy(config as AppConfig, {
     get: (target, key) =>
       key === 'knowledgeRoot'
@@ -204,6 +201,9 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
       if ((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active)
         return reply.code(503).send({ error: '维护中，请稍后重试', code: 'MAINTENANCE_ACTIVE' });
       if (!authPaths.has(path)) return reply.code(404).send({ error: '接口不存在' });
+      if (path.startsWith('/api/auth/oauth2/') && !path.endsWith('/revoke') &&
+          (!features.enabled('mcp') || features.settings('mcp').config.oauthEnabled === false))
+        return reply.code(404).send({ error: 'MCP 的 OAuth 连接已关闭', code: 'MCP_DISABLED' });
       if (
         req.method === 'POST' &&
         !path.startsWith('/api/auth/oauth2/') &&
@@ -286,11 +286,10 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     '/api/platform/search-runtime/tasks/:id/cancel',
     async (req) => searchRuntime.cancel((req as any).ownerId, req.params.id),
   );
-  registerPluginRoutes(app, plugins, gitRemote.assertPluginIdle);
+  registerFeatureRoutes(app, features, gitRemote.assertIdle);
   registerMcpTransferRoutes(app, config, db);
   registerGitRemoteRoutes(app, gitRemote);
-  registerPluginInstallRoutes(app, pluginInstallations);
-  registerMcpManagementRoutes(app, config, db, plugins, transports, auth);
+  registerMcpManagementRoutes(app, config, db, features, transports, auth);
   registerMcpPermissionRoutes(app, db, platform);
   registerMcpClientPermissionRoutes(app, auth, config, db);
   registerMcpApiKeyRoutes(app, db);
@@ -658,11 +657,10 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   }
   app.addHook('onClose', async () => {
     await gitRemote.close();
-    await pluginInstallations.close();
     await searchRuntime.close();
+    await features.close();
     await transports.close();
     await platform.close();
-    await plugins.close();
     db.close();
   });
   return app;

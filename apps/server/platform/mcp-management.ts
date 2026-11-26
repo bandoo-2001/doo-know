@@ -2,8 +2,8 @@ import type { FastifyInstance } from 'fastify';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import type { HostConfig } from '../../../shared/platform-contracts.js';
 import type { MCPConnectionState } from '../../../shared/mcp-connection-contracts.js';
-import type { pluginHost } from '../plugins/host.js';
-import type { mcpTransports } from '../plugins/mcp-transport.js';
+import type { featureRuntime } from '../features/runtime.js';
+import type { mcpTransports } from '../mcp/mcp-transport.js';
 import type { createAuth } from '../auth.js';
 import { platformPolicy } from '../../../packages/core/auth/grants.js';
 import { oauthGrantStore } from './oauth-grants.js';
@@ -15,13 +15,13 @@ export function registerMcpManagementRoutes(
   app: FastifyInstance,
   config: HostConfig,
   db: AppDatabase,
-  host: ReturnType<typeof pluginHost>,
+  features: ReturnType<typeof featureRuntime>,
   transports: ReturnType<typeof mcpTransports>,
   auth: Awaited<ReturnType<typeof createAuth>>,
 ) {
   app.get('/api/platform/mcp/connection', async (request): Promise<MCPConnectionState> => {
     const ownerId = (request as any).ownerId as string;
-    const plugin = host.list().find((p) => p.id === 'mcp');
+    const mcp = features.settings('mcp');
     const stored = db
       .prepare("SELECT value FROM plugin_data WHERE plugin_id='mcp' AND key='calls'")
       .get() as { value: string } | undefined;
@@ -30,12 +30,7 @@ export function registerMcpManagementRoutes(
     const last = Array.isArray(calls) && calls.find((call: any) => call.code === 'OK' && call.principal === ownerId);
     return {
       origin: config.origin,
-      plugin: {
-        installed: !!plugin,
-        enabled: plugin?.state === 'enabled',
-        state: plugin?.state || 'not_installed',
-        configVersion: plugin?.configVersion ?? null,
-      },
+      mcp: { enabled: mcp.state === 'enabled', state: mcp.state, configVersion: mcp.configVersion },
       connection: await transports.connection(),
       // Host checks cannot establish public reachability or identify a ChatGPT session.
       externalVerification: 'unknown',
@@ -45,7 +40,7 @@ export function registerMcpManagementRoutes(
         .list(ownerId)
         .filter(grant => !apiIds.has(grant.clientId))
         .map((grant) => {
-          const channelEnabled = plugin?.config.oauthEnabled !== false;
+          const channelEnabled = mcp.config.oauthEnabled !== false;
           const effective = channelEnabled
             ? platformPolicy(db, {
                 id: ownerId,

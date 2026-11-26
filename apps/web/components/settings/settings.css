@@ -225,8 +225,7 @@
   margin: 12px 0;
 }
 .settings-workspace .search-runtime-settings,
-.settings-workspace .maintenance-settings,
-.settings-workspace .plugin-manager {
+.settings-workspace .maintenance-settings {
   margin: 0;
 }
 .settings-workspace .search-runtime-settings {

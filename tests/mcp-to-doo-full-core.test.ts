@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { createToDooToolPort } from '../apps/server/to-doo/mcp-tools';
 import { pluginRuntimeFixture } from './support/plugin-runtime';
 import { requireScope } from '../packages/core/agent/auth';
-import type { McpDomainContext } from '../apps/server/plugins/mcp-domain-context';
+import type { McpDomainContext } from '../apps/server/mcp/mcp-domain-context';
 import type { McpTransferStore } from '../shared/mcp-domain-tools';
 
 it('uses real To Doo entities with discoverable schemas, preserves omitted patch fields and denies private lists and reserved administration', async () => {
@@ -174,7 +174,7 @@ it('requires live knowledge write and records permission before creating any out
 });
 
 it('exports only authorized lists and content domains through real opaque transfers and checks attachment upload hashes and revisions', async () => {
-  const { createMcpTransferStore } = await import('../apps/server/plugins/mcp-transfers');
+  const { createMcpTransferStore } = await import('../apps/server/mcp/mcp-transfers');
   const f = await pluginRuntimeFixture();
   try {
     const p = {
@@ -318,7 +318,7 @@ it('exports only authorized lists and content domains through real opaque transf
 });
 
 it('rejects a limited JSON update that attaches its selected list to a private parent', async () => {
-  const { createMcpTransferStore } = await import('../apps/server/plugins/mcp-transfers');
+  const { createMcpTransferStore } = await import('../apps/server/mcp/mcp-transfers');
   const { createToDooInterop, exportPortableJson } =
     await import('../packages/core/to-doo/interop');
   const { createHash } = await import('node:crypto');
@@ -415,7 +415,7 @@ it('rejects a limited JSON update that attaches its selected list to a private p
 });
 
 it('rechecks bounded import scope before apply and every background batch, and supports cancel/resume/status without caching progress', async () => {
-  const { createMcpTransferStore } = await import('../apps/server/plugins/mcp-transfers');
+  const { createMcpTransferStore } = await import('../apps/server/mcp/mcp-transfers');
   const { createToDooInterop } = await import('../packages/core/to-doo/interop');
   const { createHash } = await import('node:crypto');
   const f = await pluginRuntimeFixture();
@@ -605,7 +605,7 @@ it('requires separate sharing/integration rights for feed/source/history field a
 });
 
 it('restores an explicitly authorized complete checkpoint atomically when the portable dataset identity changes', async () => {
-  const { createMcpTransferStore } = await import('../apps/server/plugins/mcp-transfers');
+  const { createMcpTransferStore } = await import('../apps/server/mcp/mcp-transfers');
   const { createToDooInterop } = await import('../packages/core/to-doo/interop');
   const { createHash } = await import('node:crypto');
   const source = await pluginRuntimeFixture(),

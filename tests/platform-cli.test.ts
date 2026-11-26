@@ -5,8 +5,23 @@ import { join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { initializeOwner } from '../apps/server/auth.js';
+import { releaseInfo } from '../apps/server/platform/release.js';
 import { testPassword } from './support/credentials.js';
 const exec = promisify(execFile);
+it.each(['-v', '--version', 'version'])(
+  'prints the version with %s without loading the profile or proxy',
+  async (option) => {
+    const result = await exec(process.execPath, ['--import', 'tsx', 'scripts/manage.ts', option], {
+      env: {
+        ...process.env,
+        DOOKNOW_PROFILE: '/dev/null/missing-profile.json',
+        HTTPS_PROXY: 'invalid proxy',
+      },
+    });
+    expect(result.stdout.trim()).toBe(releaseInfo().version);
+    expect(result.stderr).toBe('');
+  },
+);
 it('refuses to bind an existing profile to a different installation before creating data or secrets', async () => {
   const root = await mkdtemp(join(tmpdir(), 'dooknow-cli-owner-'));
   try {

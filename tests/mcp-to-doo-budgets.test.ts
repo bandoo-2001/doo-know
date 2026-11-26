@@ -7,8 +7,8 @@ import { openDatabase } from '../packages/core/db';
 import { noteService } from '../packages/core/notes';
 import { createToDooService } from '../packages/core/to-doo/service';
 import { createToDooAgentPort } from '../apps/server/to-doo/agent-port';
-import { createOperations } from '../plugins/mcp/server/operations';
-import { hostClient } from '../plugins/mcp/server/service';
+import { createOperations } from '../apps/server/mcp/operations';
+import { hostClient } from '../apps/server/mcp/service';
 
 it('returns a bounded committed receipt for a large template and pages its complete authorized change set', async () => {
   const root = await mkdtemp(join(tmpdir(), 'to-doo-mcp-budget-'));

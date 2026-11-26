@@ -36,10 +36,10 @@ export const settingsSections: {
     description: '查看后台任务、搜索准备、索引更新与写入状态。',
   },
   {
-    key: 'plugins',
-    label: '插件与连接',
+    key: 'mcp',
+    label: 'MCP 连接',
     icon: 'plug',
-    description: '管理已安装功能和外部应用连接。',
+    description: '管理 MCP 服务、客户端授权和调用记录。',
   },
   { key: 'account', label: '账号与安全', icon: 'lock', description: '管理密码和登录设备。' },
   {

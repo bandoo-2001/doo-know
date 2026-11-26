@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createGitHistoryModel } from '../packages/plugin-ui/git-history';
+import { createGitHistoryModel } from '../apps/web/git/git-history';
 
 const a = 'a'.repeat(40),
   b = 'b'.repeat(40);

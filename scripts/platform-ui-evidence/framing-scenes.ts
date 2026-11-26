@@ -82,10 +82,8 @@ export const framingScenes: Scene[] = [
   }), async page => { await expect(page.getByRole('button', { name: '保存客户端权限', exact: true })).toBeDisabled(); }),
   frame('settings-extra-oauth-narrow-error', page => page.locator('.client-permissions .ant-alert').filter({ hasText: '未能确认权限更新，请刷新连接状态后核对。' })),
   frame('settings-extra-oauth-revoke-error', page => page.locator('.mcp-guide > .ant-alert-error').filter({ hasText: '撤销未完成，请刷新状态后核对并重试。' })),
-  frame('settings-extra-plugin-config-conflict', page => page.locator('.plugin-settings .ant-alert')
-    .filter({ hasText: '已保存配置在其他位置发生变化' })),
-  frame('settings-extra-plugin-restart-warning', page => page.locator('.plugin-settings .ant-alert')
-    .filter({ hasText: '配置或版本需要重启生效' })),
+  frame('settings-extra-plugin-config-conflict', page => page.locator('[aria-label="MCP 服务设置"] .ant-alert')
+    .filter({ hasText: 'MCP 配置已在其他位置更新。' })),
   frame('settings-extra-import-preview-error', page => page.getByRole('dialog', { name: '批量导入', exact: true }).locator('.ant-alert-error').filter({ hasText: 'IMPORT_PREVIEW_STALE' }),
     async page => { await expect(page.getByRole('dialog', { name: '批量导入', exact: true }).getByRole('button', { name: '预览导入', exact: true })).toBeEnabled(); }),
   {

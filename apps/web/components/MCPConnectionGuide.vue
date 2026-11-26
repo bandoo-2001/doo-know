@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import Icon from './Icon.vue';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
-import type { PluginView } from '../../../packages/plugin-contracts';
+import type { FeatureView } from '../../../shared/feature-contracts';
 import type { MCPConnectionState } from '../../../shared/mcp-connection-contracts';
 import { api } from '../api';
 import MCPClientPermissions from './MCPClientPermissions.vue';
 import MCPApiClients from './MCPApiClients.vue';
-const props = defineProps<{ plugin: PluginView; mode?: string; dirty: boolean }>();
+const props = defineProps<{ feature: FeatureView; dirty: boolean }>();
 const state = ref<MCPConnectionState>();
 const busy = ref(false),
   error = ref(''),
   actionError = ref(''),
   notice = ref(''),
   revokeClient = ref('');
-const path = ref(props.plugin.config.oauthEnabled === false ? 'api-key' : 'oauth');
+const path = ref(props.feature.config.oauthEnabled === false ? 'api-key' : 'oauth');
 const origin = computed(() => state.value?.origin || '');
 const publicOrigin = computed(() => origin.value.startsWith('https://'));
 const endpoint = computed(() =>
@@ -49,12 +49,16 @@ function scopes(values: string[]) {
   };
   return values.map((value) => labels[value] || value).join('、') || '当前不可访问';
 }
+let loadVersion = 0;
+onBeforeUnmount(() => { loadVersion++; });
 async function load() {
-  if (busy.value) return;
+  const version = ++loadVersion;
   busy.value = true;
   error.value = '';
   try {
-    state.value = await api<MCPConnectionState>('/api/platform/mcp/connection');
+    const connection = await api<MCPConnectionState>('/api/platform/mcp/connection');
+    if (version !== loadVersion) return;
+    state.value = connection;
     if (
       actionError.value &&
       revokeClient.value &&
@@ -65,9 +69,10 @@ async function load() {
       notice.value = '已核对：连接授权已撤销。';
     }
   } catch {
-    error.value = '暂时无法读取连接状态。教程仍可查看，请检查连接后重试。';
+    if (version === loadVersion)
+      error.value = '暂时无法读取连接状态。教程仍可查看，请检查连接后重试。';
   } finally {
-    busy.value = false;
+    if (version === loadVersion) busy.value = false;
   }
 }
 async function copy(value: string, label: string) {
@@ -106,7 +111,7 @@ async function revoke() {
   await load();
 }
 onMounted(load);
-watch(() => [props.plugin.state, props.plugin.configVersion], load);
+watch(() => [props.feature.state, props.feature.configVersion], load);
 </script>
 <template>
   <section class="mcp-guide" aria-label="MCP 连接指南">
@@ -131,9 +136,9 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
         ><span>{{
           dirty
             ? '配置尚未保存'
-            : plugin.state === 'enabled'
-              ? '配置已保存，插件已启用'
-              : '配置已保存，插件尚未启用'
+            : feature.state === 'enabled'
+              ? '配置已保存，MCP 已启用'
+              : '配置已保存，MCP 尚未启用'
         }}</span>
       </li>
       <li>
@@ -162,7 +167,7 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
       {{
         state.latestConnectionAttempt.outcome === 'authenticated'
           ? '已通过身份校验，尚需核对工具执行'
-          : '被拒绝，请核对插件状态、连接方式和授权'
+          : '被拒绝，请核对 MCP 服务状态、连接方式和授权'
       }}（{{ state.latestConnectionAttempt.code }}）。
     </p>
     <div class="guide-paths" role="group" aria-label="选择认证方式">
@@ -189,7 +194,7 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
         message="OAuth 需要客户端和授权浏览器可达的 HTTPS 站点。"
         description="请管理员配置域名、TLS、反向代理与部署访问来源 APP_ORIGIN，再检查授权地址。"
       />
-      <p v-if="plugin.config.oauthEnabled === false">OAuth 已在保存的配置中停用。</p>
+      <p v-if="feature.config.oauthEnabled === false">OAuth 已在保存的配置中停用。</p>
     </template>
     <template v-else>
       <p>
@@ -200,7 +205,7 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
         认证头：<code>Authorization: Bearer &lt;API Key&gt;</code>。密钥只用于下方 API Key
         地址，请保存在客户端的安全凭据设置中。
       </p>
-      <p v-if="plugin.config.apiKeyEnabled === false">API Key 接入已在保存的配置中停用。</p>
+      <p v-if="feature.config.apiKeyEnabled === false">API Key 接入已在保存的配置中停用。</p>
     </template>
     <div v-if="endpoint" class="guide-value">
       <span>{{ path === 'oauth' ? 'OAuth MCP 服务地址' : 'API Key MCP 服务地址' }}</span
@@ -217,14 +222,14 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
     <details class="guide-troubleshooting">
       <summary>连接与验证步骤</summary>
       <ol class="guide-steps">
-        <li>保存插件权限和认证开关，并启用 MCP 插件。</li>
+        <li>保存权限和认证设置，再启用 MCP 服务。</li>
         <li>
           在客户端选择认证方式与对应地址。OAuth 按网页提示授权；API Key
           复制新签发密钥到客户端认证设置。
         </li>
         <li>完成工具发现，再发起一次读取，核对真实业务结果与下方成功调用记录。</li>
         <li>
-          调用被拒绝时，检查密钥是否到期、授权是否撤销、插件是否启用，以及当前资源和权限范围。
+          调用被拒绝时，检查密钥是否到期、授权是否撤销、MCP 服务是否启用，以及当前资源和权限范围。
         </li>
       </ol>
     </details>
@@ -233,12 +238,12 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
       {{ new Date(state.latestSuccessfulCall.at).toLocaleString() }}。
     </p>
     <MCPApiClients
-      :disabled="dirty || plugin.state !== 'enabled' || plugin.config.apiKeyEnabled === false"
+      :disabled="dirty || feature.state !== 'enabled' || feature.config.apiKeyEnabled === false"
     />
     <section v-if="state?.clients.length" class="guide-clients" aria-label="连接授权管理">
       <h4>OAuth 连接授权</h4>
       <p class="guide-muted">
-        停用插件会暂停访问，保留授权；重新启用后授权可能继续使用。撤销后需重新授权。
+        关闭 MCP 服务会暂停访问，保留授权；重新启用后授权可能继续使用。撤销后需重新授权。
       </p>
       <div v-for="client in state.clients" :key="client.clientId" class="guide-client">
         <strong>{{ client.clientId }}</strong

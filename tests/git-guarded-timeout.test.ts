@@ -27,9 +27,9 @@ it('keeps a push uncertain when timeout cleanup retains a live guard, then recon
   }
   const platform: any = { status: () => ({ knowledgeRoot: local, bindingVersion: 1 }),
     get: () => ({ config: { knowledgeRoot: local }, knowledge: { indexing: { refresh: async () => ({}) } } }) };
-  const plugins: any = { list: () => [{ id: 'git', state: 'enabled', installedVersion: '1.1.0' }] };
+  const features: any = { enabled: () => true };
   const service = gitRemoteService({ dataRoot, secret: 'fixture-only-long-enough-key', origin: 'http://localhost' } as any,
-    db, platform, plugins, { exec: async (cwd, args, opts) => {
+    db, platform, features, { exec: async (cwd, args, opts) => {
       const result = await runner(cwd, args, opts);
       if (args.includes('push') && ++pushes === 1 && result.code === 0) {
         // Model the real release boundary with an actual registered live resource.

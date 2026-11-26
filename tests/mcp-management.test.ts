@@ -4,7 +4,7 @@ import { openDatabase } from '../packages/core/db.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 
 it('shows honest preparation state before enabling MCP and keeps authorization management available while disabled', async () => {
-  const f = await createFixture({ pluginCatalog: [] });
+  const f = await createFixture();
   const url = '/api/platform/mcp/connection';
   try {
     expect((await f.app.inject({ url })).statusCode).toBe(401);
@@ -12,7 +12,7 @@ it('shows honest preparation state before enabling MCP and keeps authorization m
     const response = await f.app.inject({ url, headers });
     expect(response.statusCode).toBe(200);
     const state = response.json();
-    expect(state.plugin).toMatchObject({ installed: false, enabled: false });
+    expect(state.mcp).toMatchObject({ enabled: false });
     expect(state.connection.oauth.ready).toBe(false);
     expect(state.externalVerification).toBe('unknown');
     expect(state.latestSuccessfulCall).toBeNull();
@@ -27,7 +27,7 @@ it('shows honest preparation state before enabling MCP and keeps authorization m
     expect(attempted.json().latestConnectionAttempt).toMatchObject({
       mode: 'oauth',
       outcome: 'rejected',
-      code: 'PLUGIN_PROTOCOL_UNAVAILABLE',
+      code: 'MCP_DISABLED',
     });
     expect(JSON.stringify(attempted.json())).not.toContain('fixture-sensitive-value');
 
@@ -72,25 +72,13 @@ it('shows honest preparation state before enabling MCP and keeps authorization m
 });
 
 it('separates API clients from OAuth grants and reports successful owner calls', async () => {
-  const f = await createFixture({ pluginCatalog: [] });
+  const f = await createFixture();
   try {
     const headers = await loginFixtureOwner(f);
     const db = openDatabase(f.dataRoot);
     try {
       const owner = (db.prepare('SELECT id FROM user').get() as any).id;
-      db.prepare(
-        `INSERT INTO platform_plugins(id,installed_version,manifest_json,files_json,config_json,state)
-        VALUES('mcp','1.0.1',?,?,?,'enabled')`,
-      ).run(
-        JSON.stringify({
-          id: 'mcp',
-          title: 'MCP 服务',
-          version: '1.0.1',
-          configSchema: { properties: {} },
-          capabilities: [],
-          contributions: [],
-        }),
-        '{}',
+      db.prepare("UPDATE platform_plugins SET config_json=?,state='enabled' WHERE id='mcp'").run(
         JSON.stringify({ oauthEnabled: false, apiKeyEnabled: true, readOnly: true, allowedPrefixes: ['00-Inbox'] }),
       );
       oauthGrantStore(db).approve(owner, 'oauth-client', ['knowledge:read'], ['00-Inbox']);

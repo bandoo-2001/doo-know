@@ -8,7 +8,7 @@ import EditorSettings from './EditorSettings.vue';
 import LibrarySettings from './LibrarySettings.vue';
 import SearchSettings from './SearchSettings.vue';
 import BackupSettings from './BackupSettings.vue';
-import PluginsSettings from './PluginsSettings.vue';
+import MCPSettings from './MCPSettings.vue';
 import AccountSettings from './AccountSettings.vue';
 import AboutSettings from './AboutSettings.vue';
 import StatusSettings from './StatusSettings.vue';
@@ -56,7 +56,7 @@ const heading = computed(
     />
     <SearchSettings v-else-if="section === 'search'" />
     <BackupSettings v-else-if="section === 'backup'" @open-note="emit('open-note', $event)" />
-    <PluginsSettings v-else-if="section === 'plugins'" />
+    <MCPSettings v-else-if="section === 'mcp'" />
     <AccountSettings
       v-else-if="section === 'account'"
       :username="username"

@@ -96,7 +96,7 @@ function action(kind: 'history' | 'upload' | 'delete' | 'move' | 'download' | 'p
       <button :disabled="uploading" @click="action('upload')">
         <Icon name="image" />插入图片或 PDF
       </button>
-      <div class="plugin-note-actions" @click="close"><slot /></div>
+      <div class="note-extra-actions" @click="close"><slot /></div>
       <label v-if="fullEditor && sourceEditor" class="line-number-option">
         <input
           type="checkbox"

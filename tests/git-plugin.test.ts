@@ -1,27 +1,17 @@
 import { it, expect } from 'vitest';
-import { mkdtemp, rm, writeFile, readFile, mkdir, symlink } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { rm, writeFile, readFile, mkdir, symlink } from 'node:fs/promises';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
-// @ts-expect-error build tool is plain ESM
-import { buildPlugins } from '../scripts/build-plugins.mjs';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
 it('previews all changes privately, rejects stale previews, publishes one idempotent commit and restores a note through core', async () => {
-  const output = await mkdtemp(join(tmpdir(), 'git-plugin-artifacts-'));
-  const catalog = await buildPlugins({
-    output,
-    ids: ['git'],
-    baseURL: pathToFileURL(output + '/').href,
-  });
-  const f = await createFixture({ pluginCatalog: catalog });
+  const f = await createFixture();
   const git = (...args: string[]) =>
     execFileSync('git', ['-C', f.knowledgeRoot, ...args], { encoding: 'utf8' }).trim();
   try {
     const headers = await loginFixtureOwner(f),
       post = (url: string, payload: any) => f.app.inject({ method: 'POST', url, headers, payload });
     const call = async (id: string, input: any = {}) => {
-      const r = await post('/api/plugins/git/call', {
+      const r = await post('/api/platform/git/actions', {
         kind:
           id === 'git.status' || id === 'git.history' || id === 'git.diff' ? 'provider' : 'command',
         id,
@@ -31,17 +21,16 @@ it('previews all changes privately, rejects stale previews, publishes one idempo
         throw Object.assign(Error(r.json().code || r.body), { code: r.json().code });
       return r.json();
     };
-    await post('/api/platform/plugins/git/install', {});
     await f.app.inject({
       method: 'PUT',
-      url: '/api/platform/plugins/git/config',
+      url: '/api/platform/git/config',
       headers,
       payload: {
         configVersion: 0,
         values: { authorName: 'Fixture', authorEmail: 'fixture@example.invalid' },
       },
     });
-    expect((await post('/api/platform/plugins/git/enable', {})).statusCode).toBe(200);
+    expect((await f.app.inject({ method: 'PUT', url: '/api/platform/git/enabled', headers, payload: { enabled: true } })).statusCode).toBe(200);
     expect((await call('git.status')).repository).toBe('missing');
     await call('git.initialize', { requestId: 'git-init' });
     expect(git('symbolic-ref', '--short', 'HEAD')).toBe('main');
@@ -119,6 +108,5 @@ it('previews all changes privately, rejects stale previews, publishes one idempo
     });
   } finally {
     await f.close();
-    await rm(output, { force: true, recursive: true });
   }
 }, 60000);

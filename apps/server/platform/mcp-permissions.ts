@@ -1,3 +1,4 @@
+import { readFeatureConfig } from '../../../packages/core/feature-settings.js';
 import type { FastifyInstance } from 'fastify';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import type { platformRuntime } from './runtime.js';
@@ -29,10 +30,7 @@ export function registerMcpPermissionRoutes(
       id: string;
       path: string;
     }[];
-    const row = db
-      .prepare("SELECT config_json FROM platform_plugins WHERE id='mcp' AND installed=1")
-      .get() as { config_json: string } | undefined;
-    const config = row ? JSON.parse(row.config_json) : {};
+    const config = readFeatureConfig(db, 'mcp') || {};
     const blogInstance = currentBlogInstanceId(db);
     // Unavailable optional task data must not prevent editing the other domain settings.
     let taskLists: { id: string; name: string; deletedAt?: string | null }[] = [];

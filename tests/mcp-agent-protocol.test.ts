@@ -4,12 +4,12 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { CallToolResultSchema, type JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
-import { createOperations, registerOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
-import type { CallOptions } from '../plugins/mcp/server/service.js';
-import type { Principal } from '../plugins/mcp/server/contracts.js';
-import { BridgeError } from '../plugins/mcp/server/errors.js';
-import { makeAgentInstructions } from '../plugins/mcp/server/agent-guidance.js';
+import { createOperations, registerOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
+import type { CallOptions } from '../apps/server/mcp/service.js';
+import type { Principal } from '../apps/server/mcp/contracts.js';
+import { BridgeError } from '../apps/server/mcp/errors.js';
+import { makeAgentInstructions } from '../apps/server/mcp/agent-guidance.js';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
 
 let fixture: Awaited<ReturnType<typeof pluginRuntimeFixture>>;
@@ -179,6 +179,6 @@ it('discovers strict schemas and instructions within the complete JSON-RPC frame
 });
 
 it('keeps combined organization and task guidance within the instruction budget', async () => {
-  const { toDooAgentGuidance } = await import('../plugins/mcp/server/agent-guidance.js');
+  const { toDooAgentGuidance } = await import('../apps/server/mcp/agent-guidance.js');
   expect(Buffer.byteLength(makeAgentInstructions({ readOnly: true }) + '\n' + toDooAgentGuidance)).toBeLessThanOrEqual(4096);
 });

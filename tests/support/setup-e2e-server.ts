@@ -6,14 +6,8 @@ import { createApp } from '../../apps/server/app.js';
 import { initializeOwner } from '../../apps/server/auth.js';
 import { testPassword } from './credentials.js';
 import { createSetupGitFixture } from './setup-git-fixture.js';
-// @ts-expect-error build utility is plain ESM
-import { buildPlugins } from '../../scripts/build-plugins.mjs';
 
 const root = await mkdtemp(join(tmpdir(), 'dooknow-setup-browser-'));
-const pluginCatalog = await buildPlugins({
-  output: join(root, 'official-plugins'),
-  ids: ['mcp', 'git'],
-});
 let app: Awaited<ReturnType<typeof createApp>> | undefined;
 let generation = 0;
 async function reset() {
@@ -30,7 +24,6 @@ async function reset() {
     allowedOrigins: ['http://setup.audit.test:4178'],
     allowedKnowledgeBases: [join(fixtureRoot, 'libraries')],
     indexing: { enabled: false, watch: false },
-    pluginCatalog,
   };
   await initializeOwner(config, 'owner', testPassword);
   app = await createApp(config, { gitExec: git.gitExec });
@@ -85,7 +78,7 @@ const vite = await createServer({
     port: 4178,
     strictPort: true,
     allowedHosts: ['setup.audit.test'],
-    proxy: { '/api/': 'http://127.0.0.1:4181', '/plugins/': 'http://127.0.0.1:4181' },
+    proxy: { '/api/': 'http://127.0.0.1:4181' },
   },
 });
 await vite.listen();

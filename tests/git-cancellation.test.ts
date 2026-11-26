@@ -53,12 +53,12 @@ async function fixture() {
       knowledge: { indexing: { refresh: () => refresh() } },
     }),
   };
-  const plugins: any = { list: () => [{ id: 'git', state: 'enabled' }] };
+  const features: any = { enabled: () => true };
   const service = gitRemoteService(
     { dataRoot, secret: 'fixture-only-long-enough-key', origin: 'http://localhost' } as any,
     db,
     platform,
-    plugins,
+    features,
     { exec: (...args) => execute(...args) },
   );
   const start = (input: Omit<GitJobInput, 'requestId'>) =>

@@ -1,7 +1,7 @@
 import { it, expect } from 'vitest';
 import { pluginRuntimeFixture } from '../support/plugin-runtime.js';
-import { createOperations } from '../../plugins/mcp/server/operations.js';
-import { hostClient } from '../../plugins/mcp/server/service.js';
+import { createOperations } from '../../apps/server/mcp/operations.js';
+import { hostClient } from '../../apps/server/mcp/service.js';
 
 it('keeps the precise match line through the MCP search output contract', async () => {
   const f = await pluginRuntimeFixture();

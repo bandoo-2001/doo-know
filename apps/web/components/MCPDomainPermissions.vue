@@ -80,7 +80,7 @@ function toggleAction(domain:string,action:string,checked:boolean){update(domain
         </details>
       </template>
     </article>
-    <p v-if="policy && !consent">插件权限是客户端能力上限。收窄后下次调用立即受限；扩大后已有客户端须重新授权一次。</p>
+    <p v-if="policy && !consent">MCP 设置的权限是客户端能力上限。收窄后下次调用立即受限；扩大后已有客户端须重新授权一次。</p>
   </section>
 </template>
 <style scoped>

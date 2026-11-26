@@ -6,17 +6,13 @@ import * as Vue from 'vue';
 import { ApiError } from '../apps/web/api';
 import * as sync from '../apps/web/git-sync';
 const api = vi.fn();
-const refreshPlugins = vi.fn(async () => {});
-const registry = Vue.shallowRef({
-  installed: [] as any[],
-  catalog: [] as any[],
-  contributions: [] as any[],
-});
+const refreshFeatures = vi.fn(async () => {});
+const features = Vue.shallowRef<Record<string, any>>({});
+
 const cleanups: (() => void)[] = [];
 let rendered: any;
 const status = () => ({
-  pluginInstalled: true,
-  pluginEnabled: true,
+  enabled: true,
   repository: 'ready',
   branch: 'main',
   head: 'a'.repeat(40),
@@ -70,7 +66,11 @@ async function mount(file = 'GitRemotePanel.vue', props = {}) {
           TabPane: { render: () => null },
         };
       if (id === '../api') return { api, ApiError };
-      if (id === '../plugins') return { pluginRegistry: registry, refreshPlugins };
+      if (id === '../features') return {
+        features, refreshFeatures,
+        saveFeatureConfig: (id: string, values: unknown, configVersion: number) =>
+          api('/api/platform/' + id + '/config', 'PUT', { values, configVersion }),
+      };
       if (id === '../git-sync') return sync;
       if (id.endsWith('SettingsActionCard.vue'))
         return {
@@ -84,10 +84,6 @@ async function mount(file = 'GitRemotePanel.vue', props = {}) {
           }),
           __esModule: true,
         };
-      if (id === '../plugin-drafts')
-        return { pluginDrafts: {}, pluginDraftSession: () => 0, storePluginDraft: vi.fn() };
-      if (id === '../plugin-config') return { PluginConfigError: class extends Error {} };
-      if (id === '../../../packages/plugin-ui/host') return { pluginComponents: new Map() };
       if (id.endsWith('.vue')) return { default: { render: () => null }, __esModule: true };
       throw Error('Unexpected dependency ' + id);
     },
@@ -184,20 +180,14 @@ beforeEach(() => {
   vi.stubGlobal('localStorage', { setItem: vi.fn(), getItem: vi.fn() });
   vi.stubGlobal('sessionStorage', { setItem: vi.fn(), getItem: vi.fn() });
   sync.gitUnsaved.value = false;
-  registry.value = {
-    catalog: [],
-    contributions: [],
-    installed: [
-      {
-        id: 'git',
-        state: 'enabled',
-        configVersion: 0,
-        config: { authorName: 'Fixture', authorEmail: 'fixture@example.invalid' },
-      },
-    ],
+  features.value = {
+    git: {
+      id: 'git', state: 'enabled', configVersion: 0,
+      config: { authorName: 'Fixture', authorEmail: 'fixture@example.invalid' },
+    },
   };
   api.mockReset();
-  refreshPlugins.mockReset().mockResolvedValue(undefined);
+  refreshFeatures.mockReset().mockResolvedValue(undefined);
   api.mockImplementation(async (url: string) =>
     url.endsWith('/status') ? status() : { items: [] },
   );
@@ -719,10 +709,10 @@ it('shows a pending read when first opened during workspace maintenance and can 
     (node) => node.tag === 'aside' && node.props.type === 'info',
   );
   expect(information?.props.message).toContain('任务进行中');
-  repository = { ...repository, pluginEnabled: false, code: undefined } as any;
+  repository = { ...repository, enabled: false, code: undefined } as any;
   await view.load();
   await Vue.nextTick();
-  expect(view.state.pluginEnabled).toBe(false);
+  expect(view.state.enabled).toBe(false);
   expect(renderedText()).toContain('尚未初始化');
   expect(renderedText()).toContain('尚未关联云端仓库');
   expect(renderedButton('关联云端仓库')).toBeDefined();
@@ -856,9 +846,9 @@ it('keeps a successful commit after push failure and retries push without anothe
   const view = await mount();
   const commit = 'b'.repeat(40);
   api.mockImplementation(async (url: string, method: string, body: any) => {
-    if (url.endsWith('/call') && body.id === 'git.preview')
+    if (url.endsWith('/actions') && body.id === 'git.preview')
       return { token: 'preview', changes: [{ path: 'one.md', status: 'M' }], diff: 'safe diff' };
-    if (url.endsWith('/call') && body.id === 'git.commit') return { commit };
+    if (url.endsWith('/actions') && body.id === 'git.commit') return { commit };
     if (url.endsWith('/jobs') && method === 'POST')
       return {
         id: 'push',
@@ -944,7 +934,7 @@ it('only offers blank-secret retention while editing the same credential host an
 });
 
 it('posts import location and branch without putting secrets into its clone job', async () => {
-  const view = await mount('GitRemotePanel.vue', { mode: 'import', timeZone: 'UTC' });
+  const view = await mount('GitRemotePanel.vue', { mode: 'import' });
   view.url = ' https://gitee.com/fixture/notes.git ';
   view.name = '中文知识库';
   view.parentPath = '/allowed/中文资料';
@@ -966,7 +956,6 @@ it('posts import location and branch without putting secrets into its clone job'
     parentPath: '/allowed/中文资料',
     branch: 'reading',
     credentialId: 'credential',
-    timeZone: 'UTC',
   });
   expect(JSON.stringify(body)).not.toContain('must-never-enter-job');
 });
@@ -990,88 +979,6 @@ it('offers remote onboarding while keeping local setup modes independent', async
     api.mock.calls.filter((call) => call[0].includes('/plugins/') || call[0].includes('/git/')),
   ).toHaveLength(0);
 });
-it('resumes a slow installation for longer than the request timeout without another install POST', async () => {
-  vi.useFakeTimers();
-  const installing = {
-    id: 'slow',
-    pluginId: 'git',
-    version: '1.1.0',
-    status: 'running',
-    phase: 'downloading',
-  };
-  let finished = false;
-  const fetch = vi.fn(
-    async (url: string) =>
-      new Response(
-        JSON.stringify(
-          url.endsWith('/plugin-installations')
-            ? { items: [installing] }
-            : finished
-              ? { ...installing, status: 'succeeded', phase: 'complete' }
-              : installing,
-        ),
-        { headers: { 'content-type': 'application/json' } },
-      ),
-  );
-  vi.stubGlobal('fetch', fetch);
-  const onUpdate = vi.fn();
-  const work = sync.installPlugin('git', { onUpdate });
-  await vi.advanceTimersByTimeAsync(16000);
-  expect(onUpdate).toHaveBeenCalledWith(expect.objectContaining({ phase: 'downloading' }));
-  expect(fetch.mock.calls.length).toBeGreaterThan(20);
-  finished = true;
-  await vi.advanceTimersByTimeAsync(500);
-  await work;
-  expect(onUpdate).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'succeeded' }));
-  expect(fetch.mock.calls.filter((call: any[]) => call[1]?.method === 'POST')).toHaveLength(0);
-});
-it('reconciles a lost installation response before polling its accepted receipt', async () => {
-  vi.useFakeTimers();
-  const accepted = {
-    id: 'receipt',
-    pluginId: 'git',
-    version: '1.1.0',
-    requestId: '',
-    status: 'running',
-    phase: 'verifying',
-  };
-  let lists = 0;
-  const fetch = vi.fn(async (url: string, init?: RequestInit) => {
-    if (url.endsWith('/csrf')) return new Response(JSON.stringify({ token: 'csrf' }));
-    if (init?.method === 'POST') {
-      accepted.requestId = JSON.parse(String(init.body)).requestId;
-      throw new TypeError('response lost');
-    }
-    if (url.endsWith('/plugin-installations'))
-      return new Response(JSON.stringify({ items: ++lists === 1 ? [] : [accepted] }));
-    return new Response(JSON.stringify({ ...accepted, status: 'succeeded', phase: 'complete' }));
-  });
-  vi.stubGlobal('fetch', fetch);
-  const work = sync.installPlugin('git');
-  await vi.advanceTimersByTimeAsync(500);
-  await work;
-  expect(lists).toBe(2);
-  expect(fetch.mock.calls.filter((call) => call[1]?.method === 'POST')).toHaveLength(1);
-});
-
-it('keeps the onboarding skip guidance after a plugin installation failure', async () => {
-  registry.value = { ...registry.value, catalog: [{ id: 'mcp' }] };
-  const view = await mount('SetupFeatures.vue');
-  await flush();
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(async (url: string, init?: RequestInit) => {
-      if (url.endsWith('/csrf')) return new Response(JSON.stringify({ token: 'csrf' }));
-      if (init?.method === 'POST')
-        return new Response(JSON.stringify({ code: 'PLUGIN_INSTALL_FAILED' }), { status: 503 });
-      return new Response(JSON.stringify({ items: [] }));
-    }),
-  );
-  await view.configure('mcp');
-  expect(view.error).toContain('可以先跳过');
-  expect(view.busy).toBe('');
-});
-
 it('publishes a workspace-wide change after pull and explains a pending index refresh', async () => {
   const view = await mount();
   await view.completed({
@@ -1089,50 +996,6 @@ it('publishes a workspace-wide change after pull and explains a pending index re
     .mock.calls.find(([event]) => event.type === 'dooknow-workspace-changed')![0];
   expect((event as CustomEvent).detail).toEqual({ scope: 'workspace' });
 });
-
-it.each([
-  ['SetupFeatures.vue', 'succeeded'],
-  ['SetupFeatures.vue', 'failed'],
-  ['PluginManager.vue', 'succeeded'],
-  ['PluginManager.vue', 'failed'],
-] as const)(
-  '%s resumes the original installation when it becomes %s between mount lookup and polling',
-  async (file, status) => {
-    const pending = {
-      id: 'race',
-      pluginId: 'git',
-      version: '1.1.0',
-      status: 'running',
-      phase: 'downloading',
-    };
-    const terminal = {
-      ...pending,
-      status,
-      phase: status === 'succeeded' ? 'complete' : 'verifying',
-      ...(status === 'failed' ? { error: 'PLUGIN_INSTALL_FAILED' } : {}),
-    };
-    api.mockImplementation(async (url: string) =>
-      url.endsWith('/plugin-installations') ? { items: [pending] } : { items: [] },
-    );
-    const fetch = vi.fn(async (url: string, init?: RequestInit) => {
-      if (url.endsWith('/csrf')) return new Response(JSON.stringify({ token: 'csrf' }));
-      if (init?.method === 'POST')
-        return new Response(JSON.stringify({ ...terminal, id: 'duplicate' }));
-      return new Response(
-        JSON.stringify(url.endsWith('/plugin-installations') ? { items: [terminal] } : terminal),
-      );
-    });
-    vi.stubGlobal('fetch', fetch);
-    const view = await mount(file);
-    await vi.waitFor(() => expect(view.installation?.status).toBe(status));
-    expect(fetch.mock.calls.filter((call) => call[1]?.method === 'POST')).toHaveLength(0);
-    expect(view.installation.id).toBe('race');
-    expect(fetch.mock.calls.map((call) => call[0])).toEqual([
-      '/api/platform/plugin-installations/race',
-    ]);
-    if (status === 'failed') expect(view.installation.error).toBe('PLUGIN_INSTALL_FAILED');
-  },
-);
 
 it('notifies the workspace after successful pull even when the panel closes during its status refresh', async () => {
   const view = await mount();
@@ -1164,7 +1027,7 @@ it('notifies the workspace after successful pull even when the panel closes duri
 it.each([
   ['knowledgeRoot', 'status'],
   ['boundKnowledgeRoot', 'status'],
-  ['knowledgeRoot', 'plugins'],
+  ['knowledgeRoot', 'features'],
 ] as const)(
   'notifies an accepted clone once after a newer task starts during its %s %s refresh',
   async (rootField, waiting) => {
@@ -1177,7 +1040,7 @@ it.each([
       phase: 'cloning',
     };
     const oldRefresh = deferred<ReturnType<typeof status>>();
-    const pluginRefresh = deferred<void>();
+    const featureRefresh = deferred<void>();
     const imported = vi.fn();
     const changed = vi.fn();
     let holdStatus = false;
@@ -1216,7 +1079,7 @@ it.each([
       onImported: imported,
       onChanged: changed,
     });
-    if (waiting === 'plugins') refreshPlugins.mockReturnValueOnce(pluginRefresh.promise);
+    if (waiting === 'features') refreshFeatures.mockReturnValueOnce(featureRefresh.promise);
     else holdStatus = true;
     const completing = renderedButton('刷新任务状态').props.onClick();
     await flush();
@@ -1224,7 +1087,7 @@ it.each([
     expect(renderedButton('测试读取连接').props.disabled).toBe(false);
     await renderedButton('测试读取连接').props.onClick();
     expect(view.job).toMatchObject({ id: 'new-test', status: 'queued' });
-    if (waiting === 'plugins') pluginRefresh.resolve();
+    if (waiting === 'features') featureRefresh.resolve();
     else oldRefresh.resolve({ ...status(), head: 'c'.repeat(40), jobs: [clone] } as any);
     await completing;
     await flush();
@@ -1285,7 +1148,7 @@ it('does not notify an import from a clone receipt superseded before acceptance'
   expect(view.job).toMatchObject({ id: 'new-test', status: 'queued' });
   expect(imported).not.toHaveBeenCalled();
   expect(changed).not.toHaveBeenCalled();
-  expect(refreshPlugins).not.toHaveBeenCalled();
+  expect(refreshFeatures).not.toHaveBeenCalled();
 });
 
 it('emits an import once when an accepted clone receipt is read again during its refresh', async () => {
@@ -1513,44 +1376,15 @@ it('presents a resumed clone receipt without inventing a default repository or l
   expect(sessionStorage.setItem).not.toHaveBeenCalled();
 });
 
-it('blocks optional-feature installs while registry availability is unknown and offers a real retry', async () => {
-  refreshPlugins.mockRejectedValue(new Error('fixture registry unavailable'));
-  const writes: string[] = [];
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(async (url: string, options?: RequestInit) => {
-      if (options?.method === 'POST') {
-        writes.push(url);
-        return new Response(JSON.stringify({ error: 'fixture install refused' }), { status: 503 });
-      }
-      return new Response(
-        JSON.stringify(url.endsWith('/csrf') ? { token: 'fixture' } : { items: [] }),
-      );
-    }),
-  );
+it('lets onboarding retry reading feature switches after a transient failure', async () => {
+  refreshFeatures.mockRejectedValueOnce(new Error('fixture read failed'));
   const view = await mount('SetupFeatures.vue');
   await flush();
-  await view.configure('mcp');
-  expect(writes).toEqual([]);
-  expect(renderedButton('添加连接设置').props.disabled).toBe(true);
-  expect(renderedText()).toContain('尚未确认可用性');
-  const retry = renderedButton('重新读取可选功能');
-  expect(retry).toBeTruthy();
-  refreshPlugins.mockImplementation(async () => {
-    registry.value = { ...registry.value, catalog: [{ id: 'mcp' }] };
-  });
-  await retry.props.onClick();
-  await flush();
-  expect(renderedButton('添加连接设置').props.disabled).toBe(false);
-  expect(renderedText()).not.toContain('尚未确认可用性');
-});
-
-it('distinguishes a confirmed missing optional feature from a failed registry read and disables its install', async () => {
-  await mount('SetupFeatures.vue');
-  await flush();
-  expect(renderedText()).toContain('暂未提供此功能');
-  expect(renderedText()).not.toContain('尚未确认可用性');
-  expect(renderedButton('添加连接设置').props.disabled).toBe(true);
+  expect(renderedText()).toContain('暂时无法读取功能状态');
+  await view.load();
+  await Vue.nextTick();
+  expect(renderedText()).not.toContain('暂时无法读取功能状态');
+  expect(renderedButton('设置 MCP 连接')).toBeDefined();
 });
 
 it('rejects a new single-file import while its parent is leaving without consuming the selected file', async () => {

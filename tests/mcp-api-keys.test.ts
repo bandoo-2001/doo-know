@@ -20,7 +20,7 @@ async function setup() {
   });
   const owner = (db.prepare('SELECT id FROM user').get() as { id: string }).id;
   db.prepare(
-    "INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.4.0',1,'{}','{}','enabled',?)",
+    "UPDATE platform_plugins SET state='enabled',config_json=? WHERE id='mcp'",
   ).run(
     JSON.stringify({
       oauthEnabled: true,

@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { BrowserContext, Page } from '@playwright/test';
-import { configurePlugin, showSidebar } from '../support/settings-navigation';
+import { openFeatureSettings, setFeatureSwitch, showSidebar } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction, selectGitHistoryVersion } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
@@ -12,20 +12,19 @@ test.use({ sourceEditorPreference: true, actionTimeout: 15000 });
 async function setupHistory(page: Page, context: BrowserContext) {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
-  await configurePlugin(page, 'Git 版本管理');
+  await openFeatureSettings(page, 'Git 版本管理');
   await page.getByLabel('提交作者', { exact: true }).fill('History Fixture');
   await page.getByLabel('作者邮箱', { exact: true }).fill('history@example.invalid');
-  await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
-  await expect(page.getByRole('button', { name: '保存插件配置', exact: true })).toBeEnabled();
-  const enable = page
-    .locator('.plugin-settings')
-    .getByRole('button', { name: '启用插件', exact: true });
-  if (await enable.isVisible()) await enable.click();
-  await expect(page.getByRole('button', { name: '停用插件', exact: true })).toBeEnabled();
+  const saveAuthor = page.getByRole('button', { name: '保存提交署名', exact: true });
+  if (await saveAuthor.isEnabled()) {
+    await saveAuthor.click();
+    await expect(page.getByText('提交署名已保存。', { exact: true })).toBeVisible();
+  }
+  await setFeatureSwitch(page, 'Git 版本管理', true);
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const headers = { origin: new URL(page.url()).origin, 'x-csrf-token': csrf.token };
   const gitCall = async (kind: 'provider' | 'command', id: string, input = {}) => {
-    const response = await page.request.post('/api/plugins/git/call', {
+    const response = await page.request.post('/api/platform/git/actions', {
       headers,
       data: { kind, id, input },
     });
@@ -98,7 +97,7 @@ async function setupHistory(page: Page, context: BrowserContext) {
 async function interceptGitRestoreReplies(page: Page, beforeFirst?: () => Promise<void>) {
   const requests: unknown[] = [];
   const completed: Promise<void>[] = [];
-  await page.route('**/api/plugins/git/call', (route) => {
+  await page.route('**/api/platform/git/actions', (route) => {
     const data = route.request().postDataJSON();
     if (data.id !== 'git.restore') return route.continue();
     const first = requests.length === 0;
@@ -204,7 +203,8 @@ test('未知 Git 恢复结果锁定来源与目标，核对复用原请求并保
 test('停用 Git 后保存记录仍可使用，且不会调用 Git 历史接口', async ({ page, context }) => {
   const fixture = await setupHistory(page, context);
   const csrf = await (await page.request.get('/api/security/csrf')).json();
-  const disabled = await page.request.post('/api/platform/plugins/git/disable', {
+  const disabled = await page.request.put('/api/platform/git/enabled', {
+    data: { enabled: false },
     headers: { origin: new URL(page.url()).origin, 'x-csrf-token': csrf.token },
   });
   expect(disabled.status()).toBe(200);
@@ -212,7 +212,7 @@ test('停用 Git 后保存记录仍可使用，且不会调用 Git 历史接口'
   page.on('request', (request) => {
     if (
       request.method() === 'POST' &&
-      request.url().endsWith('/api/plugins/git/call') &&
+      request.url().endsWith('/api/platform/git/actions') &&
       ['git.history', 'git.diff'].includes(request.postDataJSON()?.id)
     )
       gitReads++;

@@ -103,6 +103,8 @@ async function crop(env: SceneEnv) {
   for (const [label, value] of [['缩放', '3'], ['水平位置', '100'], ['垂直位置', '100']]) { const slider = region.getByLabel(label, { exact: true }); await slider.focus(); await slider.press('End'); await expect(slider).toHaveValue(value); }
 }
 async function oauth(env: SceneEnv, id: string, scope = 'knowledge:read offline_access') {
+  const mcp = (await env.fixture.api('/api/platform/features')).mcp;
+  if (mcp.state !== 'enabled') await env.fixture.api('/api/platform/mcp/enabled', 'PUT', { enabled: true });
   const response = await env.fixture.api('/api/auth/oauth2/register', 'POST', { client_name: '独立授权取证 ' + randomUUID().slice(0, 8),
     redirect_uris: ['https://runtime.invalid/callback'], token_endpoint_auth_method: 'none', scope });
   const path = '/api/auth/oauth2/authorize?' + new URLSearchParams({ client_id: response.client_id, redirect_uri: 'https://runtime.invalid/callback',
@@ -179,14 +181,12 @@ export const publicScenes: Scene[] = [
     state: 'Signed isolated V2 read-only policy with its actual knowledge preset; no grant issued',
     path: pathFor('public-oauth-modern'), target: '.oauth-consent .domain-permissions',
     before: async env => {
-      const registry = await env.fixture.api('/api/platform/plugins');
-      const plugin = registry.installed.find((item: any) => item.id === 'mcp');
-      if (!plugin || plugin.state !== 'enabled') throw Error('Dedicated V2 capture requires an enabled isolated MCP plugin');
+      const mcp = (await env.fixture.api('/api/platform/features')).mcp;
       const state = await env.fixture.api('/api/platform/mcp/permissions');
       const binding = state.bindings.knowledge;
       if (!binding?.ownerId || !binding.instanceId) throw Error('Actual knowledge permission binding unavailable');
-      await env.fixture.api('/api/platform/plugins/mcp/config', 'PUT', {
-        configVersion: plugin.configVersion,
+      await env.fixture.api('/api/platform/mcp/config', 'PUT', {
+        configVersion: mcp.configVersion,
         values: { oauthEnabled: true, permissionPolicy: { version: 2, domains: { knowledge: {
           ...binding, enabled: true, actions: ['read'], resources: { mode: 'all' },
         } } } },

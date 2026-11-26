@@ -1,18 +1,18 @@
+import { featureCapabilities } from '../shared/feature-config.js';
 import { afterEach, expect, it } from 'vitest';
-import { readFile } from 'node:fs/promises';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
-import { pluginServices } from '../apps/server/plugins/services.js';
-import { pluginHost } from '../apps/server/plugins/host.js';
+import { integrationServices } from '../apps/server/features/services.js';
+import { initializeFeatureSettings } from '../packages/core/feature-settings.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 import { policyScopes } from '../packages/core/auth/permissions.js';
-import { createOperations, registerOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
+import { createOperations, registerOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
 import { knowledgeToolDefinitions } from '../shared/mcp-knowledge-tools.js';
 import type { PermissionPolicy } from '../shared/permissions.js';
-import { resultSize } from '../plugins/mcp/server/budgets.js';
+import { resultSize } from '../apps/server/mcp/budgets.js';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
@@ -22,7 +22,7 @@ afterEach(async () => {
 it('discovers every knowledge capability in bounded SDK pages and invokes lifecycle, shares, collections and transfer tools', async () => {
   const f = await pluginRuntimeFixture();
   cleanups.push(f.close);
-  pluginHost(f.config, f.db);
+  initializeFeatureSettings(f.db);
   const policy: PermissionPolicy = {
     version: 2,
     domains: {
@@ -35,9 +35,7 @@ it('discovers every knowledge capability in bounded SDK pages and invokes lifecy
       },
     },
   };
-  const manifest = JSON.parse(
-    await readFile(new URL('../plugins/mcp/manifest.json', import.meta.url), 'utf8'),
-  );
+  const manifest = { version: '2.0.5', capabilities: featureCapabilities.mcp };
   f.db
     .prepare(
       "INSERT INTO platform_plugins(id,installed_version,manifest_json,files_json,config_json,state) VALUES('mcp',?,?,'[]',?,'enabled')",
@@ -65,7 +63,7 @@ it('discovers every knowledge capability in bounded SDK pages and invokes lifecy
     { objectIdSecret: 'knowledge-sdk-object-secret-at-least-thirty-two-characters' },
     hostClient(
       () =>
-        pluginServices(f.platform, f.db, 'mcp', manifest.capabilities, {
+        integrationServices(f.platform, f.db, 'mcp', manifest.capabilities, {
           ownerId: p.id,
           principal: p,
           channel: 'mcp',

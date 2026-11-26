@@ -1,3 +1,4 @@
+import { readFeatureConfig } from '../feature-settings.js';
 import { isKnowledgeDataPath, DOO_ASSETS_DIRECTORY } from '../../../shared/storage-paths.js';
 import { randomUUID } from 'node:crypto';
 import type {
@@ -341,12 +342,9 @@ export function permissionPolicyForPrincipal(db: AppDatabase, p: Principal): Per
     .filter((action) => ['read', 'write'].includes(action));
   if (taskActions.length) {
     let listIds: string[] = [];
-    if (p.pluginId === 'mcp' && hasTable(db, 'platform_plugins')) {
-      const plugin = db
-        .prepare("SELECT config_json FROM platform_plugins WHERE id='mcp'")
-        .get() as any;
-      const config = plugin ? JSON.parse(plugin.config_json) : {};
-      if (Array.isArray(config.toDooListIds)) listIds = config.toDooListIds;
+    if (p.pluginId === 'mcp') {
+      const config = readFeatureConfig(db, 'mcp');
+      if (Array.isArray(config?.toDooListIds)) listIds = config.toDooListIds;
     }
     domains['to-doo'] = {
       enabled: true,
