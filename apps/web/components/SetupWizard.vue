@@ -130,6 +130,8 @@ async function complete() {
     });
     emit('refresh');
   } catch (e) {
+    // Server validation has finished. Re-enable the input before returning focus to it.
+    busy.value = false;
     const code = e instanceof ApiError ? String(e.data.code || '') : '';
     const issue = e instanceof ApiError ? String(e.data.pathIssue || '') : '';
     if (code === 'DIRECTORY_EXISTS' || code === 'INVALID_LIBRARY_NAME')

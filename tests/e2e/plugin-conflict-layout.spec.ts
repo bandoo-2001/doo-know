@@ -55,18 +55,18 @@ for (const width of [320, 390, 1440]) {
     await closeSidebar(page);
     const initial = await registry(page);
     try {
-      const draft = '00-Inbox\n未保存的目录-' + crypto.randomUUID();
-      const prefixes = page.getByLabel('允许访问的目录', { exact: true });
-      await prefixes.fill(draft);
+      const draft = 'https://' + crypto.randomUUID() + '.example.invalid';
+      const origin = page.getByLabel('外部网页地址', { exact: true });
+      await origin.fill(draft);
       const remote = (await mutate(page, '/api/platform/mcp/config', 'PUT', {
         values: { readOnly: !initial.config.readOnly },
         configVersion: initial.configVersion,
       })) as FeatureView;
-        const alert = page.locator('[aria-label="MCP 服务设置"] .ant-alert').filter({
+      const alert = page.locator('[aria-label="MCP 服务设置"] .ant-alert').filter({
         hasText: 'MCP 配置已在其他位置更新。',
       });
       await expect(alert).toBeVisible();
-      await expect(prefixes).toHaveValue(draft);
+      await expect(origin).toHaveValue(draft);
       await expect(page.getByRole('button', { name: '保存 MCP 配置', exact: true })).toBeDisabled();
       const reload = alert.getByRole('button', { name: '重新载入已保存配置', exact: true });
       await hit(reload);
@@ -136,7 +136,7 @@ for (const width of [320, 390, 1440]) {
       await alert.evaluate((element) => element.scrollIntoView({ block: 'center' }));
       await expect(alert).toBeInViewport({ ratio: 1 });
       await page.screenshot({ path: info.outputPath('conflict-copy.png'), animations: 'disabled' });
-      await expect(prefixes).toHaveValue(draft);
+      await expect(origin).toHaveValue(draft);
       await expect(page.getByRole('button', { name: '保存 MCP 配置', exact: true })).toBeDisabled();
       await reload.focus();
       await expect(reload).toBeFocused();
@@ -145,7 +145,7 @@ for (const width of [320, 390, 1440]) {
         .locator('.ant-popconfirm:visible')
         .getByRole('button', { name: '重新载入', exact: true })
         .click();
-      await expect(prefixes).toHaveValue((remote.config.allowedPrefixes as string[]).join('\n'));
+      await expect(origin).toHaveValue(String(remote.config.externalWebOrigin || ''));
       await expect(alert).toHaveCount(0);
     } finally {
       const current = await registry(page);

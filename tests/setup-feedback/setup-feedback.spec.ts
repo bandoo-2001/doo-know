@@ -532,11 +532,13 @@ test('first login explains folder and repository address errors at the input tha
   await parent.fill(slot.libraryParent + '/missing-' + randomUUID());
   await button(page, '确认并继续').click();
   await expect(page.getByRole('alert')).toContainText('找不到这个文件夹');
+  await expect(parent).toBeFocused();
   await button(page, '使用已有资料').click();
   const folder = page.getByLabel('服务器上的知识库目录', { exact: true });
   await folder.fill('/unlisted-folder');
   await button(page, '确认并继续').click();
   await expect(page.getByRole('alert')).toContainText('允许的保存范围');
+  await expect(folder).toBeFocused();
   await button(page, '从 GitHub／Gitee 导入').click();
   const url = page.getByLabel('仓库克隆地址', { exact: true });
   await url.fill('https://github.com/fixture/notes/tree/main');
