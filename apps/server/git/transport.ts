@@ -1,3 +1,5 @@
+import { parseGitRemote, type GitRemote } from '../../../shared/git-remote.js';
+export type { GitRemote } from '../../../shared/git-remote.js';
 import { createHash } from 'node:crypto';
 import { mkdir, mkdtemp, writeFile, rm, lstat } from 'node:fs/promises';
 import { join, isAbsolute } from 'node:path';
@@ -7,7 +9,7 @@ import { workspaceExec, type ExecOptions } from '../../../packages/core/workspac
 import { workspacePermit } from '../../../packages/core/workspace/gate.js';
 import { guardedProcess } from '../../../packages/core/processes/guarded.js';
 import type { HostConfig } from '../../../shared/platform-contracts.js';
-import type { GitCredentialSecret, GitRemoteHost } from '../../../shared/git-contracts.js';
+import type { GitCredentialSecret } from '../../../shared/git-contracts.js';
 import { validGitHost, validateKnownHosts } from './credentials.js';
 
 export type GitResult = { stdout: Buffer; stderr: Buffer; code: number };
@@ -19,40 +21,8 @@ export type GitRunOptions = {
   timeoutMs?: number;
   maxBytes?: number;
 };
-export type GitRemote = {
-  url: string;
-  host: GitRemoteHost;
-  protocol: 'https' | 'ssh';
-  repository: string;
-};
-/** Parse the original string, before URL parsers can silently remove dot segments or default ports. */
 export function normalizeRemote(value: string): GitRemote {
-  if (typeof value !== 'string' || value.length > 2048 || /[\s\\%?#\x00-\x1f\x7f]/.test(value))
-    fail(400, 'GIT_INVALID_REMOTE');
-  const match = value.match(
-    /^(https:\/\/|ssh:\/\/git@|git@)(github\.com|gitee\.com)(\/|:)([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)$/,
-  );
-  if (!match || (match[1] === 'git@' ? match[3] !== ':' : match[3] !== '/'))
-    fail(400, 'GIT_INVALID_REMOTE');
-  const owner = match[4],
-    name = match[5].replace(/\.git$/, '');
-  if (
-    !owner ||
-    !name ||
-    [owner, name].some(
-      (part) => part === '.' || part === '..' || part.startsWith('-') || part.endsWith('.'),
-    )
-  )
-    fail(400, 'GIT_INVALID_REMOTE');
-  const host = match[2] as GitRemoteHost,
-    protocol = match[1] === 'https://' ? 'https' : 'ssh';
-  const repository = `${owner}/${name}`;
-  return {
-    url: `${protocol === 'https' ? 'https://' : 'ssh://git@'}${host}/${repository}.git`,
-    host,
-    protocol,
-    repository,
-  };
+  return parseGitRemote(value) ?? fail(400, 'GIT_INVALID_REMOTE');
 }
 const fixedConfig = [
   'core.hooksPath=/dev/null',

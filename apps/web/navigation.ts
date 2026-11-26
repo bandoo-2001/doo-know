@@ -46,6 +46,7 @@ export type WorkspaceRoute = {
   section?:
     | 'editor'
     | 'library'
+    | 'git'
     | 'account'
     | 'search'
     | 'mcp'
@@ -121,6 +122,7 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
     ...([
       'editor',
       'library',
+      'git',
       'account',
       'search',
       'plugins',

@@ -1,6 +1,7 @@
 export type SettingsSection =
   | 'editor'
   | 'library'
+  | 'git'
   | 'search'
   | 'status'
   | 'backup'

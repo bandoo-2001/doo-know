@@ -276,7 +276,7 @@ test('Git 连接草稿在取消凭据编辑后保留，凭据秘密不会再次�
       { timeout: test.info().timeout },
     ),
     (async () => {
-      await page.goto('/?view=settings&section=library');
+      await page.goto('/?view=settings&section=git');
       await setFeatureSwitch(page, 'Git 版本管理', true);
     })(),
   ]);

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ToDooEntityMap } from '../../../../shared/to-doo-contracts';
 import {
   Button as AButton,
   Checkbox as ACheckbox,
@@ -37,7 +38,7 @@ const props = defineProps<{
   seed?: Record<string, any>;
   tree: TreeEntry[];
 }>();
-const emit = defineEmits<{ close: []; 'open-note': [id: string] }>();
+const emit = defineEmits<{ close: []; 'open-note': [id: string]; 'delete-list': [list: ToDooEntityMap['list']] }>();
 const confirm = useToDooConfirm();
 const today = toDooLocalDate(new Date(), props.model.state.snapshot?.settings.timeZone);
 const defaults: Record<string, any> = {
@@ -412,6 +413,10 @@ async function save() {
 }
 async function remove() {
   if (appearanceBusy.value) return;
+  if (props.kind === 'list' && props.entity) {
+    emit('delete-list', props.entity as ToDooEntityMap['list']);
+    return;
+  }
   if (
     !props.entity ||
     !(await confirm('将这条记录移入回收站？相关内容会保留以供恢复。', { danger: true }))

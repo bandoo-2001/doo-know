@@ -1011,6 +1011,29 @@ function openReminderSource(source: ToDooReminderSource) {
   });
 }
 let reviewViewBeforeEditor: ToDooSnapshot | undefined;
+function editDirectoryList(list: ToDooEntityMap['list']) {
+  navigationOpen.value = false;
+  void edit('list', list);
+}
+async function deleteDirectoryList(list: ToDooEntityMap['list']) {
+  if (state.busy || !allowDetailTransition()) return;
+  navigationOpen.value = false;
+  const confirmed = await confirmation.ask(
+    '将「' + list.name + '」和其中的任务移入回收站？如需保留任务，请先移到其他清单。',
+    { title: '删除清单', danger: true },
+  );
+  if (confirmed && await model.removeEntity('list', list, false, true))
+    await finishListRemoval(list.id);
+}
+async function finishListRemoval(id: string) {
+  if (editor.value?.kind === 'list' && editor.value.entity?.id === id) await closeEditor();
+  else await loadLists();
+  if (props.selection.list === id) await chooseQuickView('all');
+}
+function createDirectoryChildList(parentId: string) {
+  navigationOpen.value = false;
+  void edit('list', undefined, { kind: 'list', parentId });
+}
 async function edit(kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>) {
   const linkedOccurrence = kind === 'timeBlock' ? entity?.occurrenceId || seed?.occurrenceId : undefined;
   if (linkedOccurrence) {
@@ -1096,7 +1119,9 @@ async function retryOriginal() {
   const affectsList = !!pending && 'kind' in pending.payload && pending.payload.kind === 'list';
   const fromDetail = creating.value && detailOpen.value;
   const result = await model.retryPending();
-  if (result && affectsList) void loadLists();
+  if (result && pending?.action === 'delete_entity' && pending.payload.kind === 'list' && !pending.payload.restore)
+    await finishListRemoval(pending.payload.id);
+  else if (result && affectsList) void loadLists();
   if (result && action === 'create_task' && state.selectedTaskId && fromDetail)
     created(state.selectedTaskId);
 }
@@ -1428,6 +1453,9 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         @navigate="chooseDestination"
         @quick="chooseQuickView"
         @list="chooseList"
+        @edit-list="editDirectoryList"
+        @delete-list="deleteDirectoryList"
+        @new-child-list="createDirectoryChildList"
         @new-list="
           navigationOpen = false;
           edit('list', undefined, { kind: 'list' });
@@ -1483,6 +1511,9 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
           @navigate="chooseDestination"
           @quick="chooseQuickView"
           @list="chooseList"
+          @edit-list="editDirectoryList"
+          @delete-list="deleteDirectoryList"
+          @new-child-list="createDirectoryChildList"
           @new-list="
             navigationOpen = false;
             edit('list', undefined, { kind: 'list' });
@@ -1957,6 +1988,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
       :entity="editor.entity"
       :seed="editor.seed"
       :tree="tree"
+      @delete-list="deleteDirectoryList"
       @close="closeEditor"
       @open-note="emit('open-note', $event)"
     />

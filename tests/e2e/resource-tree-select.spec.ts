@@ -93,6 +93,7 @@ async function openMcp(page: Page, selected: ResourceRef[] = []) {
   });
   await page.goto('/?view=settings&section=mcp');
   await expect(page.getByRole('region', { name: 'MCP 服务设置', exact: true })).toBeVisible();
+  await page.locator('summary').filter({ hasText: '权限与连接配置' }).click();
   return page.getByRole('article', { name: '知识库权限', exact: true });
 }
 

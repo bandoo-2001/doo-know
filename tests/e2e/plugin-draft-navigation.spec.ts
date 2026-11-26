@@ -148,12 +148,12 @@ test('a save response from an unmounted Git settings view cannot replace newer i
     await page.getByRole('button', { name: '保存提交署名', exact: true }).click();
     await reachedServer;
     await section(page, '通用与编辑');
-    await section(page, '知识库与存储');
+    await section(page, 'Git 版本管理');
     await author.fill('New input after returning');
     release();
     await (await response).finished();
     await section(page, '通用与编辑');
-    await section(page, '知识库与存储');
+    await section(page, 'Git 版本管理');
     await expect(author).toHaveValue('New input after returning');
     await expect(page.getByText('提交署名已在其他位置更新。', { exact: true })).toBeVisible();
     const actual = await (await page.request.get('/api/platform/features')).json();

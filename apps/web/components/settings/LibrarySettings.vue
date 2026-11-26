@@ -5,13 +5,11 @@ import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
 import { api } from '../../api';
 import type { ManagementOverview } from '../../../../shared/management-contracts';
 import StorageSettings from '../StorageSettings.vue';
-import GitRemotePanel from '../GitRemotePanel.vue';
-import GitSettings from './GitSettings.vue';
-import { features } from '../../features';
+import SettingsActionCard from './SettingsActionCard.vue';
 import ShareManagement from './ShareManagement.vue';
 import TransferPanel from './TransferPanel.vue';
 import OrganizationOperations from './OrganizationOperations.vue';
-const emit = defineEmits<{ 'open-note': [id: string]; changed: [] }>();
+const emit = defineEmits<{ 'open-note': [id: string]; changed: []; 'open-git': [] }>();
 const state = ref<ManagementOverview>(),
   error = ref(''),
   busy = ref(false);
@@ -64,8 +62,7 @@ onMounted(() => void load());
     <TransferPanel @open-note="emit('open-note', $event)" @changed="emit('changed')" />
     <OrganizationOperations @changed="emit('changed')" />
     <section class="settings-card"><StorageSettings /></section>
-    <GitSettings @changed="emit('changed')" />
-    <section v-if="features.git?.state === 'enabled'" class="settings-card"><GitRemotePanel @changed="emit('changed')" /></section>
+    <SettingsActionCard title="Git 版本管理" description="提交署名和云端同步" icon="clock" action-label="打开 Git 设置" @open="emit('open-git')" />
     <ShareManagement />
   </div>
 </template>

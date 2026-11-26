@@ -104,8 +104,8 @@ export async function expandToDooGroup(scope: ToDooScope, title: string) {
 }
 
 /** Call after the action opens its confirmation, before awaiting its mutation. */
-export async function confirmToDooAction(page: Page) {
-  const dialog = page.getByRole('dialog', { name: '确认操作', exact: true });
+export async function confirmToDooAction(page: Page, name = '确认操作') {
+  const dialog = page.getByRole('dialog', { name, exact: true });
   await expect(dialog).toBeVisible();
   await dialog.getByRole('button', { name: '确认', exact: true }).click();
   await expect(dialog).not.toBeVisible();

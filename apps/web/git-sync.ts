@@ -46,7 +46,7 @@ const messages: Record<string, string> = {
   GIT_JOB_CANCELLED: '任务已取消。请刷新核对本地与云端状态。',
   GIT_CREDENTIAL_NOT_FOUND: '凭据已移除或临时凭据已过期，请重新选择认证。',
   GIT_CREDENTIAL_REQUIRED: '请为这个私有仓库选择凭据。',
-  GIT_AUTHOR_REQUIRED: '请先设置版本记录的提交作者和邮箱。',
+  GIT_AUTHOR_REQUIRED: '请填写提交作者和邮箱。可在当前提交面板或“设置 → Git 版本管理 → 提交署名”中保存。',
   GIT_PREVIEW_CHANGED: '预览后文件发生变化，请重新预览。',
   INVALID_GIT_PREVIEW: '预览已经失效，请重新预览。',
   GIT_PREVIEW_EXPIRED: '预览已经过期，请重新预览。',
@@ -63,7 +63,9 @@ const messages: Record<string, string> = {
   GIT_UNSUPPORTED_TREE: '云端包含链接或子模块等不支持的文件，不会覆盖本地资料。',
   DIRECTORY_EXISTS: '目标文件夹已经存在，请换一个知识库名称或保存位置。',
   INVALID_LIBRARY_NAME: '请填写知识库名称，不要包含斜杠，也不要以点开头。',
-  FORBIDDEN_KNOWLEDGE_ROOT: '这个位置不能用于保存资料，请换一个保存位置。',
+  FORBIDDEN_KNOWLEDGE_ROOT: '请在允许的资料目录内选择独立的文件夹，或留空使用推荐位置。',
+  INVALID_KNOWLEDGE_ROOT: '请填写服务器上已有文件夹的完整路径，或留空使用推荐位置。',
+  DIRECTORY_NOT_WRITABLE: '服务账号无法写入这个位置，请选择可读写的服务器文件夹。',
 };
 export function gitError(value: unknown): string {
   const code =

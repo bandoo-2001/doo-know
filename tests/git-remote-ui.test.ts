@@ -4,6 +4,9 @@ import { parse, compileScript, compileTemplate } from '@vue/compiler-sfc';
 import ts from 'typescript';
 import * as Vue from 'vue';
 import { ApiError } from '../apps/web/api';
+import * as author from '../shared/git-author';
+import * as remote from '../shared/git-remote';
+import * as location from '../shared/setup-location';
 import * as sync from '../apps/web/git-sync';
 const api = vi.fn();
 const refreshFeatures = vi.fn(async () => {});
@@ -53,6 +56,9 @@ async function mount(file = 'GitRemotePanel.vue', props = {}) {
   const module = { exports: {} as any };
   new Function('require', 'module', 'exports', code)(
     (id: string) => {
+      if (id.endsWith('/shared/git-author')) return author;
+      if (id.endsWith('/shared/git-remote')) return remote;
+      if (id.endsWith('/shared/setup-location')) return location;
       if (id === 'vue') return Vue;
       if (id === 'ant-design-vue')
         return {

@@ -35,6 +35,8 @@ const error = ref('');
 const notice = ref('');
 const invalidPrefixes = ref(false);
 const legacyOpen = ref(false);
+const permissionsOpen = ref(hasUnsavedMcpSettings());
+const activityOpen = ref(false);
 const expectedSession = mcpDraftSession();
 let active = true;
 const current = () => active && expectedSession === mcpDraftSession();
@@ -158,8 +160,8 @@ function save() {
 </script>
 
 <template>
-  <div class="settings-stack">
-    <section class="settings-card" aria-label="MCP 服务设置">
+  <div class="settings-stack" role="region" aria-label="MCP 服务设置">
+    <section class="settings-card">
       <div class="settings-item-header">
         <div>
           <h2 class="settings-section-title"><Icon name="link" :size="18" />MCP 服务</h2>
@@ -184,6 +186,13 @@ function save() {
       >
         {{ mcp?.state === 'failed' ? '重试启用' : '重试读取设置' }}
       </AButton>
+    </section>
+    <section v-if="mcp" class="settings-card">
+      <MCPConnectionGuide :feature="mcp" :dirty="hasUnsavedMcpSettings()" />
+    </section>
+    <details v-if="mcp && values" class="settings-card mcp-panel" :open="permissionsOpen"
+      @toggle="permissionsOpen = ($event.target as HTMLDetailsElement).open">
+      <summary>权限与连接配置</summary>
       <AAlert
         v-if="stale && values"
         class="mcp-config-conflict"
@@ -300,13 +309,12 @@ function save() {
           <span v-else-if="hasUnsavedMcpSettings() && !stale" role="status">有未保存的更改。</span>
         </footer>
       </form>
-    </section>
-    <section v-if="mcp" class="settings-card">
-      <MCPConnectionGuide :feature="mcp" :dirty="hasUnsavedMcpSettings()" />
-    </section>
-    <section v-if="mcp?.state === 'enabled'" class="settings-card">
-      <MCPActivity />
-    </section>
+    </details>
+    <details v-if="mcp?.state === 'enabled'" class="settings-card mcp-panel"
+      @toggle="activityOpen = ($event.target as HTMLDetailsElement).open">
+      <summary>调用记录</summary>
+      <MCPActivity v-if="activityOpen" />
+    </details>
   </div>
 </template>
 
@@ -331,15 +339,16 @@ details p {
   font-size: 12px;
   margin: 0;
 }
-details {
-  display: grid;
+.mcp-config-form details {
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: var(--ui-radius, 8px);
 }
-details .mcp-config-field {
+.mcp-config-form details .mcp-config-field {
   margin-top: 10px;
 }
+.mcp-panel > summary { font-size: 15px; font-weight: 600; }
+.mcp-panel[open] > summary { margin-bottom: 14px; }
 details summary {
   cursor: pointer;
 }

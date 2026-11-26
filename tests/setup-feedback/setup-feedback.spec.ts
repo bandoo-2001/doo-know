@@ -519,3 +519,30 @@ test('an accepted import locks both finish intents until its real result is rece
     gate.release();
   }
 });
+
+test('first login explains folder and repository address errors at the input that needs correction', async ({ page, slot }) => {
+  await source(page);
+  await page.getByText('高级设置', { exact: true }).click();
+  const parent = page.getByLabel('保存到哪个文件夹', { exact: true });
+  await parent.fill('relative/folder');
+  await button(page, '确认并继续').click();
+  await expect(parent).toBeFocused();
+  await expect(parent).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.getByRole('alert')).toContainText('以 / 开头');
+  await parent.fill(slot.libraryParent + '/missing-' + randomUUID());
+  await button(page, '确认并继续').click();
+  await expect(page.getByRole('alert')).toContainText('找不到这个文件夹');
+  await button(page, '使用已有资料').click();
+  const folder = page.getByLabel('服务器上的知识库目录', { exact: true });
+  await folder.fill('/unlisted-folder');
+  await button(page, '确认并继续').click();
+  await expect(page.getByRole('alert')).toContainText('允许的保存范围');
+  await button(page, '从 GitHub／Gitee 导入').click();
+  const url = page.getByLabel('仓库克隆地址', { exact: true });
+  await url.fill('https://github.com/fixture/notes/tree/main');
+  await button(page, '导入并继续').click();
+  await expect(url).toBeFocused();
+  await expect(page.getByRole('alert')).toContainText('克隆地址');
+  await url.fill(slot.gitRemoteURL);
+  await expect(url).toHaveAttribute('aria-invalid', 'false');
+});

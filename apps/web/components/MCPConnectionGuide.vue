@@ -118,8 +118,8 @@ watch(() => [props.feature.state, props.feature.configVersion], load);
   <section class="mcp-guide" aria-label="MCP 连接指南">
     <div class="guide-heading">
       <div>
-        <h3 class="settings-section-title"><Icon name="link" :size="18" />MCP 连接</h3>
-        <p>通过 OAuth 或独立 API Key，将支持 MCP 的客户端连接到你授权的业务与资源。</p>
+        <h3 class="settings-section-title"><Icon name="link" :size="18" />连接客户端</h3>
+        <p>选择客户端支持的认证方式，复制对应的服务地址。</p>
       </div>
       <AButton size="small" :loading="busy" @click="load">检查本机连接条件</AButton>
     </div>
@@ -131,6 +131,50 @@ watch(() => [props.feature.state, props.feature.configVersion], load);
       show-icon
       message="你有未保存的配置。下方状态和地址依据已保存配置，请先保存再签发或更新授权。"
     />
+    <div class="guide-paths" role="group" aria-label="选择认证方式">
+      <AButton
+        :type="path === 'oauth' ? 'primary' : 'default'"
+        :aria-pressed="path === 'oauth'"
+        @click="path = 'oauth'"
+        >OAuth 接入</AButton
+      ><AButton
+        :type="path === 'api-key' ? 'primary' : 'default'"
+        :aria-pressed="path === 'api-key'"
+        @click="path = 'api-key'"
+        >API Key 接入</AButton
+      >
+    </div>
+    <template v-if="path === 'oauth'">
+      <p>
+        将服务地址填入客户端，连接后登录 DooKnow 并确认授权。
+      </p>
+      <AAlert
+        v-if="origin && !publicOrigin"
+        type="warning"
+        message="OAuth 需要客户端和授权浏览器可达的 HTTPS 站点。"
+        description="请管理员配置域名、TLS、反向代理与部署访问来源 APP_ORIGIN，再检查授权地址。"
+      />
+      <p v-if="feature.config.oauthEnabled === false">OAuth 已在保存的配置中停用。</p>
+    </template>
+    <template v-else>
+      <p>
+        在客户端选择 Streamable HTTP，填入服务地址和认证头。
+      </p>
+      <p>
+        认证头：<code>Authorization: Bearer &lt;API Key&gt;</code>。密钥只用于下方 API Key
+        地址，请保存在客户端的安全凭据设置中。
+      </p>
+      <p v-if="feature.config.apiKeyEnabled === false">API Key 接入已在保存的配置中停用。</p>
+    </template>
+    <div v-if="endpoint" class="guide-value">
+      <span>{{ path === 'oauth' ? 'OAuth MCP 服务地址' : 'API Key MCP 服务地址' }}</span
+      ><code>{{ endpoint }}</code
+      ><AButton size="small" @click="copy(endpoint, '连接地址')"
+        >复制连接地址</AButton
+      >
+    </div>
+    <details class="guide-troubleshooting">
+      <summary>连接与验证步骤</summary>
     <ul class="connection-progress" aria-label="连接进度">
       <li>
         <strong>1. 配置</strong
@@ -171,57 +215,6 @@ watch(() => [props.feature.state, props.feature.configVersion], load);
           : '被拒绝，请核对 MCP 服务状态、连接方式和授权'
       }}（{{ state.latestConnectionAttempt.code }}）。
     </p>
-    <div class="guide-paths" role="group" aria-label="选择认证方式">
-      <AButton
-        :type="path === 'oauth' ? 'primary' : 'default'"
-        :aria-pressed="path === 'oauth'"
-        @click="path = 'oauth'"
-        >OAuth 接入</AButton
-      ><AButton
-        :type="path === 'api-key' ? 'primary' : 'default'"
-        :aria-pressed="path === 'api-key'"
-        @click="path = 'api-key'"
-        >API Key 接入</AButton
-      >
-    </div>
-    <template v-if="path === 'oauth'">
-      <p>
-        在支持 OAuth 的 MCP 客户端填写下方服务地址，发起连接后登录
-        DooKnow，核对业务、资源范围和权限再同意授权。
-      </p>
-      <AAlert
-        v-if="origin && !publicOrigin"
-        type="warning"
-        message="OAuth 需要客户端和授权浏览器可达的 HTTPS 站点。"
-        description="请管理员配置域名、TLS、反向代理与部署访问来源 APP_ORIGIN，再检查授权地址。"
-      />
-      <p v-if="feature.config.oauthEnabled === false">OAuth 已在保存的配置中停用。</p>
-    </template>
-    <template v-else>
-      <p>
-        为每个应用创建独立客户端，设置资源权限和密钥有效期。客户端需要支持 Streamable HTTP 和自定义
-        Authorization 请求头。
-      </p>
-      <p>
-        认证头：<code>Authorization: Bearer &lt;API Key&gt;</code>。密钥只用于下方 API Key
-        地址，请保存在客户端的安全凭据设置中。
-      </p>
-      <p v-if="feature.config.apiKeyEnabled === false">API Key 接入已在保存的配置中停用。</p>
-    </template>
-    <div v-if="endpoint" class="guide-value">
-      <span>{{ path === 'oauth' ? 'OAuth MCP 服务地址' : 'API Key MCP 服务地址' }}</span
-      ><code>{{ endpoint }}</code
-      ><AButton size="small" @click="copy(endpoint, '连接地址')"
-        >复制连接地址</AButton
-      >
-    </div>
-    <p class="guide-muted">
-      两个地址使用同一个 DooKnow
-      服务。远程访问所需的域名、TLS、反向代理和网络连通由外部基础设施提供。请勿把密钥放进 URL
-      或聊天消息。
-    </p>
-    <details class="guide-troubleshooting">
-      <summary>连接与验证步骤</summary>
       <ol class="guide-steps">
         <li>保存权限和认证设置，再启用 MCP 服务。</li>
         <li>
@@ -238,10 +231,10 @@ watch(() => [props.feature.state, props.feature.configVersion], load);
       最近工具调用：{{ state.latestSuccessfulCall.tool }} ·
       {{ new Date(state.latestSuccessfulCall.at).toLocaleString() }}。
     </p>
-    <MCPApiClients
+    <div v-show="path === 'api-key'"><MCPApiClients
       :disabled="dirty || feature.state !== 'enabled' || feature.config.apiKeyEnabled === false"
-    />
-    <section v-if="state?.clients.length" class="guide-clients" aria-label="连接授权管理">
+    /></div>
+    <section v-show="path === 'oauth'" v-if="state?.clients.length" class="guide-clients" aria-label="连接授权管理">
       <h4>OAuth 连接授权</h4>
       <p class="guide-muted">
         关闭 MCP 服务会暂停访问，保留授权；重新启用后授权可能继续使用。撤销后需重新授权。

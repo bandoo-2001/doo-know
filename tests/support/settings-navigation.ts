@@ -62,8 +62,9 @@ export type FeatureTitle = 'MCP 服务' | 'Git 版本管理';
 
 export async function openFeatureSettings(page: Page, title: FeatureTitle) {
   const mcp = title === 'MCP 服务';
-  await openSettingsSection(page, mcp ? 'MCP 连接' : '知识库与存储');
+  await openSettingsSection(page, mcp ? 'MCP 连接' : 'Git 版本管理');
   await expect(page.getByRole('switch', { name: '启用 ' + title, exact: true })).toBeVisible();
+  if (mcp) await openSettingsDetails(page, '权限与连接配置');
   await expect(mcp
     ? page.getByRole('switch', { name: '启用 OAuth 连接', exact: true })
     : page.getByLabel('提交作者', { exact: true })).toBeVisible();
@@ -86,7 +87,15 @@ export async function returnToNotes(page: Page) {
 }
 
 /** Legacy compatibility scenarios deliberately open the v1 form. New rights use domain cards. */
+export async function openSettingsDetails(page: Page, label: string) {
+  const control = page.locator('summary').filter({ hasText: new RegExp('^' + label + '$') });
+  await expect(control).toBeVisible();
+  if (!await control.evaluate(element => (element.parentElement as HTMLDetailsElement).open))
+    await control.click();
+}
+
 export async function openLegacyMcpSettings(page:Page){
+  await openSettingsDetails(page, '权限与连接配置');
   const summary=page.locator('summary').filter({hasText:'旧版兼容设置'});
   if(await summary.isVisible()){
     const open=await summary.evaluate(element=>(element.parentElement as HTMLDetailsElement).open);

@@ -34,7 +34,7 @@ test('connects an existing library, previews and pushes, then checks and pulls a
     git('-C', fixture.knowledgeRoot, 'commit', '-m', 'Checkpoint earlier browser fixtures');
 
   await page.goto('/');
-  await openSettingsSection(page, '知识库与存储');
+  await openSettingsSection(page, 'Git 版本管理');
   await setFeatureSwitch(page, 'Git 版本管理', true);
   const panel = page.getByRole('region', { name: '云端同步面板', exact: true });
   await panel.getByRole('button', { name: /^(管理同步|关联云端仓库)$/ }).click();
@@ -47,6 +47,7 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   await expect(panel.getByText('云端仓库已连接。', { exact: true })).toBeVisible({
     timeout: 30000,
   });
+  await panel.locator('summary').filter({ hasText: '同步详情' }).click();
   await expect(
     panel.getByText('推送权限尚未验证。读取连接成功不代表可以推送。', { exact: true }),
   ).toBeVisible({ timeout: 30000 });

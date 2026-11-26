@@ -1,3 +1,4 @@
+import { gitAuthorIssue } from '../../../shared/git-author.js';
 import { randomBytes, createHash } from 'node:crypto';
 import { readFile, writeFile, copyFile, mkdir, rm, lstat, realpath, open } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -372,12 +373,7 @@ export function activate(ctx: FeatureRuntimeContext) {
       await recover(call);
       const repo = await required(call);
       const { authorName, authorEmail } = ctx.config();
-      if (
-        !authorName ||
-        /[\x00-\x1f<>]/.test(authorName) ||
-        !/^([^\s<>@]+)@([^\s<>@]+)$/.test(authorEmail)
-      )
-        error('GIT_AUTHOR_REQUIRED', 400);
+      if (gitAuthorIssue(authorName, authorEmail)) error('GIT_AUTHOR_REQUIRED', 400);
       const message = call.input?.message;
       if (
         typeof message !== 'string' ||

@@ -14,11 +14,11 @@ test('enables Git version management, initializes when missing, previews all cha
   const mobile = info.project.name === 'mobile';
   await page.goto('/');
   await openFeatureSettings(page, 'Git 版本管理');
-  await page.getByLabel('提交作者', { exact: true }).fill('Browser Fixture');
-  await page.getByLabel('作者邮箱', { exact: true }).fill('browser@example.invalid');
-  const saveAuthor = page.getByRole('button', { name: '保存提交署名', exact: true });
-  if (await saveAuthor.isEnabled()) {
-    await saveAuthor.click();
+  await page.getByLabel('提交作者', { exact: true }).fill('');
+  await page.getByLabel('作者邮箱', { exact: true }).fill('');
+  const clearAuthor = page.getByRole('button', { name: '保存提交署名', exact: true });
+  if (await clearAuthor.isEnabled()) {
+    await clearAuthor.click();
     await expect(page.getByText('提交署名已保存。', { exact: true })).toBeVisible();
   }
   await setFeatureSwitch(page, 'Git 版本管理', true);
@@ -66,6 +66,16 @@ test('enables Git version management, initializes when missing, previews all cha
   await page
     .getByRole('textbox', { name: 'Git 提交说明', exact: true })
     .fill('Browser first commit');
+  const signed = page.getByRole('form', { name: '提交署名' });
+  await expect(signed).toBeVisible();
+  await signed.getByLabel('提交作者', { exact: true }).fill('Browser Fixture');
+  await signed.getByLabel('作者邮箱', { exact: true }).fill('missing-at');
+  await signed.getByRole('button', { name: '保存提交署名' }).click();
+  await expect(signed.getByRole('alert')).toContainText('有效邮箱');
+  await signed.getByLabel('作者邮箱', { exact: true }).fill('browser@example.invalid');
+  await signed.getByRole('button', { name: '保存提交署名' }).click();
+  await expect(signed).toBeHidden();
+  await expect(page.getByRole('textbox', { name: 'Git 提交说明' })).toHaveValue('Browser first commit');
   await page.getByRole('button', { name: '预览全部变更', exact: true }).click();
   await expect(page.getByText('A · ' + note.relativePath, { exact: true })).toBeVisible({
     timeout: 10000,

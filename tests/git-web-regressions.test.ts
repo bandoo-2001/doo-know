@@ -1,3 +1,5 @@
+import { gitAuthorIssue } from '../shared/git-author';
+import { ApiError } from '../apps/web/api';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
 import * as Vue from 'vue';
@@ -17,7 +19,10 @@ function sourceModule() {
       if (id === 'vue') return Vue;
       if (id === 'naive-ui')
         return { NButton: 'button', NInput: 'input', NAlert: 'aside' };
-      if (id === '../features') return { featureAction: (_feature: string, ...args: unknown[]) => call(...args) };
+      if (id.endsWith('GitAuthorForm.vue')) return { default: 'form', __esModule: true };
+      if (id.endsWith('/git-author')) return { gitAuthorIssue };
+      if (id === '../api') return { ApiError };
+      if (id === '../features') return { features: Vue.ref({git: {config: {authorName: 'Fixture', authorEmail: 'fixture@example.invalid'}}}), featureAction: (_feature: string, ...args: unknown[]) => call(...args) };
       if (id === '../git-sync') return { gitError: (failure: Error) => failure.message };
       if (id === './status') return { refreshGitStatus: async () => {} };
       throw Error('Unexpected Git dependency: ' + id);

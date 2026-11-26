@@ -160,7 +160,7 @@ for (const width of [320, 390, 1440]) {
 test('long Git credential actions remain contained independently of the MCP conflict layout', async ({
   page,
 }, info) => {
-  await page.goto('/?view=settings&section=library');
+  await page.goto('/?view=settings&section=git');
   await setFeatureSwitch(page, 'Git 版本管理', true);
   await closeSidebar(page);
   const name = ('Capture-' + crypto.randomUUID() + 'X'.repeat(120)).slice(0, 120);

@@ -15,6 +15,7 @@ test('guides a new MCP user before enablement and keeps local readiness separate
   await expect(
     page.getByRole('region', { name: 'MCP 连接指南', exact: true }),
   ).toBeVisible();
+  await page.locator('summary').filter({ hasText: '连接与验证步骤' }).click();
   await expect(page.getByText('配置已保存，MCP 尚未启用', { exact: true })).toBeVisible();
   await expect(page.getByText('外部连接尚未验证', { exact: true })).toBeVisible();
   await expect(page.getByLabel('允许访问的目录', { exact: true })).toBeVisible();

@@ -68,6 +68,7 @@ test.beforeEach(async ({ page, context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
   await openFeatureSettings(page, 'MCP 服务');
+  await page.getByRole('button', { name: 'API Key 接入', exact: true }).click();
   const { mcp } = await (await page.request.get('/api/platform/features')).json();
   if (mcp.config.apiKeyEnabled === false) {
     await mutate(page, '/api/platform/mcp/config', 'PUT', {
@@ -75,6 +76,7 @@ test.beforeEach(async ({ page, context }) => {
     });
     await page.reload();
     await openFeatureSettings(page, 'MCP 服务');
+    await page.getByRole('button', { name: 'API Key 接入', exact: true }).click();
   }
   await setFeatureSwitch(page, 'MCP 服务', true);
   await expect(page.getByRole('button', { name: '创建 API 客户端', exact: true })).toBeEnabled();
@@ -149,6 +151,7 @@ test('keeps one-time credentials out of persistent plugin drafts and clears the 
   await expect(page.getByLabel('新 API Key', { exact: true })).toBeVisible();
   await returnToNotes(page);
   await openFeatureSettings(page, 'MCP 服务');
+  await page.getByRole('button', { name: 'API Key 接入', exact: true }).click();
   await expect(page.getByLabel('新 API Key', { exact: true })).toHaveCount(0);
   const row = page.getByRole('article', { name: created.name, exact: true });
   await expect(row).toBeVisible();

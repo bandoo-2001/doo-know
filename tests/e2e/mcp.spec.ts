@@ -17,7 +17,9 @@ test('loads the built-in MCP settings and exposes connection requirements on des
   await expect(
     page.getByText('OAuth 需要客户端和授权浏览器可达的 HTTPS 站点。', { exact: true }),
   ).toBeVisible();
+  await page.locator('summary').filter({ hasText: '调用记录' }).click();
   await expect(page.getByRole('heading', { name: '最近调用', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'API Key 接入', exact: true }).click();
   await expect(page.getByRole('region', { name: 'API Key 客户端', exact: true })).toBeVisible();
   await returnToNotes(page);
   await showSidebar(page);

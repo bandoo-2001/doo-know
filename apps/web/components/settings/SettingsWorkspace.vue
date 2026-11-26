@@ -6,6 +6,7 @@ import type { SettingsSection } from '../../../../shared/settings-contracts';
 import { settingsSections } from '../../settings';
 import EditorSettings from './EditorSettings.vue';
 import LibrarySettings from './LibrarySettings.vue';
+import GitSettings from './GitSettings.vue';
 import SearchSettings from './SearchSettings.vue';
 import BackupSettings from './BackupSettings.vue';
 import MCPSettings from './MCPSettings.vue';
@@ -45,9 +46,11 @@ const heading = computed(
     />
     <LibrarySettings
       v-else-if="section === 'library'"
+      @open-git="emit('settings', 'git')"
       @open-note="emit('open-note', $event)"
       @changed="emit('changed')"
     />
+    <GitSettings v-else-if="section === 'git'" @changed="emit('changed')" />
     <StatusSettings
       v-else-if="section === 'status'"
       @settings="emit('settings', $event)"

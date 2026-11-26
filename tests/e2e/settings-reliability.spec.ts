@@ -107,6 +107,7 @@ test('keeps older MCP calls visible while refreshing the recent list', async ({ 
   const wasOn = (await toggle.getAttribute('aria-checked')) === 'true';
   try {
     await setFeatureSwitch(page, 'MCP 服务', true);
+    await page.locator('summary').filter({ hasText: '调用记录' }).click();
     await page.getByRole('button', { name: '加载更早调用', exact: true }).click();
     await expect(page.getByText('fixture-tool-54', { exact: true })).toBeVisible();
     const refresh = page.waitForResponse(

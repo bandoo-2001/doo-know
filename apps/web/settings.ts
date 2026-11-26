@@ -18,6 +18,12 @@ export const settingsSections: {
     description: '查看资料位置、空间用量与分享，导入或导出文件。',
   },
   {
+    key: 'git',
+    label: 'Git 版本管理',
+    icon: 'clock',
+    description: '设置提交署名、查看仓库状态和同步云端。',
+  },
+  {
     key: 'search',
     label: '搜索与索引',
     icon: 'search',

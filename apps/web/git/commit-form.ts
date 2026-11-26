@@ -1,6 +1,9 @@
-import { defineComponent, h, ref } from 'vue';
+import GitAuthorForm from '../components/settings/GitAuthorForm.vue';
+import { gitAuthorIssue } from '../../../shared/git-author';
+import { ApiError } from '../api';
+import { computed, defineComponent, h, ref } from 'vue';
 import { NButton, NInput, NAlert } from 'naive-ui';
-import { featureAction } from '../features';
+import { featureAction, features, refreshFeatures } from '../features';
 import { gitError } from '../git-sync';
 import { refreshGitStatus } from './status';
 
@@ -16,6 +19,9 @@ const styles = `
 .dooknow-git-view .git-description { margin-bottom: 16px; color: var(--muted); font-size: 12px; line-height: 1.75; }
 .dooknow-git-view .git-form-label { display: block; margin-bottom: 7px; font-weight: 500; }
 .dooknow-git-view .git-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.dooknow-git-view .git-signature-summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin-bottom: 14px; }
+.dooknow-git-view .git-signature { margin-bottom: 14px; }
+.dooknow-git-view .git-author-form { padding: 14px; margin: 0 0 16px; background: var(--surface-soft); border: 1px solid var(--border); border-radius: var(--ui-radius, 8px); }
 .dooknow-git-view .git-preview { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
 .dooknow-git-view .git-preview-heading { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 10px; }
 .dooknow-git-view .git-preview-heading strong { font-size: 13px; font-weight: 600; }
@@ -40,6 +46,12 @@ export const GitCommitForm = defineComponent({
       busy = ref(false),
       requestId = ref(''),
       uncertain = ref(false);
+    const authorRejected = ref(false),
+      editingAuthor = ref(false);
+    const authorMissing = computed(() => {
+      const config = features.value.git?.config;
+      return authorRejected.value || !!gitAuthorIssue(config?.authorName, config?.authorEmail);
+    });
     function updateMessage(value: string) {
       if (busy.value || uncertain.value) return;
       message.value = value;
@@ -58,7 +70,10 @@ export const GitCommitForm = defineComponent({
       try {
         await fn();
       } catch (e) {
-        error.value = gitError(e);
+        if (e instanceof ApiError && e.data.code === 'GIT_AUTHOR_REQUIRED') {
+          authorRejected.value = true;
+          await refreshFeatures().catch(() => {});
+        } else error.value = gitError(e);
       } finally {
         busy.value = false;
       }
@@ -113,6 +128,57 @@ export const GitCommitForm = defineComponent({
           '提交包含暂存、未暂存和未忽略的新增、删除。部分暂存文件使用当前工作树的完整版本。',
         ),
         error.value && h(NAlert, { type: 'error' }, () => error.value),
+        authorMissing.value || editingAuthor.value
+          ? h('div', { class: 'git-signature' }, [
+              h(GitAuthorForm, {
+                forCommit: true,
+                onSaved: () => {
+                  authorRejected.value = false;
+                  editingAuthor.value = false;
+                },
+              }),
+              !authorMissing.value &&
+                h(
+                  NButton,
+                  {
+                    size: 'small',
+                    text: true,
+                    onClick: () => {
+                      editingAuthor.value = false;
+                    },
+                  },
+                  () => '收起署名设置',
+                ),
+            ])
+          : h('div', { class: 'git-signature-summary' }, [
+              h(
+                'span',
+                '提交署名：' +
+                  features.value.git?.config.authorName +
+                  ' · ' +
+                  features.value.git?.config.authorEmail,
+              ),
+              h(
+                NButton,
+                {
+                  size: 'small',
+                  text: true,
+                  disabled: busy.value || uncertain.value,
+                  onClick: () =>
+                    perform(async () => {
+                      if (preview.value && !result.value) {
+                        await gitCall('command', 'git.cancelPreview', {
+                          token: preview.value.token,
+                        });
+                        preview.value = undefined;
+                        requestId.value = '';
+                      }
+                      editingAuthor.value = true;
+                    }),
+                },
+                () => '修改提交署名',
+              ),
+            ]),
         h('label', { class: 'git-form-label', for: 'git-commit-message' }, '提交说明'),
         h(NInput, {
           value: message.value,
@@ -126,7 +192,17 @@ export const GitCommitForm = defineComponent({
         h('div', { class: 'git-actions' }, [
           h(
             NButton,
-            { type: 'primary', secondary: true, onClick: prepare, loading: busy.value },
+            {
+              type: 'primary',
+              secondary: true,
+              disabled:
+                authorMissing.value ||
+                editingAuthor.value ||
+                !message.value.trim() ||
+                uncertain.value,
+              onClick: prepare,
+              loading: busy.value,
+            },
             () => '预览全部变更',
           ),
         ]),
