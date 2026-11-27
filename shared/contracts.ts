@@ -1,4 +1,5 @@
 import type { DocumentType } from './diagram-resource.js';
+import type { OfficeDocument } from './office.js';
 export interface AppConfig {
   knowledgeRoot: string;
   dataRoot: string;
@@ -32,13 +33,12 @@ export interface NoteDocument {
   publication?: {state:'pending'|'conflicted';operationId?:string;code?:string};
   html?: string;
 }
-export interface TreeEntry {
+export type TreeEntry = {
   documentType?: DocumentType;
   id?: string;
   name: string;
   path: string;
-  type: 'folder' | 'note';
   updatedAt?: string;
   favorite?: boolean;
   children?: TreeEntry[];
-}
+} & ({ type: 'folder' | 'note' } | ({ type: 'office' } & OfficeDocument));

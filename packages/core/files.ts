@@ -1,4 +1,5 @@
 import { isKnowledgeDataPath, DOO_ASSETS_DIRECTORY } from '../../shared/storage-paths.js';
+import { officeFormat } from '../../shared/office.js';
 import { hasDiagramDeclarationSync } from './knowledge/diagram-declaration.js';
 import { parseDiagramDocument } from '../../shared/diagram-document.js';
 import { fileVersionStamp } from './knowledge/file-reader.js';
@@ -136,7 +137,7 @@ export function readDocument(
     closeSync(fd);
   }
 }
-export function scanFiles(root: string) {
+export function scanFiles(root: string, includeOffice = false) {
   try {
     const s = lstatSync(root);
     if (!s.isDirectory() || s.isSymbolicLink()) throw new Error();
@@ -145,7 +146,16 @@ export function scanFiles(root: string) {
     throw new KnowledgeError(503, 'SOURCE_UNAVAILABLE', '原文目录不可用', true);
   }
   const folders: string[] = [],
-    notes: string[] = [];
+    notes: string[] = [],
+    office: string[] = [];
+  function collectFile(path: string) {
+    const note = isDocument(path);
+    if (!note && !(includeOffice && officeFormat(path))) return;
+    try {
+      safePath(root, path, note ? 'note' : 'asset');
+      (note ? notes : office).push(path);
+    } catch { /* Skip links and entries that disappeared during the scan. */ }
+  }
   function walk(path: string) {
     const absolute = safePath(root, path, 'folder');
     for (const item of readdirSync(absolute, { withFileTypes: true })) {
@@ -154,12 +164,7 @@ export function scanFiles(root: string) {
       if (item.isDirectory()) {
         folders.push(rel);
         walk(rel);
-      } else if (item.isFile() && isDocument(item.name)) {
-        try {
-          safePath(root, rel, 'note');
-          notes.push(rel);
-        } catch {}
-      }
+      } else if (item.isFile()) collectFile(rel);
     }
   }
   for (const item of readdirSync(root, { withFileTypes: true }).sort((a, b) =>
@@ -175,12 +180,7 @@ export function scanFiles(root: string) {
     if (item.isDirectory()) {
       folders.push(item.name);
       walk(item.name);
-    } else if (item.isFile() && isDocument(item.name)) {
-      try {
-        safePath(root, item.name, 'note');
-        notes.push(item.name);
-      } catch {}
-    }
+    } else if (item.isFile()) collectFile(item.name);
   }
-  return { folders, notes };
+  return { folders, notes, office };
 }

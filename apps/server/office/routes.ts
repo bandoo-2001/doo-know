@@ -5,10 +5,12 @@ import { HttpError } from '../../../packages/core/errors.js';
 import { assertRoot } from '../../../packages/core/indexing/reconcile.js';
 import { readKnowledgeRootIdentity } from '../../../packages/core/indexing/root-identity.js';
 import { workspaceWriteSync } from '../../../packages/core/workspace/gate.js';
+import { notebookFolderIdentity } from '../../../packages/core/office/notebook-files.js';
 import {
   addOfficeDocument,
   listOfficeDocuments,
   officeDigest,
+  officeIdPattern,
   readOfficeDocument,
   saveOfficeDocument,
 } from '../../../packages/core/office/documents.js';
@@ -18,7 +20,7 @@ import {
   validateOfficeFile,
 } from '../../../packages/core/office/formats.js';
 
-const documentId = z.uuidv4();
+const documentId = z.string().regex(officeIdPattern);
 const uploadLimit = { bodyLimit: maxOfficeFileBytes + 8192 };
 type Params = { id: string };
 
@@ -86,16 +88,29 @@ export function registerOfficeRoutes(
   }
 
   app.get('/api/office/documents', async () => ({ documents: listOfficeDocuments(root()) }));
-  app.post('/api/office/documents', uploadLimit, async (req, reply) => {
-    const path = root();
-    const file = await receiveFile(req);
-    const doc = workspaceWriteSync(options.db, { kind: 'office.upload' }, () => {
-      if (path !== root()) throw new HttpError(409, '知识库已切换，请重新上传');
-      return addOfficeDocument(path, file.name, file.bytes);
-    });
-    index(doc.id);
-    return reply.code(201).send(doc);
-  });
+  app.post<{ Querystring: { folder?: string } }>(
+    '/api/office/documents',
+    uploadLimit,
+    async (req, reply) => {
+      const path = root();
+      const identity = readKnowledgeRootIdentity(path);
+      const folder = z
+        .string()
+        .max(4096)
+        .parse(req.query.folder ?? '');
+      const destination = notebookFolderIdentity(path, folder);
+      const file = await receiveFile(req);
+      const doc = workspaceWriteSync(options.db, { kind: 'office.upload' }, () => {
+        if (path !== root() || identity !== readKnowledgeRootIdentity(path))
+          throw new HttpError(409, '知识库已切换，请重新上传');
+        if (destination !== notebookFolderIdentity(path, folder))
+          throw new HttpError(409, '目标目录已变化，请重新选择');
+        return addOfficeDocument(path, folder, file.name, file.bytes);
+      });
+      index(doc.id);
+      return reply.code(201).send(doc);
+    },
+  );
   app.get<{ Params: Params }>('/api/office/documents/:id/download', async (req, reply) => {
     const path = root();
     const file = readOfficeDocument(path, documentId.parse(req.params.id));

@@ -21,7 +21,7 @@ export function blogNotePicker(tree: TreeEntry[], query: string) {
     items.flatMap((item) =>
       item.type === 'folder'
         ? walk(item.children || [])
-        : item.documentType !== 'whiteboard' && item.id
+        : item.type === 'note' && item.documentType !== 'whiteboard' && item.id
           ? [item]
           : [],
     );

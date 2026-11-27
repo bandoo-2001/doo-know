@@ -27,7 +27,6 @@ const ToDooWorkspace = defineAsyncComponent({
   delay: 150,
 });
 const GraphWorkspace = defineAsyncComponent(() => import('./GraphWorkspace.vue'));
-const OfficeWorkspace = defineAsyncComponent(() => import('./OfficeWorkspace.vue'));
 
 type Selection = Pick<
   WorkspaceRoute,
@@ -39,15 +38,12 @@ const toDooRef = ref<{
   requestSectionLeave?(section: ToDooAppSection): Promise<boolean>;
 }>();
 const graphRef = ref<InstanceType<typeof GraphWorkspace>>();
-const officeRef = ref<InstanceType<typeof OfficeWorkspace>>();
 const currentApp = computed(() =>
   props.app === 'to-doo'
     ? toDooRef.value
     : props.app === 'graph'
       ? graphRef.value
-      : props.app === 'office'
-        ? officeRef.value
-        : undefined,
+      : undefined,
 );
 const props = defineProps<{
   app?: WorkspaceRoute['app'];
@@ -81,7 +77,7 @@ defineExpose({
 });
 const hostedNavigation = useWorkspaceMainMenu(
   computed<WorkspaceMainMenuDefinition | undefined>(() => {
-    if (!props.app || props.app === 'graph' || props.app === 'office') return undefined;
+    if (!props.app || props.app === 'graph') return undefined;
     if (props.app === 'to-doo') {
       const activeId = ['tasks', 'board', 'overview'].includes(props.section)
         ? 'tasks'
@@ -173,11 +169,6 @@ watch(
     @back="emit('navigate', undefined)"
     @open-note="(id, line) => emit('open-note', id, line)"
   />
-  <OfficeWorkspace
-    v-else-if="app === 'office'"
-    ref="officeRef"
-    @back="emit('navigate', undefined)"
-  />
   <section v-else class="apps-home" aria-labelledby="apps-title">
     <div class="apps-eyebrow">YOUR WORKSPACE, EXTENDED</div>
     <h1 id="apps-title">应用</h1>
@@ -220,18 +211,7 @@ watch(
           {{ pinnedApps.includes(item.id) ? '从左侧菜单移除' : '加入左侧菜单' }}
         </button>
       </div>
-      <div class="app-entry">
-        <button class="app-card" type="button" aria-label="办公文档" @click="emit('navigate', 'office')">
-          <div class="app-card-top">
-            <span class="blog-app-icon"><Icon name="file" :size="28" /></span>
-          </div>
-          <h2>办公文档</h2>
-          <p>编辑 Word 和 Excel，阅读 PPT 和 PDF。</p>
-          <div class="app-card-bottom">
-            <span>打开办公文档</span><Icon name="forward" :size="18" />
-          </div>
-        </button>
-      </div>
+
     </div>
     <p class="apps-footnote">
       <Icon name="lock" :size="14" /> 资料与应用数据由你掌握，公开分享由你决定。

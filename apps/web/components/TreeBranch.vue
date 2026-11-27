@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { TreeEntry } from '../../../shared/contracts';
 import Icon from './Icon.vue';
 import { features } from '../features';
@@ -15,6 +15,11 @@ const emit = defineEmits<{
   menu: [entry: TreeEntry, event: MouseEvent | KeyboardEvent];
 }>();
 const expanded = ref(new Set<string>());
+watch(() => props.selected, path => {
+  for (const entry of props.entries) {
+    if (entry.type === 'folder' && path.startsWith(entry.path + '/')) expanded.value.add(entry.path);
+  }
+}, { immediate: true });
 function toggle(p: string) {
   expanded.value.has(p) ? expanded.value.delete(p) : expanded.value.add(p);
 }

@@ -13,7 +13,7 @@ import {
 } from 'vue';
 import { api } from '../api';
 import type { FileCommandDetail } from 'ooxml-core/embedding';
-import type { OfficeDocument } from '../office';
+import type { OfficeDocument } from '../../../shared/office';
 import Icon from './Icon.vue';
 
 type Editor = {
@@ -155,7 +155,7 @@ function editorError(error: unknown) {
 function editorWarning(messages: string | string[]) {
   warning.value = Array.isArray(messages) ? messages.join(' · ') : messages;
 }
-defineExpose({ hasUnsavedChanges: () => dirty.value || saving.value, requestLeave });
+defineExpose({ hasUnsavedChanges: () => dirty.value || saving.value, requestLeave, save });
 onErrorCaptured((error) => {
   editorError(error);
   return false;
@@ -170,8 +170,8 @@ onBeforeUnmount(() => {
 <template>
   <section class="office-open" :aria-label="doc.name">
     <header>
-      <AButton :disabled="saving" @click="requestLeave() && emit('close')"
-        ><Icon name="back" :size="15" /> 返回列表</AButton
+      <AButton :disabled="saving" @click="emit('close')"
+        ><Icon name="back" :size="15" /> 返回目录</AButton
       >
       <h1>{{ doc.name }}</h1>
       <span v-if="dirty" class="office-status" role="status">有未保存的修改</span>

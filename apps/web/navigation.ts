@@ -28,7 +28,7 @@ export const toDooTaskFilters = [
 ] as const;
 export type ToDooTaskFilter = (typeof toDooTaskFilters)[number];
 export type WorkspaceRoute = {
-  app?: 'blog' | 'to-doo' | 'graph' | 'office';
+  app?: 'blog' | 'to-doo' | 'graph';
   appSection?: 'overview' | 'articles' | 'taxonomy' | 'settings' | 'design' | ToDooAppSection;
   task?: string;
   occurrence?: string;
@@ -39,6 +39,7 @@ export type WorkspaceRoute = {
   taskFilter?: ToDooTaskFilter;
   appPage?: string;
   note?: string;
+  file?: string;
   line?: number;
   fragment?: string;
   folder?: string;
@@ -59,6 +60,7 @@ export type WorkspaceNavigationState = { canBack: boolean; canForward: boolean }
 export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute {
   const url = new URL(href),
     query = url.searchParams;
+  if (query.get('view') === 'apps' && query.get('app') === 'office') return {};
   const parsed = Number(url.hash.match(/^#L([1-9]\d*)$/)?.[1]);
   const toDoo = query.get('view') === 'apps' && query.get('app') === 'to-doo';
   const date = query.get('date') || '';
@@ -69,9 +71,7 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
   const entity = (key: string) =>
     /^[A-Za-z0-9_-]{1,128}$/.test(query.get(key) || '') ? query.get(key)! : undefined;
   return {
-    ...(query.get('view') === 'apps' && query.get('app') === 'office'
-      ? { app: 'office' as const }
-      : {}),
+    ...(entity('file') ? { file: entity('file') } : {}),
     ...(query.get('view') === 'apps' && query.get('app') === 'graph'
       ? {
           app: 'graph' as const,
@@ -171,6 +171,7 @@ export function createWorkspaceNavigation(options: {
     const url = new URL(location.href);
     for (const key of [
       'note',
+      'file',
       'folder',
       'view',
       'section',
@@ -186,6 +187,7 @@ export function createWorkspaceNavigation(options: {
       'appPage',
     ])
       url.searchParams.delete(key);
+    if (route.file) url.searchParams.set('file', route.file);
     if (route.note) url.searchParams.set('note', route.note);
     if (route.folder) url.searchParams.set('folder', route.folder);
     if (route.view) url.searchParams.set('view', route.view);

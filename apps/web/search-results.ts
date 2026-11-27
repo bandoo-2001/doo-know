@@ -2,7 +2,7 @@ import type { TreeEntry } from '../../shared/contracts';
 import { CONTENT_MATCH_RANK, filenameMatchRank, searchNeedle } from '../../shared/search-matching';
 export type WorkspaceSearchResult = {
   id: string;
-  type?: 'note' | 'folder';
+  type?: TreeEntry['type'];
   title: string;
   relativePath: string;
   snippet: string;
@@ -26,13 +26,14 @@ export function filenameResults(
   for (const entry of entries) {
     if (directory && entry.path !== directory && !entry.path.startsWith(directory + '/')) continue;
     if (entry.type === 'note' && !entry.id) continue;
-    const rank = filenameMatchRank(entry.path, query, entry.type);
+    const path = entry.type === 'office' ? entry.relativePath ?? entry.name : entry.path;
+    const rank = filenameMatchRank(path, query, entry.type === 'folder' ? 'folder' : 'note');
     if (rank === undefined || buckets[rank].length >= limit) continue;
     buckets[rank].push({
       id: entry.type === 'folder' ? 'folder:' + entry.path : entry.id!,
       type: entry.type,
       title: entry.name.replace(/\.md$/i, ''),
-      relativePath: entry.path,
+      relativePath: path,
       snippet: entry.type === 'folder' ? '文件夹 · 打开查看内容' : '文件名与目录位置匹配',
       line: 1,
       filenameMatch: true,

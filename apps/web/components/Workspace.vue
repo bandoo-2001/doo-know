@@ -28,7 +28,9 @@ import MarkdownIt from 'markdown-it';
 import { markdownStyles } from '../../../shared/markdown-styles';
 import DOMPurify from 'dompurify';
 import type { NoteDocument, TreeEntry } from '../../../shared/contracts';
+import { officeExtensions, officeFormat, officeLabels, type OfficeDocument } from '../../../shared/office';
 import { api, ApiError, resetCsrf } from '../api';
+import { copyText } from '../copy-text';
 import Icon from './Icon.vue';
 import LoadingState from './LoadingState.vue';
 import TreeBranch from './TreeBranch.vue';
@@ -218,6 +220,21 @@ const appsSection = ref<BlogSection | ToDooAppSection>(readWorkspaceRoute().appS
 type ToDooSelection = Pick<WorkspaceRoute, 'task' | 'occurrence' | 'list' | 'date' | 'calendarView' | 'taskFilter' | 'appPage'>;
 const toDooSelection = ref<ToDooSelection>({ task: readWorkspaceRoute().task, occurrence: readWorkspaceRoute().occurrence, list: readWorkspaceRoute().list, date: readWorkspaceRoute().date, calendarView: readWorkspaceRoute().calendarView, taskFilter: readWorkspaceRoute().taskFilter, appPage: readWorkspaceRoute().appPage });
 const appsRef = ref<InstanceType<typeof AppsWorkspace>>();
+const OfficeFileView = defineAsyncComponent(() => import('./OfficeFileView.vue'));
+const officeView = ref<InstanceType<typeof OfficeFileView>>();
+const activeOffice = ref<OfficeDocument>();
+const officeDirty = computed(() => !!officeView.value?.hasUnsavedChanges());
+const officeInput = ref<HTMLInputElement>();
+const officeAccept = officeExtensions.map(ext => '.' + ext).join(',');
+const officeUploading = ref('');
+let uploadDestination: { folder: string; intent: number; scope: NonNullable<typeof draftScope.value> } | undefined;
+let confirmedOfficeLeave = -1;
+function allowOfficeLeave(intent: number) {
+  if (panel.value !== 'office' || !officeDirty.value || confirmedOfficeLeave === intent) return true;
+  if (!officeView.value?.requestLeave()) return false;
+  confirmedOfficeLeave = intent;
+  return true;
+}
 const workspaceMenuHost = provideWorkspaceMainMenu();
 const activeAppMenu = computed(() => panel.value === 'apps' ? workspaceMenuHost.current.value : undefined);
 const appOwnsNavigation = computed(() => activeAppMenu.value?.navigationMode === 'embedded');
@@ -402,6 +419,85 @@ function openImport() {
     folder.value || note.value?.relativePath.split('/').slice(0, -1).join('/') || '00-Inbox';
   importOpen.value = true;
 }
+function chooseNotebookFiles(parent?: string) {
+  if (!treeLoaded.value || officeUploading.value || !draftScope.value) return;
+  createMenuOpen.value = false;
+  uploadDestination = {
+    folder: parent ?? (folder.value || (inboxAvailable.value ? '00-Inbox' : '')),
+    scope: draftScope.value, intent: navigationIntent,
+  };
+  officeInput.value?.click();
+}
+async function uploadNotebookFiles(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const files = Array.from(input.files ?? []);
+  input.value = '';
+  const target = uploadDestination;
+  uploadDestination = undefined;
+  if (!files.length || !target || officeUploading.value || !currentCreationScope(target.scope)) return;
+  const uploaded: OfficeDocument[] = [];
+  const failed: string[] = [];
+  try {
+    const url = '/api/office/documents?' + new URLSearchParams({ folder: target.folder });
+    for (const file of files) {
+      if (!currentCreationScope(target.scope)) return;
+      officeUploading.value = file.name;
+      try {
+        if (!officeFormat(file.name)) throw Error('支持 .docx、.xlsx、.pptx 和 .pdf');
+        const body = new FormData();
+        body.append('file', file);
+        uploaded.push(await api<OfficeDocument>(url, 'POST', body, { timeoutMs: 60_000 }));
+      } catch (cause) {
+        failed.push(file.name + '：' + (cause instanceof Error ? cause.message : '上传失败'));
+      }
+    }
+    if (!currentCreationScope(target.scope)) return;
+    if (uploaded.length) {
+      await refresh();
+      if (!currentCreationScope(target.scope)) return;
+      tell(`已上传 ${uploaded.length} 个文件到${target.folder || '知识库根目录'}`);
+      if (currentIntent(target.intent)) {
+        createOpen.value = false;
+        query.value = '';
+        if (files.length === 1) await openOffice(uploaded[0]);
+        else if (target.folder) await select({type: 'folder', name: target.folder, path: target.folder});
+        else await browseRoot();
+      }
+    }
+    if (failed.length) showError(new Error(failed.join('；')));
+  } finally { officeUploading.value = ''; }
+}
+async function openOffice(doc: OfficeDocument, syncUrl = true, intent = ++navigationIntent) {
+  if (panel.value === 'office' && activeOffice.value?.id === doc.id) return;
+  await guard(async () => {
+    await localDrafts.flush();
+    if (!currentIntent(intent)) return;
+    viewEpoch++;
+    noteOpening.value = false;
+    note.value = undefined;
+    noteInfo.value = undefined;
+    draft.value = savedContent.value = '';
+    largeDirty.value = boardDirty.value = false;
+    activeOffice.value = doc;
+    folder.value = doc.relativePath?.split('/').slice(0, -1).join('/') ?? '';
+    selected.value = flat.value.find(entry => entry.type === 'office' && entry.id === doc.id)?.path ?? doc.relativePath ?? '';
+    collection.value = 'notes';
+    panel.value = 'office';
+    drawer.value = false;
+    if (syncUrl) navigation.commit({ file: doc.id });
+  }, intent);
+}
+async function openOfficeById(id: string, syncUrl = true, intent = ++navigationIntent) {
+  if (!treeLoaded.value) await refresh();
+  if (!currentIntent(intent)) return;
+  const entry = flat.value.find(item => item.type === 'office' && item.id === id);
+  if (entry?.type !== 'office') throw new Error('文件已移动或不存在，请刷新目录');
+  await openOffice(entry, syncUrl, intent);
+}
+function closeOffice() {
+  if (folder.value) void select({ type: 'folder', path: folder.value, name: folder.value });
+  else void browseRoot();
+}
 function openWebCapture() {
   createMenuOpen.value = false;
   webCaptureIntent = navigationIntent;
@@ -502,12 +598,14 @@ async function treeAction(entry: TreeEntry, action: TreeAction) {
     if (action === 'favorite' && entry.id) {
       await toggleFavorite(entry.id);
     } else if (action === 'copy') {
-      await navigator.clipboard.writeText(entry.path);
+      await copyText(entry.path);
       tell('路径已复制');
     } else if(action==='duplicate'&&entry.id){
       copyTarget.value=entry;copyIntent=navigationIntent;copyOpen.value=true;
     } else if (action === 'new-note' || action === 'new-folder' || action === 'new-whiteboard' || action === 'new-mindmap' || action === 'new-flowchart') {
       create(action === 'new-whiteboard'?'whiteboard':action === 'new-mindmap'?'mindmap':action === 'new-flowchart'?'flowchart':action === 'new-note' ? 'note' : 'folder', entry.path);
+    } else if (action === 'upload') {
+      chooseNotebookFiles(entry.path);
     } else if (action === 'import') {
       importFolder.value = entry.path;
       importOpen.value = true;
@@ -520,6 +618,11 @@ async function treeAction(entry: TreeEntry, action: TreeAction) {
         drawer.value = false;
         navigation.commit({ note: entry.id, line: noteLine.value });
       }
+    } else if (action === 'download' && entry.type === 'office') {
+      const link = document.createElement('a');
+      link.href = '/api/office/documents/' + encodeURIComponent(entry.id) + '/download';
+      link.download = entry.name;
+      link.click();
     } else if (action === 'download' && entry.id) {
       await downloadNote({ id: entry.id, relativePath: entry.path });
     } else if (action === 'delete' && entry.type === 'folder') {
@@ -528,7 +631,7 @@ async function treeAction(entry: TreeEntry, action: TreeAction) {
         folderDeleteUncertain.value = false;
         dialogError.value = '';
       };
-      if (note.value?.relativePath.startsWith(entry.path + '/')) await guard(confirm);
+      if (note.value?.relativePath.startsWith(entry.path + '/') || (panel.value === 'office' && activeOffice.value?.relativePath?.startsWith(entry.path + '/'))) await guard(confirm, ++navigationIntent);
       else await confirm();
     } else if ((action === 'move' || action === 'delete') && entry.id) {
       const apply = async () => {
@@ -621,7 +724,7 @@ const dirty = computed(
   () => !!note.value && (boardDirty.value || editorComposing.value || largeDirty.value || draft.value !== savedContent.value),
 );
 watch(
-  dirty,
+  () => dirty.value || officeDirty.value,
   (value) => {
     gitUnsaved.value = value;
   },
@@ -684,8 +787,9 @@ async function browseRoot() {
   );
 }
 const navigation = createWorkspaceNavigation({
-  dirty: () => historyWriteLocked.value || dirty.value || !!embeddedPrimaryId.value || !!appsRef.value?.hasUnsavedChanges(),
+  dirty: () => historyWriteLocked.value || dirty.value || officeDirty.value || !!embeddedPrimaryId.value || !!appsRef.value?.hasUnsavedChanges(),
   canPreserveDraft: (route) => !historyWriteLocked.value && !embeddedPrimaryId.value && (
+    panel.value === 'office' ||
     (route.view === 'apps' && route.app === 'to-doo' && panel.value === 'apps' && appsApp.value === 'to-doo') ||
     (!appsRef.value?.hasUnsavedChanges() && (!!route.view || (!!route.note && note.value?.id === route.note)))),
   guard,
@@ -744,6 +848,7 @@ function initializeDrafts(force = false): Promise<boolean> {
   return draftIdentityRequest;
 }
 async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
+  if (route.file !== activeOffice.value?.id && !allowOfficeLeave(intent)) return false;
   if (historyWriteLocked.value) return false;
   if (!currentIntent(intent)) return false;
   if (panel.value === 'apps' && !(route.view === 'apps' && route.app === appsApp.value) && !await confirmAppLeave(intent)) return false;
@@ -752,6 +857,7 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
   if (panel.value === 'apps' && appsApp.value === 'to-doo' && route.view === 'apps' && route.app === 'to-doo' &&
       (await appsRef.value?.requestSectionLeave(nextAppSection as ToDooAppSection)) === false) return false;
   if (!currentIntent(intent)) return false;
+  if (route.file) return openOfficeById(route.file, false, intent);
   if (route.note && ['settings', 'trash', 'apps', 'collection'].includes(panel.value) && note.value?.id === route.note) {
     if (!await initializeDrafts() || !currentIntent(intent)) return;
     panel.value = 'note';
@@ -1181,6 +1287,7 @@ async function select(entry: TreeEntry, syncUrl = true, intent = ++navigationInt
       drawer.value = false;
       if (syncUrl) navigation.commit({ note: entry.id, line: noteLine.value });
     } else if (entry.type === 'note') await openNote(entry.id!, undefined, syncUrl, false, intent);
+    else if (entry.type === 'office') await openOffice(entry, syncUrl, intent);
     else
       await guard(async () => {
         if (!currentIntent(intent)) return;
@@ -1199,6 +1306,7 @@ async function select(entry: TreeEntry, syncUrl = true, intent = ++navigationInt
 const leaveOpen = ref(false);
 let pendingNavigation: (() => Promise<void>) | undefined;
 async function guard(fn: () => Promise<void>, intent = navigationIntent) {
+  if (!allowOfficeLeave(intent)) return;
   if (historyWriteLocked.value) return;
   if (panel.value === 'apps' && !await confirmAppLeave(intent)) return;
   if(embeddedPrimaryId.value){await embeddedPrimaryRef.value?.requestClose();return;}
@@ -1775,7 +1883,7 @@ async function submitCreate() {
     createBusy.value = false;
   }
 }
-const panel = ref<'empty' | 'folder' | 'note' | 'trash' | 'settings' | 'apps' | 'collection'>('empty'),
+const panel = ref<'empty' | 'folder' | 'note' | 'office' | 'trash' | 'settings' | 'apps' | 'collection'>('empty'),
   revisionsOpen = ref(false),
   deleteOpen = ref(false);
 const deleteTarget = ref<NoteDocument>();
@@ -1805,7 +1913,7 @@ async function removeFolder() {
     }
     if (contains(folder.value)) folder.value = target.path.split('/').slice(0, -1).join('/');
     if (contains(selected.value)) selected.value = folder.value;
-    if (!['settings', 'trash', 'apps'].includes(panel.value) && !note.value) {
+    if ((panel.value !== 'office' || (activeOffice.value?.relativePath && contains(activeOffice.value.relativePath))) && !['settings', 'trash', 'apps'].includes(panel.value) && !note.value) {
       panel.value = folder.value ? 'folder' : 'empty';
       navigation.commit(folder.value ? { folder: folder.value } : {});
     }
@@ -1927,6 +2035,7 @@ async function openTrash(syncUrl = true, intent = ++navigationIntent) {
   });
 }
 async function retainNoteContext(intent = navigationIntent) {
+  if (!allowOfficeLeave(intent)) return false;
   if (historyWriteLocked.value) return false;
   if (panel.value === 'apps' && !await confirmAppLeave(intent)) return false;
   if(noteInfo.value?.editorMode === 'full') await editorRef.value?.flush();
@@ -2703,10 +2812,13 @@ watch(flat, () => {
   );
 });
 function shortcut(e: KeyboardEvent) {
-  handleSaveShortcut(e, () => { if (panel.value === 'note') void save(); });
+  handleSaveShortcut(e, () => {
+    if (panel.value === 'note') void save();
+    else if (panel.value === 'office') void officeView.value?.save();
+  });
 }
 function unload(e: BeforeUnloadEvent) {
-  if (historyWriteLocked.value || dirty.value || appsRef.value?.hasUnsavedChanges()) {
+  if (historyWriteLocked.value || dirty.value || officeDirty.value || appsRef.value?.hasUnsavedChanges()) {
     e.preventDefault();
     e.returnValue = '';
   }
@@ -2746,6 +2858,8 @@ onMounted(() => {
       await refresh();
     }
     if (!currentIntent(intent)) return;
+    const legacy = new URLSearchParams(window.location.search);
+    if (legacy.get('view') === 'apps' && legacy.get('app') === 'office') navigation.commit({}, true);
     await applyRoute(readWorkspaceRoute(), intent);
     if (!currentIntent(intent)) return;
     if (sessionStorage.getItem('dooknow-welcome-action') === 'create-note') {
@@ -2873,6 +2987,7 @@ async function closeNotebookDrawer() {
             aria-label="搜索笔记与目录"
             ><template #prefix><Icon name="search" :size="17" /></template
           ></AInput>
+          <input ref="officeInput" type="file" :accept="officeAccept" multiple hidden aria-label="选择要上传到知识库的文件" @change="run(() => uploadNotebookFiles($event))" />
           <div class="sidebar-create">
             <AButton
               type="primary"
@@ -2910,6 +3025,7 @@ async function closeNotebookDrawer() {
                   >
                     <Icon name="folder" />新建文件夹
                   </button>
+                  <button :disabled="!treeLoaded || !!officeUploading" @click="chooseNotebookFiles()"><Icon name="upload" />上传文件</button>
                   <button @click="openImport"><Icon name="file" />导入 Markdown</button>
                   <button :disabled="!treeLoaded" @click="openWebCapture"><Icon name="link" />保存网页</button>
                 </div></template
@@ -2978,7 +3094,7 @@ async function closeNotebookDrawer() {
                 run(() =>
                   r.type === 'folder'
                     ? select({ type: 'folder', name: r.title, path: r.relativePath })
-                    : openNote(r.id, r.filenameMatch ? r.line : { line: r.line || 1, query: searchNeedle(query) }),
+                    : r.type === 'office' ? openOfficeById(r.id) : openNote(r.id, r.filenameMatch ? r.line : { line: r.line || 1, query: searchNeedle(query) }),
                 )
               "
             >
@@ -3082,7 +3198,7 @@ async function closeNotebookDrawer() {
       :active="panel"
       :collection="collection"
       :pinned-apps="pinnedApps"
-      :active-app="appsApp === 'office' ? undefined : appsApp"
+      :active-app="appsApp"
       @collection="showCollection"
       @settings="settings"
       @trash="openTrash()"
@@ -3146,9 +3262,9 @@ async function closeNotebookDrawer() {
       <NAlert v-if="error" type="error" closable @close="error = ''" class="global-error">{{
         error
       }}</NAlert>
-      <div v-if="uploadBusy" class="asset-upload-status" role="status" aria-live="polite" aria-busy="true">
+      <div v-if="uploadBusy || officeUploading" class="asset-upload-status" role="status" aria-live="polite" aria-busy="true">
         <span class="upload-progress-indicator" aria-hidden="true"></span>
-        <span>上传中 · {{ uploadName }}</span>
+        <span>上传中 · {{ officeUploading || uploadName }}</span>
       </div>
       <div v-if="uploadFailure && note?.id === uploadFailure.request.noteId && panel === 'note'" class="asset-upload-status upload-failure" role="alert">
         <span>{{ uploadFailure.file.name }} 上传失败：{{ uploadFailure.message }}</span>
@@ -3502,6 +3618,7 @@ async function closeNotebookDrawer() {
           @change="upload"
         />
       </section>
+      <OfficeFileView v-if="panel === 'office' && activeOffice" :key="activeOffice.id" ref="officeView" :doc="activeOffice" @close="closeOffice" @saved="run(refresh)" />
       <section v-if="panel === 'empty'" class="utility-view workspace-empty">
         <LoadingState v-if="noteOpening || (!treeLoaded && treeRefreshing)" variant="document" :label="noteOpening ? '正在打开笔记…' : '正在准备工作区…'" />
         <div v-else-if="!treeLoaded" class="utility-empty">
@@ -3523,7 +3640,8 @@ async function closeNotebookDrawer() {
               @click="quickNote"
               >快速记录</AButton
             >
-            <AButton type="text" @click="importOpen = true">导入 Markdown</AButton>
+            <AButton :disabled="!!officeUploading" @click="chooseNotebookFiles()">上传文件</AButton>
+            <AButton type="text" @click="openImport">导入 Markdown</AButton>
           </div>
         </div>
       </section>
@@ -3535,7 +3653,7 @@ async function closeNotebookDrawer() {
               <h1>{{ folder.split('/').at(-1) }}</h1>
               <p class="folder-info">
                 {{ folderEntries.filter((x) => x.type === 'folder').length }} 个文件夹 ·
-                {{ folderEntries.filter((x) => x.type === 'note').length }} 篇笔记
+                {{ folderEntries.filter((x) => x.type !== 'folder').length }} 个文档
               </p>
             </div>
             <div class="folder-actions">
@@ -3544,7 +3662,8 @@ async function closeNotebookDrawer() {
               >
               <AButton @click="create('folder')"
                 ><template #icon><Icon name="plus" /></template>新建文件夹</AButton
-              ><AButton @click="openImport">导入 Markdown</AButton>
+              ><AButton :disabled="!!officeUploading" @click="chooseNotebookFiles(folder)">上传文件</AButton>
+              <AButton @click="openImport">导入 Markdown</AButton>
             </div>
           </div>
         </header>
@@ -3572,7 +3691,7 @@ async function closeNotebookDrawer() {
                   }}</span>
                 </button>
               </td>
-              <td>{{ entry.type === 'folder' ? '文件夹' : entry.documentType==='mindmap'?'脑图':entry.documentType==='flowchart'?'流程图':entry.documentType==='whiteboard'?'白板':'Markdown' }}</td>
+              <td>{{ entry.type === 'folder' ? '文件夹' : entry.type === 'office' ? officeLabels[entry.fileType] : entry.documentType==='mindmap'?'脑图':entry.documentType==='flowchart'?'流程图':entry.documentType==='whiteboard'?'白板':'Markdown' }}</td>
               <td :title="entry.path">
                 {{
                   entry.updatedAt
@@ -3601,7 +3720,7 @@ async function closeNotebookDrawer() {
         <div class="folder-empty">
           <Icon name="file" :size="44" />
           <p>
-            {{ folderEntries.length ? '选择文件即可打开编辑' : '这里还没有笔记，记录第一个想法吧' }}
+            {{ folderEntries.length ? '选择文件即可打开' : '这里还没有笔记，记录第一个想法吧' }}
           </p>
           <AButton v-if="!folderEntries.length" type="primary" @click="create('note')"
             >新建笔记</AButton
@@ -3782,6 +3901,7 @@ async function closeNotebookDrawer() {
           @click="quickNote"
           >快速记录到收集箱</AButton
         >
+        <AButton v-if="createKind === 'note'" type="text" :disabled="createBusy || inboxBusy || !!officeUploading" @click="chooseNotebookFiles(newFolder)"><Icon name="upload" :size="15" /> 上传文件</AButton>
         <AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
         <label>所在目录</label
         ><DirectoryTreeSelect

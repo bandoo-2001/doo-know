@@ -16,7 +16,7 @@ const query = ref(''),
   choosing = ref(false);
 const notes = computed(() => {
   const walk = (items: TreeEntry[]): TreeEntry[] =>
-    items.flatMap((n) => (n.type === 'folder' ? walk(n.children || []) : n.id ? [n] : []));
+    items.flatMap((n) => (n.type === 'folder' ? walk(n.children || []) : n.type === 'note' && n.id ? [n] : []));
   return walk(props.tree);
 });
 const available = computed(() =>

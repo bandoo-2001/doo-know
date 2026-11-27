@@ -325,7 +325,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     notes,
     () => platform.get().knowledge,
   );
-  app.get('/api/tree', async (req) => notes.tree((req as any).ownerId));
+  app.get('/api/tree', async (req) => notes.tree((req as any).ownerId, true));
   app.put<{ Params: { id: string } }>('/api/notes/:id/favorite', async (req) =>
     notes.setFavorite(
       (req as any).ownerId,
@@ -380,7 +380,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     const b = req.body as Record<string, unknown>;
     return reply
       .code(201)
-      .send(notes.createFolder(text(b?.parent, '目录', 1000), text(b?.name, '名称', 180)));
+      .send(notes.createFolder(text(b?.parent, '目录', 1000), text(b?.name, '名称', 180), (req as any).ownerId));
   });
   app.delete('/api/folders', async (req) => {
     const b = req.body as Record<string, unknown>;

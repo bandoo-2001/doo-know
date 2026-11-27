@@ -1,4 +1,5 @@
-import { DOO_ASSETS_DIRECTORY } from '../../shared/storage-paths.js';
+import { DOO_ASSETS_DIRECTORY, DOO_DATA_DIRECTORY } from '../../shared/storage-paths.js';
+import { listOfficeDocuments, officeDirectory } from './office/documents.js';
 import { documentMetadataReader } from './knowledge/document-metadata.js';
 import { publishedNoteSource, readPublishedMarkdown, readableSourceVersion } from './knowledge/published-note-source.js';
 import { documentTitle, documentType, MAX_WHITEBOARD_BYTES } from '../../shared/whiteboard.js';
@@ -26,7 +27,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
   const readMetadata = documentMetadataReader();
   const library = portableLibrary(config, db);
   const mutations = mutationCore(config, db);
-  function scan() {
+  function scan(includeOffice = false) {
     assertOrganizationReadable(db);
     assertRoot(config, db);
     library.refresh();
@@ -36,7 +37,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
       db.prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')").get()
     )
       throw new KnowledgeError(503, 'SYNC_IN_PROGRESS', '原文同步中', true);
-    const files = scanFiles(config.knowledgeRoot);
+    const files = scanFiles(config.knowledgeRoot, includeOffice);
     assertRoot(config, db);
     db.transaction(() => {
       const live = new Set(files.notes);
@@ -170,8 +171,8 @@ export function noteService(config: AppConfig, db: AppDatabase) {
       return undefined;
     }
   }
-  function tree(ownerId?: string): TreeEntry[] {
-    const files = scan();
+  function tree(ownerId?: string, includeOffice = false): TreeEntry[] {
+    const files = scan(includeOffice);
     const favorites = new Set(
       ownerId
         ? (
@@ -209,6 +210,13 @@ export function noteService(config: AppConfig, db: AppDatabase) {
         ...(ownerId ? { favorite: favorites.has(n.id) } : {}),
       });
     }
+    if (includeOffice) {
+      for (const doc of listOfficeDocuments(config.knowledgeRoot, files.office)) {
+        // Legacy originals appear at the root, retaining their current ID, bytes and download URL.
+        const path = doc.relativePath ?? [DOO_DATA_DIRECTORY, officeDirectory, doc.id, 'document.' + doc.fileType].join('/');
+        all.push({ ...doc, type: 'office', path });
+      }
+    }
     const map = new Map(all.map((e) => [e.path, e])),
       roots: TreeEntry[] = [];
     for (const e of all) {
@@ -219,7 +227,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     const sort = (items: TreeEntry[]) => {
       items.sort(
         (a, b) =>
-          (a.type === b.type ? 0 : a.type === 'folder' ? -1 : 1) ||
+          Number(b.type === 'folder') - Number(a.type === 'folder') ||
           a.name.localeCompare(b.name, 'zh-CN'),
       );
       items.forEach((i) => i.children && sort(i.children));
@@ -297,7 +305,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     }
   }
 
-  function createFolder(parent: string, name: string) {
+  function createFolder(parent: string, name: string, ownerId?: string) {
     if (!validName(name) || name === DOO_ASSETS_DIRECTORY) throw new HttpError(400, '文件夹名不允许');
     assertRoot(config, db);
     recoverFolders(config, db);
@@ -315,7 +323,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
       if ((e as NodeJS.ErrnoException).code === 'EEXIST') throw new HttpError(409, '目录已存在');
       throw e;
     }
-    return tree();
+    return tree(ownerId, !!ownerId);
   }
   const exists = (id: string) => {
     const n = row(id);

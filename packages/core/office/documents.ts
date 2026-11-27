@@ -1,4 +1,13 @@
-import { createHash, randomUUID } from 'node:crypto';
+import type { OfficeDocument } from '../../../shared/office.js';
+import { scanFiles } from '../files.js';
+import {
+  notebookOfficeItems,
+  notebookOfficePaths,
+  officeDigest,
+  readNotebookOffice,
+  saveNotebookOffice,
+} from './notebook-files.js';
+export { addNotebookOffice as addOfficeDocument, officeDigest } from './notebook-files.js';
 import { HttpError } from '../errors.js';
 import {
   listKnowledgeDataDirectories,
@@ -19,10 +28,10 @@ const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a
 const location = (id: string, file: string) => `${officeDirectory}/${id}/${file}`;
 const originalLocation = (id: string, fileType: OfficeFormat) =>
   location(id, `document.${fileType}`);
-export const officeDigest = (data: Buffer | string) =>
-  createHash('sha256').update(data).digest('hex');
+export const officeIdPattern =
+  /^(?:file-[0-9a-f]{64}|[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/;
 
-function item(root: string, id: string) {
+function legacyItem(root: string, id: string): OfficeDocument | undefined {
   if (!idPattern.test(id)) return undefined;
   const metadata = readKnowledgeDataFile(root, location(id, 'metadata.json'), 4096);
   if (!metadata) return undefined;
@@ -40,28 +49,33 @@ function item(root: string, id: string) {
   if (stat) return { id, ...file, ...stat };
 }
 
-export function listOfficeDocuments(root: string) {
-  return listKnowledgeDataDirectories(root, officeDirectory)
-    .flatMap((id) => item(root, id) ?? [])
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || a.name.localeCompare(b.name));
+function legacyIds(root: string) {
+  return listKnowledgeDataDirectories(root, officeDirectory).filter((id) => idPattern.test(id));
 }
 
-export function addOfficeDocument(root: string, name: string, bytes: Buffer) {
-  const file = officeFileName(name);
-  validateOfficeFile(bytes, file.fileType);
-  const id = randomUUID();
-  writeKnowledgeDataFile(
-    root,
-    location(id, 'metadata.json'),
-    JSON.stringify({ format: 1, name: file.name }) + '\n',
-    null,
+export function listOfficeIds(root: string) {
+  return [...notebookOfficePaths(root, scanFiles(root, true).office).keys(), ...legacyIds(root)];
+}
+
+export function listOfficeDocuments(root: string, paths = scanFiles(root, true).office) {
+  const items = notebookOfficeItems(root, paths);
+  for (const id of legacyIds(root)) {
+    try {
+      const item = legacyItem(root, id);
+      if (item) items.push(item);
+    } catch (error) {
+      // A damaged legacy upload should not hide the rest of the notebook tree.
+      if (!(error instanceof HttpError) || error.statusCode !== 409) throw error;
+    }
+  }
+  return items.sort(
+    (a, b) => b.updatedAt.localeCompare(a.updatedAt) || a.name.localeCompare(b.name),
   );
-  writeKnowledgeDataFile(root, originalLocation(id, file.fileType), bytes, null);
-  return item(root, id)!;
 }
 
-export function readOfficeDocument(root: string, id: string) {
-  const metadata = item(root, id);
+export function readOfficeDocument(root: string, id: string, refreshMissing = true) {
+  if (id.startsWith('file-')) return readNotebookOffice(root, id, refreshMissing);
+  const metadata = legacyItem(root, id);
   const bytes =
     metadata &&
     readKnowledgeDataFile(root, originalLocation(id, metadata.fileType), maxOfficeFileBytes);
@@ -77,6 +91,7 @@ export function saveOfficeDocument(
   expectedDigest: string,
 ) {
   validateOfficeFile(bytes, fileType);
+  if (id.startsWith('file-')) return saveNotebookOffice(root, id, bytes, expectedDigest);
   writeKnowledgeDataFile(root, originalLocation(id, fileType), bytes, expectedDigest);
-  return item(root, id)!;
+  return legacyItem(root, id)!;
 }

@@ -3,10 +3,9 @@ import type { AppConfig } from '../../../shared/contracts.js';
 import type { AppDatabase } from '../db.js';
 import { HttpError } from '../errors.js';
 import { readKnowledgeRootIdentity } from '../indexing/root-identity.js';
-import { listKnowledgeDataDirectories } from '../knowledge-data.js';
 import { fail } from '../knowledge/errors.js';
 import { boundedText } from '../knowledge/limits.js';
-import { officeDigest, officeDirectory, readOfficeDocument } from './documents.js';
+import { officeDigest, listOfficeIds, officeIdPattern, readOfficeDocument } from './documents.js';
 import { extractIndexedOfficeText } from './extract.js';
 import type { OfficeFormat } from './formats.js';
 import { pdfOcrConfiguration } from './pdf-ocr.js';
@@ -19,7 +18,6 @@ const documentSegments = 512;
 const shortSearchRows = 4096;
 const searchVerificationBytes = 40 * 1024 * 1024;
 const searchVerificationDocuments = 24;
-const documentIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 type Source = {
   revision: number;
@@ -213,7 +211,7 @@ export function officeSearchIndex(
   function inspect(id: string) {
     let original: Original;
     try {
-      original = readOfficeDocument(rootPath, id);
+      original = readOfficeDocument(rootPath, id, false);
     } catch (error) {
       const state = observe.immediate(
         id,
@@ -276,14 +274,8 @@ export function officeSearchIndex(
     if (inspect(id).state?.revision === state.revision) publish.immediate(id, state, result);
   }
 
-  function nativeIds() {
-    return listKnowledgeDataDirectories(rootPath, officeDirectory).filter((id) =>
-      documentIdPattern.test(id),
-    );
-  }
-
   function inventory() {
-    const ids = nativeIds();
+    const ids = listOfficeIds(rootPath);
     const tracked = db
       .prepare(
         `
@@ -342,7 +334,7 @@ export function officeSearchIndex(
   function schedule(documentId?: string) {
     if (!rootIsCurrent()) return;
     if (documentId !== undefined) {
-      if (!documentIdPattern.test(documentId)) return;
+      if (!officeIdPattern.test(documentId)) return;
       try {
         if (inspect(documentId).state?.status === 'pending') queue.add(documentId);
       } catch {
@@ -468,7 +460,7 @@ export function officeSearchIndex(
     if (pendingRows.length || scan) reasons.add('OFFICE_INDEX_PENDING');
     else if (scanRequested) {
       try {
-        if (nativeIds().length) reasons.add('OFFICE_INDEX_PENDING');
+        if (listOfficeIds(rootPath).length) reasons.add('OFFICE_INDEX_PENDING');
       } catch {
         reasons.add('OFFICE_INDEX_UNAVAILABLE');
       }

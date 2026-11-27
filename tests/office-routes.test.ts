@@ -238,7 +238,7 @@ it('serves the latest native Office text and owner-only originals through packag
     const upload = (name: string, bytes: Buffer) =>
       f.app.inject({
         method: 'POST',
-        url: '/api/office/documents',
+        url: '/api/office/documents?folder=00-Inbox',
         headers: { ...headers, ...form },
         payload: multipart(name, bytes),
       });
@@ -249,7 +249,21 @@ it('serves the latest native Office text and owner-only originals through packag
       const inputBytes = scannedPdf ?? officeFile(fileType, query);
       const original = await upload(name, inputBytes);
       expect(original.statusCode, original.body).toBe(201);
-      const { id } = original.json();
+      const { id, relativePath } = original.json();
+      expect(relativePath).toBe('00-Inbox/' + name);
+      expect(await readFile(join(f.knowledgeRoot, relativePath))).toEqual(inputBytes);
+      const tree = await f.app.inject({ url: '/api/tree', headers });
+      expect(tree.json()).toContainEqual(
+        expect.objectContaining({
+          path: '00-Inbox',
+          children: expect.arrayContaining([
+            expect.objectContaining({ type: 'office', id, path: relativePath, name }),
+          ]),
+        }),
+      );
+      const collision = await upload(name, officeFile(fileType, 'same name'));
+      expect(collision.statusCode).toBe(409);
+      expect(await readFile(join(f.knowledgeRoot, relativePath))).toEqual(inputBytes);
       const downloadPath = `/api/office/documents/${id}/download`;
       const pdfViewPath = `/api/office/documents/${id}/view`;
       const page = scannedPdf ? scanPage : '1';
@@ -327,6 +341,10 @@ it('opens the original library in place and rejects incomplete or mismatched sav
       JSON.stringify({ format: 1, name: 'Legacy.docx' }),
     );
     await writeFile(join(legacy, 'document.docx'), original);
+    const tree = await f.app.inject({ url: '/api/tree', headers });
+    expect(tree.json()).toContainEqual(
+      expect.objectContaining({ type: 'office', id, name: 'Legacy.docx' }),
+    );
     const list = await f.app.inject({ url: '/api/office/documents', headers });
     expect(list.json().documents).toContainEqual(
       expect.objectContaining({ id, name: 'Legacy.docx', fileType: 'docx' }),

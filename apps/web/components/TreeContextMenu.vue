@@ -7,6 +7,7 @@ export type TreeAction =
   | 'new-note'
   | 'new-folder'
   | 'import'
+  | 'upload'
   | 'copy'
   | 'duplicate'
   | 'move'
@@ -42,9 +43,10 @@ const items = computed<{ key: TreeAction; label: string }[]>(() => [
         { key: 'new-mindmap' as const, label: '新建脑图' },
         { key: 'new-flowchart' as const, label: '新建流程图' },
         { key: 'new-folder' as const, label: '新建子文件夹' },
+        { key: 'upload' as const, label: '上传文件' },
         { key: 'import' as const, label: '导入 Markdown' },
       ]
-    : [
+    : entry.value?.type === 'office' ? [{ key: 'download' as const, label: '下载原件' }] : [
         {
           key: 'favorite' as const,
           label: props.favoriteIds?.includes(entry.value?.id || '') ? '取消收藏' : '收藏',
