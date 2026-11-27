@@ -234,33 +234,35 @@ watch(() => [props.feature.state, props.feature.configVersion], load);
             </AButton>
           </div>
           <template v-if="tab.key === 'guide'">
+            <div v-if="endpoint" class="guide-value">
+              <span>{{ path === 'oauth' ? 'OAuth MCP 服务地址' : 'API Key MCP 服务地址' }}</span
+              ><code>{{ endpoint }}</code
+              ><AButton size="small" @click="copy(endpoint, '连接地址')">复制连接地址</AButton>
+            </div>
             <template v-if="path === 'oauth'">
               <p>将服务地址填入客户端，连接后登录 DooKnow 并确认授权。</p>
               <AAlert
                 v-if="origin && !publicOrigin"
                 type="warning"
                 message="OAuth 需要客户端和授权浏览器可达的 HTTPS 站点。"
-                description="请管理员配置域名、TLS、反向代理与部署访问来源 APP_ORIGIN，再检查授权地址。"
               />
               <p v-if="feature.config.oauthEnabled === false">OAuth 已在保存的配置中停用。</p>
             </template>
             <template v-else>
               <p>在客户端选择 Streamable HTTP，填入服务地址和认证头。</p>
               <p>
-                认证头：<code>Authorization: Bearer &lt;API Key&gt;</code>。密钥只用于下方 API Key
-                地址，请保存在客户端的安全凭据设置中。
+                认证头：<code>Authorization: Bearer &lt;API Key&gt;</code
+                >。请将密钥保存在客户端的凭据设置中。
               </p>
               <p v-if="feature.config.apiKeyEnabled === false">
                 API Key 接入已在保存的配置中停用。
               </p>
             </template>
-            <div v-if="endpoint" class="guide-value">
-              <span>{{ path === 'oauth' ? 'OAuth MCP 服务地址' : 'API Key MCP 服务地址' }}</span
-              ><code>{{ endpoint }}</code
-              ><AButton size="small" @click="copy(endpoint, '连接地址')">复制连接地址</AButton>
-            </div>
             <details class="guide-troubleshooting">
               <summary>连接与验证步骤</summary>
+              <p v-if="path === 'oauth' && origin && !publicOrigin" class="guide-muted">
+                请管理员配置 HTTPS 域名、反向代理和部署访问来源 APP_ORIGIN，再检查授权地址。
+              </p>
               <ul class="connection-progress" aria-label="连接进度">
                 <li>
                   <strong>1. 配置</strong

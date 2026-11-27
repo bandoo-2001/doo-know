@@ -159,11 +159,8 @@ function save() {
 <template>
   <div class="settings-stack" role="region" aria-label="MCP 服务设置">
     <section class="settings-card">
-      <div class="settings-item-header">
-        <div>
-          <h2 class="settings-section-title"><Icon name="link" :size="18" />MCP 服务</h2>
-          <p>允许已授权的客户端访问知识库、博客和 To Doo。</p>
-        </div>
+      <div class="mcp-service-header">
+        <h2 class="settings-section-title"><Icon name="link" :size="18" />MCP 服务</h2>
         <ASwitch
           aria-label="启用 MCP 服务"
           :checked="mcp?.desiredEnabled ?? false"
@@ -171,6 +168,7 @@ function save() {
           :disabled="!mcp || busy || (!mcp.desiredEnabled && enableBlocked)"
           @change="(enabled) => toggle(enabled === true)"
         />
+        <p class="settings-muted">允许已授权的客户端访问知识库、博客和 To Doo。</p>
       </div>
       <p v-if="mcp && !mcp.desiredEnabled && enableBlocked" role="status">
         保存当前权限和连接配置后即可启用 MCP。
@@ -312,6 +310,20 @@ function save() {
 </template>
 
 <style scoped>
+.mcp-service-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px 12px;
+}
+.mcp-service-header h2,
+.mcp-service-header p {
+  margin: 0;
+}
+.mcp-service-header p {
+  grid-column: 1 / -1;
+}
+
 .mcp-config-form {
   display: grid;
   gap: 14px;

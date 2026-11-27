@@ -93,6 +93,7 @@ test('preserves an MCP settings draft through onboarding and enables the configu
   await open.click();
   const enabled = page.getByRole('switch', { name: '启用 MCP 服务', exact: true });
   await expect(enabled).toHaveAttribute('aria-checked', 'false');
+  await page.getByRole('tab', { name: '权限设置', exact: true }).click();
   const oauth = page.getByRole('switch', { name: '启用 OAuth 连接', exact: true });
   await oauth.click();
   await expect(oauth).not.toBeChecked();
