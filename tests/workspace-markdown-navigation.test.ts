@@ -8,6 +8,8 @@ import { ApiError } from '../apps/web/api';
 import * as primaryCreation from '../apps/web/diagrams/primary-creation';
 import * as historyRestore from '../apps/web/diagrams/history-restore';
 import * as media from '../shared/media';
+import * as office from '../shared/office';
+import * as clipboard from '../apps/web/copy-text';
 import * as portableDownload from '../apps/web/diagrams/portable-download';
 import * as navigation from '../apps/web/navigation';
 import * as markdownLinks from '../apps/web/markdown-links';
@@ -94,6 +96,8 @@ async function mount(waitForNote = true) {
       if (id === '../diagrams/primary-creation') return primaryCreation;
       if (id === '../diagrams/history-restore') return historyRestore;
       if (id === '../../../shared/media') return media;
+      if (id === '../../../shared/office') return office;
+      if (id === '../copy-text') return clipboard;
       if (id === '../diagrams/portable-download') return portableDownload;
       if (id.endsWith('.css')) return {};
       if (id === '../../../shared/diagram-fences') return { diagramFences };
