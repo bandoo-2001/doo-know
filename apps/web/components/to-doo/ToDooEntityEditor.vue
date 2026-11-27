@@ -350,7 +350,7 @@ async function save() {
   }
   if (
     props.kind === 'section' &&
-    !props.model.state.snapshot?.lists.some((list) => list.id === form.listId && !list.deletedAt)
+    !props.model.taskLists().some((list) => list.id === form.listId && !list.deletedAt)
   ) {
     props.model.state.error = '请先选择关联目标或清单';
     return;

@@ -112,6 +112,29 @@ test('a scoped task page loads alternative lists as metadata without replacing i
   expect(model.taskLists().map((list) => list.id)).toEqual(['current-list']);
 });
 
+test('a list edit during catalog loading refreshes the newer revision before resolving', async () => {
+  const first = { ...snapshot(), version: '1' };
+  const removed = toDooEntitySchemas.list.parse({ ...stamp, id: 'removed-list', name: '已移除清单' });
+  const latest = { ...first, version: '2', lists: [] };
+  let finish!: (value: ToDooSnapshot) => void;
+  let requests = 0;
+  const model = createToDooWorkbench(async () => {
+    if (++requests === 1) return new Promise<ToDooSnapshot>(resolve => { finish = resolve; });
+    return latest;
+  });
+  model.acceptSnapshot(first);
+  const preceding = model.ensureListCatalog();
+  model.acceptSnapshot(latest);
+  const current = model.ensureListCatalog();
+  finish({ ...first, lists: [removed] });
+  await Promise.all([preceding, current]);
+  expect(requests).toBe(2);
+  expect(model.taskLists().some(list => list.id === removed.id)).toBe(false);
+  await model.ensureListCatalog();
+  expect(requests).toBe(2);
+});
+
+
 test('saving a new task does not erase a group change made while the request was pending', async () => {
   const data = snapshot();
   let release!: () => void;

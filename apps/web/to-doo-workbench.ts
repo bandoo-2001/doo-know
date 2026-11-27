@@ -1833,10 +1833,15 @@ export function createToDooWorkbench(request: ToDooRequest, options: {
       ).values(),
     ].filter((list) => !list.deletedAt);
   }
+  let requestedCatalogVersion = '';
   function ensureListCatalog(): Promise<void> {
-    if (catalogRead) return catalogRead;
-    if (catalogVersion === state.snapshot?.datasetId + ':' + state.snapshot?.version)
-      return Promise.resolve();
+    const wanted = state.snapshot?.datasetId + ':' + state.snapshot?.version;
+    if (catalogRead) {
+      // A mutation may arrive during a paginated read for the preceding revision.
+      return requestedCatalogVersion === wanted ? catalogRead : catalogRead.then(() => ensureListCatalog());
+    }
+    if (catalogVersion === wanted) return Promise.resolve();
+    requestedCatalogVersion = wanted;
     const dataset = state.snapshot?.datasetId;
     catalogRead = (async () => {
       const lists: ToDooEntityMap['list'][] = [];

@@ -1567,6 +1567,10 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             "
             #actions
           >
+            <AButton v-if="section === 'settings' && settingsRef?.activeTab === 'preferences' && settingsRef.dirty"
+              html-type="button" size="small" :disabled="state.busy || state.loading" @click="settingsRef.discardPreferences()">
+              撤销更改
+            </AButton>
             <AButton
               v-if="section === 'settings' && settingsRef?.activeTab === 'preferences'"
               type="primary"
@@ -1836,9 +1840,10 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               :key="'settings-' + settingsVersion + ':' + pageAttempts.settings"
               ref="settingsRef"
               :model="model"
-              :context="pageContext"
+              :context="pageContext || 'preferences'"
               @context-change="changePageContext"
               @resume-outcome="resumeOutcome"
+              @delete-list="deleteDirectoryList"
               @task-scope="chooseQuickView"
               @open-mcp-settings="emit('open-mcp-settings')"
               @open-note="emit('open-note', $event)"

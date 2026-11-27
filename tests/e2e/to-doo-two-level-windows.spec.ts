@@ -53,6 +53,7 @@ test('primary management action has readable contrast in light and dark themes a
 test('a new tag exposes its real color field and persists the selected value', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 844 });
   await page.goto('/?view=apps&app=to-doo&appSection=settings&appPage=lists');
+  await page.getByRole('tab', { name: '标签与分组', exact: true }).click();
   await page
     .locator('.todo-content')
     .getByRole('button', { name: '新建标签', exact: true })
@@ -126,6 +127,7 @@ for (const width of [1440, 320])
     await page.setViewportSize({ width, height: width > 700 ? 1000 : 844 });
     await page.goto('/?view=apps&app=to-doo&appSection=settings&appPage=data');
     const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
+    await app.getByRole('tab', { name: '导入', exact: true }).click();
     await app.getByRole('button', { name: '粘贴文件内容', exact: true }).click();
     await expandToDooGroup(app, '导入选项');
     await selectToDooOption(app, '格式', '滴答 CSV');

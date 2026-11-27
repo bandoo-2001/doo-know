@@ -29,6 +29,7 @@ test('owner pairs a watch, sees its task completion and can revoke access', asyn
 
     await page.goto('/?view=apps&app=to-doo&appSection=settings');
     await page.getByRole('tab', { name: '提醒与连接' }).click();
+    await page.getByRole('tab', { name: '手表', exact: true }).click();
     const panel = page.getByRole('region', { name: '手表配对', exact: true });
     await panel.getByLabel('手表配对码').fill(userCode);
     await panel.getByRole('button', { name: '授权手表' }).click();

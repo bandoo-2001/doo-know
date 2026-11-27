@@ -1,4 +1,9 @@
-/* Settings is already a management destination; do not wrap each group in a card. */
+@media (min-width: 1100px) {
+  .to-doo-workspace .todo-page:has(.todo-settings) {
+    max-width: calc(62rem + 176px + var(--todo-page-padding) + var(--todo-page-padding));
+    margin-inline: auto;
+  }
+}
 .to-doo-workspace .todo-page:has(.todo-settings) > .todo-page-heading {
   position: sticky;
   top: 0;
@@ -7,70 +12,237 @@
 .to-doo-workspace .todo-main:has(.todo-settings) {
   scroll-padding-block-start: calc(var(--todo-header-height) + var(--todo-space-16));
 }
-.todo-settings .todo-settings-tabs .ant-tabs-nav { margin-bottom: 0; }
-.todo-settings-simplified .todo-settings-preferences { padding-top: var(--todo-space-16); }
-.todo-settings-simplified .todo-settings-preferences-heading { padding-top: 0; }
-.todo-settings .todo-settings-preferences-heading > p {
-  margin: 0;
+.todo-settings.todo-settings-simplified {
+  min-inline-size: 0;
+}
+.todo-settings .todo-settings-tabs {
+  min-width: 0;
+}
+.todo-settings .todo-settings-tabs > .settings-tab-panel {
+  max-width: 62rem;
+}
+.todo-settings .todo-settings-tabs.settings-tabs-vertical > .settings-tab-bar {
+  position: sticky;
+  top: calc(var(--todo-header-height) + var(--todo-space-12));
+}
+.todo-settings .todo-settings-tabs.settings-tabs-vertical > .settings-tab-bar button {
+  color: var(--todo-ink);
+}
+.todo-settings
+  .todo-settings-tabs.settings-tabs-vertical
+  > .settings-tab-bar
+  button[aria-selected='true'] {
+  color: var(--todo-accent);
+}
+.todo-settings .todo-settings-subtabs > .settings-tab-bar {
+  display: inline-flex;
+  gap: 3px;
+  max-width: 100%;
+  padding: 3px;
+  margin: 0 0 var(--todo-space-12);
+  background: var(--todo-soft);
+  border: 1px solid var(--todo-line);
+  border-radius: var(--todo-control-radius);
+}
+.todo-settings .todo-settings-subtabs > .settings-tab-bar button {
+  min-height: 34px;
+  border: 0;
+  border-radius: var(--todo-control-radius);
+  padding: 4px 12px;
   color: var(--todo-muted);
   font-size: var(--todo-caption-size);
+  white-space: nowrap;
 }
-.todo-settings.todo-settings-simplified > .todo-panel,
-.todo-settings.todo-settings-simplified .todo-settings-structures > .todo-panel {
+.todo-settings .todo-settings-subtabs > .settings-tab-bar button[aria-selected='true'] {
+  background: var(--todo-paper);
+  color: var(--todo-accent);
+  box-shadow: inset 0 0 0 1px var(--todo-line);
+}
+.todo-settings .todo-settings-section,
+.todo-settings .todo-settings-structures {
+  display: grid;
+  gap: var(--todo-space-12);
+  min-width: 0;
+}
+.todo-settings .todo-settings-section > .todo-panel,
+.todo-settings .todo-settings-structures > .todo-panel,
+.todo-settings .todo-export-choice,
+.todo-settings .todo-preference-card {
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--todo-line);
+  border-radius: var(--todo-radius);
+  background: var(--todo-paper);
+}
+.todo-settings .todo-panel-header {
+  align-items: center;
+  gap: 8px 12px;
+}
+.todo-settings .todo-panel-header h2,
+.todo-settings .todo-pref-title {
+  margin: 0;
+  font-weight: 600;
+}
+.todo-settings .todo-panel-header h2 {
+  font-size: 16px;
+}
+.todo-settings .todo-settings-section .todo-setting-row > div:first-child,
+.todo-settings .todo-settings-structures .todo-setting-row > :first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.todo-settings .todo-settings-preferences {
   border: 0;
-  border-radius: 0;
   background: transparent;
-  overflow: visible;
+  box-shadow: none;
 }
-.todo-settings.todo-settings-simplified .todo-panel-header {
-  padding-inline: 0;
+.todo-settings .todo-settings-preferences-heading {
   border: 0;
+  padding: 0 0 var(--todo-space-12);
+  min-height: 28px;
 }
-.todo-settings.todo-settings-simplified .todo-settings-preferences-form {
+.todo-settings .todo-settings-preferences-heading p {
+  color: var(--todo-muted);
+  margin: 0;
+  font-size: var(--todo-caption-size);
+}
+.todo-settings .todo-settings-preferences-form {
   padding: 0;
-  max-inline-size: 56rem;
 }
-.todo-settings.todo-settings-simplified .todo-preference-card {
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-}
-.todo-settings.todo-settings-simplified .todo-preference-daily {
-  padding: 0 0 var(--todo-space-8);
-}
-.todo-settings.todo-settings-simplified .todo-preference-card .ant-collapse-header {
-  padding: var(--todo-space-12) 0;
-  font-size: var(--todo-font-size);
-}
-.todo-settings.todo-settings-simplified .todo-preference-card .ant-collapse-content-box {
-  padding: 0 0 var(--todo-space-16);
-}
-.todo-settings.todo-settings-simplified .todo-settings-preferences-form .todo-form-fields {
+.todo-settings .todo-settings-preferences-form .todo-form-fields {
+  display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--todo-space-8);
 }
-.todo-settings.todo-settings-simplified .todo-preference-card {
+.todo-settings .todo-preference-card {
   grid-column: 1 / -1;
-  grid-row: auto;
 }
-.todo-settings.todo-settings-simplified .todo-setting-row {
-  padding-inline: 0;
+.todo-settings .todo-preference-daily {
+  padding: var(--todo-space-16);
 }
-.todo-settings.todo-settings-simplified .todo-setting-row h3 {
-  font-size: var(--todo-font-size);
+.todo-settings .todo-preference-daily h2 {
+  font-size: 15px;
+  margin-bottom: var(--todo-space-12);
 }
-.todo-settings.todo-settings-simplified .todo-setting-row p {
+.todo-pref-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.todo-pref-title svg {
+  flex-shrink: 0;
+  color: var(--todo-accent);
+}
+.todo-settings .todo-preference-card .ant-collapse-header {
+  padding: var(--todo-space-12) var(--todo-space-16);
+}
+.todo-settings .todo-preference-card .ant-collapse-content-box {
+  padding: 0 var(--todo-space-16) var(--todo-space-16);
+}
+.todo-settings .todo-preference-card .ant-collapse-header-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+.todo-preference-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.todo-settings .todo-preference-card .todo-form-grid {
+  margin-block: 0;
+}
+.todo-device-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.todo-device-summary h3,
+.todo-device-summary p {
+  margin: 0;
+}
+.todo-device-summary p {
+  color: var(--todo-muted);
   font-size: var(--todo-caption-size);
-  line-height: var(--todo-caption-line-height);
 }
-.todo-settings.todo-settings-simplified .todo-connection-disclosure .ant-collapse-header {
-  padding-inline: 0;
+.todo-settings-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  background: var(--todo-tint);
+  color: var(--todo-accent);
+  border-radius: var(--todo-control-radius);
+}
+.todo-export-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 12px;
+}
+.todo-export-choice {
+  display: grid;
+  align-content: space-between;
+  justify-items: start;
+  gap: var(--todo-space-16);
+  padding: var(--todo-space-16);
+}
+.todo-export-choice h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+.todo-export-choice p {
+  color: var(--todo-muted);
+  font-size: var(--todo-caption-size);
+  margin: 0;
+}
+.todo-list-search {
+  padding: 0 var(--todo-space-16) var(--todo-space-12);
+  max-width: 32rem;
+}
+.todo-settings-section :is(input, button, textarea),
+.todo-settings-preferences-form :is(input, button) {
+  scroll-margin-block-start: calc(var(--todo-header-height) + var(--todo-space-12));
+}
+@container (max-width: 599px) {
+  .todo-settings .todo-settings-subtabs > .settings-tab-bar {
+    display: flex;
+  }
+  .todo-settings .todo-settings-subtabs > .settings-tab-bar button {
+    flex: 1 1 0;
+    padding-inline: 4px;
+    min-height: 40px;
+  }
+  .todo-settings .todo-preference-card .ant-collapse-header-text {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .todo-settings .todo-export-choice {
+    gap: 9px;
+  }
+}
+@media (pointer: coarse) {
+  .todo-settings .todo-settings-subtabs > .settings-tab-bar button {
+    min-height: 44px;
+  }
 }
 
-.todo-settings.todo-settings-simplified .todo-preference-card + .todo-preference-card {
-  border-top: 1px solid var(--todo-line);
+.todo-managed-list-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
 }
-.todo-preference-card .todo-preference-value { margin-inline-start: 8px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-@media (max-width: 600px) {
-  .todo-preference-card .todo-preference-value { display: block; margin-inline-start: 0; margin-top: 2px; }
+.todo-managed-list-actions .ant-btn {
+  padding-inline: 5px;
+}
+@container (max-width: 679px) {
+  .todo-managed-list-actions {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+  }
 }

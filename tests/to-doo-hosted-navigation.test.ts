@@ -4,6 +4,7 @@ import { compileScript, parse } from '@vue/compiler-sfc';
 import ts from 'typescript';
 import * as Vue from 'vue';
 import * as vueuse from '@vueuse/core';
+import * as clipboard from '../apps/web/copy-text';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
 import * as contextNavigation from '../apps/web/to-doo-context-navigation';
@@ -43,6 +44,7 @@ beforeEach(() => {
   linkedRhythmBoundary = false;
   linkedFocusRead = undefined;
   vi.stubGlobal('document', {
+    getElementById: () => null,
     querySelector: () => null,
     querySelectorAll: () => [],
     addEventListener() {},
@@ -134,6 +136,8 @@ function component(path: string): Vue.Component {
       if (id === '../ant-design') return antDesign;
       if (id === '../platform-theme') return platformTheme;
       if (id === '@vueuse/core') return vueuse;
+      if (id.endsWith('/copy-text')) return clipboard;
+      if (id.endsWith('/SettingsTabs.vue')) return { __esModule: true, default: component('settings/SettingsTabs') };
       if (id === '../workspace-layout') return workspaceLayout;
       if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('/to-doo-action-guard')) return actionGuards;

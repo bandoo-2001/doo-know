@@ -25,7 +25,7 @@ test('preference tabs avoid a repeated heading and keep dirty feedback from movi
   await expect(page.getByRole('heading', { name: '日常偏好', exact: true })).toHaveCount(0);
   const surface = page.locator('.todo-settings-preferences');
   const header = surface.locator('.todo-settings-preferences-heading');
-  await expect(header).toContainText('调整常用的默认设置。');
+  await expect(header).toContainText('修改后点击「保存偏好」生效。');
   await expect(header).toHaveCSS('border-bottom-width', '0px');
   const duration = surface.getByRole('spinbutton', { name: '默认安排分钟', exact: true });
   await expect(duration).toBeVisible();
