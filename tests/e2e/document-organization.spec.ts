@@ -1,4 +1,6 @@
 import { createHash } from 'node:crypto';
+import { posix } from 'node:path';
+import { DOO_ASSETS_DIRECTORY } from '../../shared/storage-paths';
 import { diagramRendererVersions, renderPreparedDiagramDocument } from '../../shared/diagram-primary';
 import { emptyWhiteboard } from '../../shared/whiteboard';
 import { test, expect } from '../support/browser-test';
@@ -48,7 +50,7 @@ test('批量整理为关联原生白板准备预览，刷新记录后可撤销�
       strokeWidth: 2, strokeStyle: 'solid', roughness: 1, opacity: 100, groupIds: [],
       frameId: null, index: 'a0', roundness: null, seed: 1, version: 1, versionNonce: 1,
       isDeleted: false, boundElements: null, updated: 1, locked: false,
-      link: target.relativePath.split('/').at(-1),
+      link: posix.relative(posix.join('00-Inbox', DOO_ASSETS_DIRECTORY), target.relativePath),
     }],
   };
   async function post(url: string, data: unknown) {

@@ -133,7 +133,8 @@ function progress(task: TransferTask) {
     ? Math.min(100, Math.round((task.progress.completed / task.progress.total) * 100))
     : 0;
 }
-defineExpose({ refresh, loading });
+const attentionCount = computed(() => matching.value.length - historyCount.value);
+defineExpose({ refresh, loading, attentionCount });
 let timer: ReturnType<typeof setInterval>;
 onMounted(() => {
   void refresh();

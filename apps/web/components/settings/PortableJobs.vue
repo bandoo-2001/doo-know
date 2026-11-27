@@ -68,11 +68,12 @@ onBeforeUnmount(() => clearInterval(timer));
 defineExpose({ refresh });
 </script>
 <template>
-  <section aria-label="便携任务与结果" class="portable-jobs">
-    <h3>便携任务与结果</h3>
-    <AButton size="small" @click="refresh">刷新结果</AButton>
+  <section v-if="jobs.length || error" aria-label="便携任务与结果" class="settings-card portable-jobs">
+    <div class="settings-item-header">
+      <h3>便携任务与结果</h3>
+      <AButton size="small" @click="refresh">刷新结果</AButton>
+    </div>
     <AAlert v-if="error" type="error" :message="error" show-icon />
-    <p v-if="!jobs.length" class="settings-muted">暂无便携任务。</p>
     <article v-for="job in jobs" :key="job.id">
       <p>
         {{
