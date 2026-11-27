@@ -66,3 +66,11 @@
 .todo-settings.todo-settings-simplified .todo-connection-disclosure .ant-collapse-header {
   padding-inline: 0;
 }
+
+.todo-settings.todo-settings-simplified .todo-preference-card + .todo-preference-card {
+  border-top: 1px solid var(--todo-line);
+}
+.todo-preference-card .todo-preference-value { margin-inline-start: 8px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .todo-preference-card .todo-preference-value { display: block; margin-inline-start: 0; margin-top: 2px; }
+}

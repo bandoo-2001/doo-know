@@ -15,12 +15,12 @@ export const settingsSections: {
     key: 'library',
     label: '知识库与存储',
     icon: 'book',
-    description: '查看资料位置、空间用量与分享，导入或导出文件。',
+    description: '管理资料导入导出、存储空间和分享。',
   },
   {
     key: 'git',
     label: 'Git 版本管理',
-    icon: 'clock',
+    icon: 'git-branch',
     description: '设置提交署名、查看仓库状态和同步云端。',
   },
   {

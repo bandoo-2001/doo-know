@@ -905,7 +905,7 @@ onMounted(() => {
         <div class="blog-section-title blog-admin-page-heading">
           <div>
             <h2>站点设置</h2>
-            <p>给你的文字，一个自己的家。</p>
+            <p>管理站点的公开访问、读者看到的资料和外观。</p>
           </div>
         </div>
         <form
@@ -1001,14 +1001,8 @@ onMounted(() => {
                 前往装修主页 →
               </button>
             </section>
-            <section
-              class="blog-panel blog-admin-settings-section blog-admin-settings-about"
-              aria-labelledby="blog-settings-about"
-            >
-              <header class="blog-admin-section-heading">
-                <h3 id="blog-settings-about">关于站点</h3>
-                <p>向读者介绍你自己，以及这个博客的故事。</p>
-              </header>
+            <details class="blog-panel blog-admin-settings-section blog-admin-settings-about">
+              <summary><h3 id="blog-settings-about">关于站点</h3><Icon name="chevron" :size="16" /></summary>
               <label
                 >关于<textarea
                   v-model="state.settings.about"
@@ -1017,7 +1011,7 @@ onMounted(() => {
                   placeholder="向读者介绍你自己和这个博客…"
                 />
               </label>
-            </section>
+            </details>
           </div>
           <div ref="settingsSavebar" class="blog-settings-footer blog-admin-settings-savebar">
             <div

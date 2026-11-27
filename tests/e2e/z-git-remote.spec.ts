@@ -36,6 +36,7 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   await page.goto('/');
   await openSettingsSection(page, 'Git 版本管理');
   await setFeatureSwitch(page, 'Git 版本管理', true);
+  await page.getByRole('tab', { name: '云端同步', exact: true }).click();
   const panel = page.getByRole('region', { name: '云端同步面板', exact: true });
   await panel.getByRole('button', { name: /^(管理同步|关联云端仓库)$/ }).click();
   const connection = page.getByRole('dialog', { name: '管理云端同步', exact: true });
@@ -176,6 +177,7 @@ test('connects an existing library, previews and pushes, then checks and pulls a
     page.locator('.tree-scroll').getByRole('button', { name: removedName, exact: true }),
   ).toHaveCount(0);
   await page.getByRole('button', { name: '云端同步', exact: true }).click();
+  await page.getByRole('tab', { name: '云端同步', exact: true }).click();
   await expect(page.getByRole('region', { name: '云端同步面板', exact: true })).toBeVisible();
   await expect(
     page.locator('.sidebar-tools').getByText('提交全部变更', { exact: true }),

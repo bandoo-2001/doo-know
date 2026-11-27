@@ -997,9 +997,8 @@ defineExpose({
         >
           <template #header>
             <span>日期与提醒</span>
-            <span v-if="settings.quietHours?.enabled" class="todo-muted todo-small">
-              · 免打扰 {{ settings.quietHours.start }} — {{ settings.quietHours.end }} ·
-              {{ settings.quietHours.timeZone }}
+            <span class="todo-muted todo-small todo-preference-value">
+              {{ settings.timeZone }}<template v-if="settings.quietHours?.enabled"> · 免打扰 {{ settings.quietHours.start }}–{{ settings.quietHours.end }}<template v-if="settings.quietHours.timeZone !== settings.timeZone">（{{ settings.quietHours.timeZone }}）</template></template>
             </span>
           </template>
           <div class="todo-form-grid">
@@ -1064,17 +1063,8 @@ defineExpose({
         >
           <template #header>
             <span>专注节奏</span>
-            <span
-              v-if="
-                settings.focusMinutes !== 25 ||
-                settings.shortBreakMinutes !== 5 ||
-                settings.longBreakMinutes !== 15 ||
-                settings.longBreakAfter !== 4
-              "
-              class="todo-muted todo-small"
-            >
-              · 专注 {{ settings.focusMinutes }} 分钟 · 休息 {{ settings.shortBreakMinutes }} /
-              {{ settings.longBreakMinutes }} 分钟 · 每 {{ settings.longBreakAfter }} 次长休
+            <span class="todo-muted todo-small todo-preference-value">
+              专注 {{ settings.focusMinutes }} 分钟 · 休息 {{ settings.shortBreakMinutes }} / {{ settings.longBreakMinutes }} 分钟 · 每 {{ settings.longBreakAfter }} 次长休
             </span>
           </template>
           <p class="todo-form-help">选择休息时按已结束的番茄次数推荐时长，0 分钟表示跳过休息。</p>
@@ -1112,11 +1102,8 @@ defineExpose({
         <ToDooDisclosure ref="taskRules" class="todo-preference-card todo-preference-task">
           <template #header>
             <span>任务规则</span>
-            <span
-              v-if="settings.urgentHours !== 48 || settings.maxDepth !== 8"
-              class="todo-muted todo-small"
-            >
-              · 紧急 {{ settings.urgentHours }} 小时 · 最多 {{ settings.maxDepth }} 层
+            <span class="todo-muted todo-small todo-preference-value">
+              紧急 {{ settings.urgentHours }} 小时 · 最多 {{ settings.maxDepth }} 层
             </span>
           </template>
           <p class="todo-form-help">调整紧急任务的判定范围与子任务层级。</p>

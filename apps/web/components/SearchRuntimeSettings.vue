@@ -95,7 +95,7 @@ onUnmounted(() => clearInterval(timer));
 <template>
   <section class="search-runtime-settings">
     <header class="runtime-heading">
-      <span class="runtime-mark" aria-hidden="true"></span>
+      <Icon name="search" :size="19" aria-hidden="true" />
       <div>
         <h2>{{ onboarding ? '准备内容搜索' : '本地检索' }}</h2>
         <p class="runtime-description">
@@ -121,7 +121,11 @@ onUnmounted(() => clearInterval(timer));
       <p v-if="onboarding && state.downloadBytes" class="runtime-note">
         需要下载约 {{ Math.ceil(state.downloadBytes / 1024 / 1024) }} MiB。未点击准备前不会下载。
       </p>
-      <div v-if="!onboarding" class="runtime-components">
+      <div v-if="!onboarding" class="runtime-components" role="group" aria-label="搜索能力">
+        <div class="runtime-component">
+          <span class="component-label">文件名搜索</span>
+          <span class="component-status ready"><i aria-hidden="true"></i>可直接使用</span>
+        </div>
         <div class="runtime-component">
           <span class="component-label">文本检索</span>
           <span class="component-status" :class="{ ready: state.components.tokenizerReady }"
@@ -146,23 +150,7 @@ onUnmounted(() => clearInterval(timer));
               : '内容搜索尚未就绪，可以稍后再设置。'
         }}
       </p>
-      <details v-if="!onboarding" class="runtime-note">
-        <summary>高级运行信息</summary>
-        <p>
-          {{ state.externallyManaged ? '搜索组件由部署配置管理。' : '搜索组件由应用准备与管理。' }}
-        </p>
-        <p>
-          当前安装源{{ state.distributionAvailable ? '提供' : '未提供' }}可下载的搜索组件。<template
-            v-if="state.downloadBytes"
-            >下载大小约 {{ Math.ceil(state.downloadBytes / 1024 / 1024) }} MiB。</template
-          >
-        </p>
-        <p v-if="state.task">
-          最近准备阶段：{{ labels[state.task.phase] || state.task.phase }}。任务编号：{{
-            state.task.id
-          }}
-        </p>
-      </details>
+
       <p v-if="state.externallyManaged" class="runtime-note">
         当前使用部署设备配置的搜索组件。实际可用情况以上方状态为准。
       </p>
@@ -234,6 +222,23 @@ onUnmounted(() => clearInterval(timer));
         >检查检索状态</AButton
       >
     </div>
+      <details v-if="!onboarding && state" class="runtime-note">
+        <summary>高级运行信息</summary>
+        <p>
+          {{ state.externallyManaged ? '搜索组件由部署配置管理。' : '搜索组件由应用准备与管理。' }}
+        </p>
+        <p>
+          当前安装源{{ state.distributionAvailable ? '提供' : '未提供' }}可下载的搜索组件。<template
+            v-if="state.downloadBytes"
+            >下载大小约 {{ Math.ceil(state.downloadBytes / 1024 / 1024) }} MiB。</template
+          >
+        </p>
+        <p v-if="state.task">
+          最近准备阶段：{{ labels[state.task.phase] || state.task.phase }}。任务编号：{{
+            state.task.id
+          }}
+        </p>
+      </details>
   </section>
 </template>
 <style scoped>
@@ -252,38 +257,7 @@ onUnmounted(() => clearInterval(timer));
   gap: 12px;
   margin-bottom: 16px;
 }
-.runtime-mark {
-  position: relative;
-  display: grid;
-  flex-shrink: 0;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: var(--ui-radius, 8px);
-  background: var(--surface);
-  color: var(--blue);
-  font-size: 26px;
-  line-height: 1;
-}
-.runtime-mark::before {
-  width: 12px;
-  height: 12px;
-  border: 1.5px solid currentColor;
-  border-radius: 50%;
-  content: '';
-  transform: translate(-2px, -2px);
-}
-.runtime-mark::after {
-  position: absolute;
-  top: 22px;
-  left: 21px;
-  width: 6px;
-  height: 1.5px;
-  border-radius: 1px;
-  background: currentColor;
-  content: '';
-  transform: rotate(45deg);
-}
+.runtime-heading > svg { color: var(--blue); flex-shrink: 0; margin-top: 2px; }
 .runtime-heading h2 {
   margin: 0 0 5px;
   font-size: 16px;
@@ -297,7 +271,7 @@ onUnmounted(() => clearInterval(timer));
 }
 .runtime-components {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 158px), 1fr));
   gap: 10px;
 }
 .runtime-component {

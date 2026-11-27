@@ -40,6 +40,8 @@ const backupFile = ref<File>(),
   backupInput = ref<HTMLInputElement>(),
   keyInput = ref<HTMLInputElement>();
 const restoreDirty = computed(() => !!(backupFile.value || keyFile.value));
+const allRecords = ref(false);
+const visibleRecords = computed(() => allRecords.value ? items.value : items.value.slice(0, 3));
 let backupRequest = crypto.randomUUID(),
   uploadRequest = crypto.randomUUID();
 function openKey() {
@@ -222,30 +224,42 @@ onMounted(() => void load());
 <template>
   <div class="settings-stack">
     <section class="settings-card">
-      <h2 class="settings-section-title"><Icon name="shield" :size="18" />加密备份</h2>
-      <p class="settings-muted">
-        保存应用数据与当前可读取的原文。任务完成后可下载加密文件；恢复需要对应私钥，请另行受控保存。重要副本应存放到独立设备或异地。
-      </p>
-      <AAlert
-        type="info"
-        message="历史版本和同盘副本不能代替独立备份。请定期验证恢复。"
-        show-icon
-      /><AAlert v-if="error" type="error" :message="error" show-icon />
-      <div class="settings-actions">
-        <AButton type="primary" :loading="busy === 'create'" :disabled="!!busy" @click="create"
-          ><template #icon><Icon class="settings-button-icon" name="shield" :size="15" /></template
-          >创建加密备份</AButton
-        ><AButton :loading="loading" @click="load(false, true)"
-          ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
-          >刷新备份记录</AButton
-        >
+      <div class="settings-item-header">
+        <div><h2 class="settings-section-title"><Icon name="shield" :size="18" />加密备份</h2>
+          <p>保存应用数据和可读取的原文。备份完成后，请将文件与恢复密钥分开保存。</p>
+        </div>
+        <AButton type="primary" :loading="busy === 'create'" :disabled="!!busy" @click="create">
+          <template #icon><Icon class="settings-button-icon" name="shield" :size="15" /></template>创建加密备份</AButton>
       </div>
+      <AAlert v-if="error" type="error" :message="error" show-icon />
       <p v-if="notice" class="settings-success" role="status">{{ notice }}</p>
+    </section>
+    <div class="settings-action-grid">
+    <SettingsActionCard
+      title="恢复密钥"
+      description="验证账户密码后下载恢复密钥，请与备份分开、加密保存。"
+      icon="key"
+      action-label="下载恢复密钥"
+      @open="openKey"
+    />
+    <SettingsActionCard
+      title="从已下载的备份恢复"
+      description="选择加密备份与对应密钥，校验后生成独立副本。"
+      icon="undo"
+      action-label="从备份恢复"
+      @open="openUploadRestore"
+    />
+    </div>
+    <section class="settings-card">
+      <div class="settings-item-header"><h2 class="settings-section-title"><Icon name="clock" :size="18" />备份记录</h2>
+        <AButton size="small" :loading="loading" @click="load(false, true)">
+          <template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template>刷新备份记录</AButton>
+      </div>
       <p v-if="!items.length && !error" class="settings-muted">
         {{ loading ? '正在读取备份记录…' : '尚无加密备份。' }}
       </p>
       <ul class="settings-list">
-        <li v-for="item in items" :key="item.id">
+        <li v-for="item in visibleRecords" :key="item.id">
           <div class="settings-item-header">
             <div>
               <strong>{{ new Date(item.createdAt).toLocaleString('zh-CN') }}</strong>
@@ -281,7 +295,7 @@ onMounted(() => void load());
             </div>
           </div>
           <p v-if="item.external" class="settings-muted">
-            恢复此备份需要对应私钥，请在下方「从已下载的备份恢复」中选择文件。
+            恢复此备份需要对应私钥，请在「从已下载的备份恢复」中选择文件。
           </p>
           <details>
             <summary>备份编号与密钥指纹</summary>
@@ -294,22 +308,13 @@ onMounted(() => void load());
           </details>
         </li>
       </ul>
-      <AButton v-if="cursor" :loading="loading" @click="load(true)">加载更多备份</AButton>
+      <div v-if="items.length > 3 || cursor" class="settings-actions">
+        <AButton v-if="items.length > 3" size="small" :aria-expanded="allRecords" @click="allRecords = !allRecords">
+          {{ allRecords ? '仅显示最近 3 份' : '查看全部已载入备份（' + items.length + '）' }}</AButton>
+        <AButton v-if="cursor" size="small" :loading="loading" @click="allRecords = true; load(true)">加载更多备份</AButton>
+      </div>
+      <details><summary>备份保存建议</summary><p class="settings-muted">重要备份应另存到独立设备或异地，并定期验证恢复。</p></details>
     </section>
-    <SettingsActionCard
-      title="恢复密钥"
-      description="验证账户密码后下载恢复密钥，请与备份分开、加密保存。"
-      icon="key"
-      action-label="下载恢复密钥"
-      @open="openKey"
-    />
-    <SettingsActionCard
-      title="从已下载的备份恢复"
-      description="选择加密备份与对应密钥，校验后生成独立副本。"
-      icon="undo"
-      action-label="从备份恢复"
-      @open="openUploadRestore"
-    />
     <SettingsOverlay
       v-model:show="keyOpen"
       title="下载恢复密钥"

@@ -10,7 +10,7 @@ const emit = defineEmits<{ open: [] }>();
 <template>
   <section
     class="settings-card settings-action-card"
-    :class="{ 'settings-action-card-with-icon': icon }"
+    :class="{ 'settings-action-card-with-icon': icon, 'settings-action-repeat': title === actionLabel }"
   >
     <span v-if="icon" class="settings-action-icon"><Icon :name="icon" :size="21" /></span>
     <div class="settings-action-copy">
@@ -18,8 +18,8 @@ const emit = defineEmits<{ open: [] }>();
       <p class="settings-muted">{{ description }}</p>
       <slot />
     </div>
-    <AButton class="settings-action-button" @click="emit('open')"
-      >{{ actionLabel }}<Icon name="chevron" :size="13"
+    <AButton class="settings-action-button" :aria-label="actionLabel" @click="emit('open')"
+      ><span class="settings-action-label">{{ actionLabel }}</span><Icon name="chevron" :size="13"
     /></AButton>
   </section>
 </template>

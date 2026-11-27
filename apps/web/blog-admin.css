@@ -847,9 +847,12 @@
   box-shadow: var(--blog-shadow);
 }
 
-.blog-workspace.blog-admin .blog-admin-settings-about {
-  grid-column: 1 / -1;
-}
+.blog-workspace.blog-admin .blog-admin-settings-about { grid-column: 1 / -1; display: block; }
+.blog-admin-settings-about > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; list-style: none; cursor: pointer; }
+.blog-admin-settings-about > summary::-webkit-details-marker { display: none; }
+.blog-admin-settings-about > summary h3 { margin: 0; }
+.blog-admin-settings-about[open] > summary { margin-bottom: 14px; }
+.blog-admin-settings-about[open] > summary svg { transform: rotate(90deg); }
 
 .blog-workspace.blog-admin .blog-admin-settings-state {
   min-width: 0;

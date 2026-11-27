@@ -156,11 +156,12 @@ async function backup(env: SceneEnv) {
 async function openBackup(env: SceneEnv) {
   const card = env.page
     .locator('.settings-card')
-    .filter({ has: env.page.getByRole('heading', { name: '加密备份', exact: true }) });
+    .filter({ has: env.page.getByRole('heading', { name: '备份记录', exact: true }) });
   const row = card.locator('li').filter({ hasText: store(env.page).backupId });
   await row.getByRole('button', { name: '恢复到独立副本', exact: true }).click();
 }
 async function connection(env: SceneEnv) {
+  await env.page.getByRole('tab', { name: '云端同步', exact: true }).click();
   await env.page
     .getByRole('region', { name: '云端同步面板', exact: true })
     .getByRole('button', { name: /^(管理同步|关联云端仓库)$/ })
@@ -412,6 +413,7 @@ export const settingsScenes: Scene[] = [
     'Revoke fails without removing fixture share',
     '.settings-workspace',
     async ({ page }) => {
+      await page.getByRole('tab', { name: '分享', exact: true }).click();
       await page.getByRole('button', { name: '撤销', exact: true }).first().click();
       await page
         .locator('.ant-popconfirm:visible')
@@ -1354,6 +1356,7 @@ export const settingsScenes: Scene[] = [
     'Storage statistics read failure',
     '.storage-settings',
     async ({ page }) => {
+      await page.getByRole('tab', { name: '存储与整理', exact: true }).click();
       await expect(page.locator('.storage-settings').getByRole('alert')).toBeVisible();
     },
     {

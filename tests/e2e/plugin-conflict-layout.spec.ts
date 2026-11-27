@@ -162,6 +162,7 @@ test('long Git credential actions remain contained independently of the MCP conf
 }, info) => {
   await page.goto('/?view=settings&section=git');
   await setFeatureSwitch(page, 'Git 版本管理', true);
+  await page.getByRole('tab', { name: '云端同步', exact: true }).click();
   await closeSidebar(page);
   const name = ('Capture-' + crypto.randomUUID() + 'X'.repeat(120)).slice(0, 120);
   const saved = await mutate(page, '/api/platform/git/credentials', 'POST', {

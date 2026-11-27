@@ -200,6 +200,7 @@ test('saved display preferences change the actual editor and survive reload with
   await choose(page, '默认编辑方式', 'Markdown 源码');
   await page.getByRole('switch', { name: '自动换行', exact: true }).click();
   await page.getByRole('switch', { name: '显示行号', exact: true }).click();
+  await page.getByRole('tab', { name: '阅读外观', exact: true }).click();
   await choose(page, '文字大小', '20 px');
   await choose(page, '阅读宽度', '宽屏');
   await choose(page, '外观', '深色');
@@ -322,6 +323,7 @@ test('library share overview revokes public access while retaining the note and 
   try {
     expect((await guest.request.get('/api/public/shares/' + shared.token)).ok()).toBe(true);
     await page.goto('/?view=settings&section=library');
+    await page.getByRole('tab', { name: '分享', exact: true }).click();
     await page.getByLabel('查找共享链接', { exact: true }).fill(fileName.replace(/\.md$/, ''));
     await page.getByRole('button', { name: '查找链接', exact: true }).click();
     const row = card(page, '共享链接').getByRole('listitem').filter({ hasText: fileName });
@@ -438,7 +440,7 @@ test('backup UI downloads encrypted data, reauthenticates key export and verifie
   const backup = await settle(page, submitted.id);
   expect(backup.result?.backupId).toBeTruthy();
   await page.getByRole('button', { name: '刷新备份记录', exact: true }).click();
-  const row = card(page, '加密备份')
+  const row = card(page, '备份记录')
     .locator(':scope > ul > li')
     .filter({ hasText: backup.result!.backupId! });
   const backupPath = await downloadFile(

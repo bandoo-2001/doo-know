@@ -172,14 +172,6 @@ onBeforeUnmount(() => {
     </div>
     <AAlert v-if="actionError" type="error" :message="actionError" show-icon />
     <p v-if="notice" class="settings-success" role="status">{{ notice }}</p>
-    <TransferTasks
-      ref="tasks"
-      compact
-      :poll-interval="4000"
-      :poll-always="true"
-      @open-note="openNote"
-      @changed="emit('changed')"
-    />
     <section class="settings-card status-services">
       <div class="status-services-heading">
         <h2 class="settings-section-title"><Icon name="task" :size="18" />服务状态</h2>
@@ -398,6 +390,14 @@ onBeforeUnmount(() => {
         </div>
       </details>
     </section>
+    <TransferTasks
+      ref="tasks"
+      compact
+      :poll-interval="4000"
+      :poll-always="true"
+      @open-note="openNote"
+      @changed="emit('changed')"
+    />
     <div class="status-management-links">
       <AButton type="text" size="small" @click="navigate('library')"
         >导入与导出<Icon name="forward" :size="13"

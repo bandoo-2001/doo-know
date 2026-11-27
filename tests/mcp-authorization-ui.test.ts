@@ -43,7 +43,7 @@ async function mount(file: string, props = {}) {
       if (id === 'ant-design-vue') return { Alert: 'aside', Button: 'button', Card: 'section', Checkbox: { Group: 'div' }, Spin: 'span' };
       if (id === '../api') return { api };
       if (id === '../mcp-permissions') return permissionHelpers;
-      if (id === './MCPActivity.vue' || id === './MCPDomainPermissions.vue' || id === './MCPClientPermissions.vue' || id === './MCPApiClients.vue') return { default: {render:()=>null} };
+      if (id === './settings/SettingsTabs.vue' || id === './MCPActivity.vue' || id === './MCPDomainPermissions.vue' || id === './MCPClientPermissions.vue' || id === './MCPApiClients.vue') return { default: {render:()=>null} };
       if (id === '../copy-text') return { copyText: vi.fn() };
       if (id === './Icon.vue' || id === './KnowledgeResourceTreeSelect.vue') return { default: { render: () => null } };
       if (id === '../../../shared/authorization-scopes') return { isResourceScope };

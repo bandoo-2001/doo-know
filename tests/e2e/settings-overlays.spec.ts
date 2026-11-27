@@ -278,6 +278,7 @@ test('Git 连接草稿在取消凭据编辑后保留，凭据秘密不会再次�
     (async () => {
       await page.goto('/?view=settings&section=git');
       await setFeatureSwitch(page, 'Git 版本管理', true);
+      await page.getByRole('tab', { name: '云端同步', exact: true }).click();
     })(),
   ]);
   const panel = page.getByRole('region', { name: '云端同步面板', exact: true });

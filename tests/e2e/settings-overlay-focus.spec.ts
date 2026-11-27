@@ -205,6 +205,7 @@ for (const viewport of [
       });
       await page.goto('/?view=settings&section=git');
       await setFeatureSwitch(page, 'Git 版本管理', true);
+      await page.getByRole('tab', { name: '云端同步', exact: true }).click();
       const panel = page.getByRole('region', { name: '云端同步面板', exact: true });
       const open = panel.getByRole('button', { name: /^(管理同步|关联云端仓库)$/ });
       await expect(

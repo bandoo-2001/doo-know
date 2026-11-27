@@ -2019,6 +2019,7 @@ function rememberedSetting(): SettingsSection {
   }
 }
 function scrollSetting(section: SettingsSection, syncUrl = true) {
+  const changedSection = activeSetting.value !== section;
   const restoreMainFocus = compactSidebar.value && !!sidebarRef.value?.contains(document.activeElement);
   activeSetting.value = section;
   try {
@@ -2026,7 +2027,11 @@ function scrollSetting(section: SettingsSection, syncUrl = true) {
   } catch {}
   if (syncUrl && panel.value === 'settings') navigation.commit({ view: 'settings', section });
   drawer.value = false;
-  if (restoreMainFocus) void nextTick(() => mainRef.value?.focus({ preventScroll: true }));
+  if (changedSection || restoreMainFocus) void nextTick(() => {
+    if (panel.value !== 'settings' || activeSetting.value !== section || !mainRef.value) return;
+    if (changedSection) mainRef.value.scrollTop = 0;
+    if (restoreMainFocus) mainRef.value.focus({ preventScroll: true });
+  });
 }
 async function settings(section?: string, syncUrl = true, intent = ++navigationIntent) {
   if (!currentIntent(intent)) return;

@@ -4,12 +4,15 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { Button as AButton, Select as ASelect, Switch as ASwitch } from 'ant-design-vue';
 import { editorSettingsDraft as draft, editorPreferencesPersisted, hasUnsavedEditorSettings, discardEditorSettingsDraft, setEditorPreferences } from '../../preferences';
 import { documentEditorEnabled } from '../../editor/compatibility';
+import SettingsTabs from './SettingsTabs.vue';
 import SettingsActionCard from './SettingsActionCard.vue';
 import SettingsOverlay from './SettingsOverlay.vue';
 const documentEditingEnabled = documentEditorEnabled();
 const emit = defineEmits<{ 'preferences-changed': [] }>();
 const notice = ref('');
 const shortcutsOpen = ref(false);
+const tabs = [{ key: 'editing', label: '编辑行为' }, { key: 'reading', label: '阅读外观' }] as const;
+const activeTab = ref<(typeof tabs)[number]['key']>('editing');
 const shortcuts = [
   ['保存笔记', 'Ctrl / ⌘ + S'],
   ['撤销', 'Ctrl / ⌘ + Z'],
@@ -79,7 +82,7 @@ function reset() {
     <section class="settings-card">
       <h2 class="settings-section-title"><Icon name="file" :size="18" />编辑与阅读</h2>
       <p class="settings-muted">
-        设置保存在当前账户的这台浏览器中。保存后用于笔记显示，原文格式保持不变。
+        偏好保存在当前账户使用的这台浏览器中。
       </p>
       <div class="editor-settings-toolbar">
         <div class="settings-actions" role="group" aria-label="编辑器偏好操作">
@@ -100,6 +103,9 @@ function reset() {
         </p>
       </div>
       <form id="editor-preferences-form" @submit.prevent="save" @change="notice = ''">
+        <SettingsTabs v-model="activeTab" :tabs="tabs" label="编辑偏好选项">
+          <template #default="{ tab }">
+          <template v-if="tab.key === 'editing'">
         <div v-if="documentEditingEnabled" class="settings-row">
           <div>
             <label for="pref-editor-kind">默认编辑方式</label>
@@ -151,6 +157,8 @@ function reset() {
           </div>
           <ASwitch id="pref-lines" aria-label="显示行号" v-model:checked="draft.lineNumbers" />
         </div>
+          </template>
+          <template v-else>
         <div class="settings-row">
           <label for="pref-size">文字大小</label
           ><ASelect
@@ -239,6 +247,9 @@ function reset() {
             </p>
           </section>
         </details>
+          </template>
+          </template>
+        </SettingsTabs>
       </form>
     </section>
     <SettingsActionCard

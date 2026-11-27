@@ -88,6 +88,10 @@
   color: var(--blue);
   background: var(--blue-soft);
 }
+.settings-sidebar button[aria-current='page'] {
+  box-shadow: inset 3px 0 var(--blue);
+  font-weight: 600;
+}
 .settings-sidebar .settings-return {
   margin-bottom: 12px;
 }
