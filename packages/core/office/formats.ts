@@ -9,18 +9,15 @@ const packages = {
 
 export const officeFormats = {
   docx: {
-    documentType: 'word',
     mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   },
   xlsx: {
-    documentType: 'cell',
     mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   },
   pptx: {
-    documentType: 'slide',
     mime: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   },
-  pdf: { documentType: 'pdf', mime: 'application/pdf' },
+  pdf: { mime: 'application/pdf' },
 } as const;
 
 export type OfficeFormat = keyof typeof officeFormats;

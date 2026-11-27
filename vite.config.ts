@@ -1,11 +1,12 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import { pdfAssets } from './scripts/vite-pdf-assets.js';
 import { fileURLToPath } from 'node:url';
 import { resolve, relative } from 'node:path';
 import { readdirSync, readFileSync, createReadStream } from 'node:fs';
 const projectRoot = fileURLToPath(new URL('.', import.meta.url));
 export default defineConfig({
-  plugins: [vue(), {
+  plugins: [vue(), pdfAssets(resolve(projectRoot, 'node_modules/pdfjs-dist')), {
     name: 'dooknow-excalidraw-fonts',
     configureServer(server) {
       const root=resolve(projectRoot,'node_modules/@excalidraw/excalidraw/dist/prod');

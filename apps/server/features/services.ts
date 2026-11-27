@@ -232,7 +232,7 @@ export function integrationServices(
   return {
     officeResearch: runtime.config.indexing?.enabled === false ? undefined : {
       search: async (input, options) =>
-        workspaceRead(db, { kind: 'onlyoffice.search' }, async () => {
+        workspaceRead(db, { kind: 'office.search' }, async () => {
           if (!authorized('knowledge:read', options).knowledgeAll)
             return { results: [], degraded: false, reasons: [] };
           const result = await runtime.officeSearch.search(input);
@@ -240,7 +240,7 @@ export function integrationServices(
           return result;
         }),
       fetch: async (input, options) =>
-        workspaceRead(db, { kind: 'onlyoffice.fetch' }, async () => {
+        workspaceRead(db, { kind: 'office.fetch' }, async () => {
           const p = authorized('knowledge:read', options);
           if (!p.knowledgeAll) fail(403, 'FORBIDDEN');
           const release = acquireRead(db, p, 'mcp');

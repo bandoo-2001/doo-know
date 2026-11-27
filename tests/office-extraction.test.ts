@@ -3,10 +3,10 @@ import { expect, it, vi } from 'vitest';
 import {
   extractIndexedOfficeText,
   extractOfficeText,
-} from '../packages/core/onlyoffice/extract.js';
-import { recognizePdfPages } from '../packages/core/onlyoffice/pdf-ocr.js';
+} from '../packages/core/office/extract.js';
+import { recognizePdfPages } from '../packages/core/office/pdf-ocr.js';
 
-vi.mock('../packages/core/onlyoffice/pdf-ocr.js', () => ({
+vi.mock('../packages/core/office/pdf-ocr.js', () => ({
   pdfOcrConfiguration: () => ({ enabled: true }),
   recognizePdfPages: vi.fn(async () => ({ pages: [], unavailable: false, incomplete: false })),
 }));

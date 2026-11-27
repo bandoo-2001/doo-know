@@ -37,7 +37,7 @@
 
 ## 使用与恢复
 
-- 办公文档正文可通过 `search` 和 `fetch` 查找。授予「整个知识库」读取权限后，可搜索 Word、Excel、PPT 和 PDF 的已提取文字，定位到原格式文件。使用 MCP 设置中的外部 Web 地址生成原文件链接。 [办公文档索引说明](ONLYOFFICE接入.md#在-chatgpt-里检索办公文档)
+- 办公文档正文可通过 `search` 和 `fetch` 查找。授予「整个知识库」读取权限后，可搜索 Word、Excel、PPT 和 PDF 的已提取文字，定位到原格式文件。使用 MCP 设置中的外部 Web 地址生成原文件链接。 [办公文档索引说明](办公文档.md#在-chatgpt-里检索办公文档)
 
 - 知识历史：`list_note_revisions` 找版本，`read_note_revision` 按页核对，`restore_note_revision` 使用当前版本及稳定 `requestId` 恢复。
 - 博客：先查询文章和当前版本，再创建或编辑草稿。私有修改不会替换公开快照；发布、撤下和分享按用户明确要求执行。

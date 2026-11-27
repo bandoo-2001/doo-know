@@ -19,7 +19,7 @@ export async function thirdPartyNotices(root = resolve('node_modules')) {
       }
       const texts = [];
       for (const name of await readdir(path))
-        if (/^(licen[sc]e|copying|notice)([.-].*)?$/i.test(name)) {
+        if (/^(licen[sc]e|copying|notice|third-party-licenses)([.-].*)?$/i.test(name)) {
           const file = join(path, name),
             info = await lstat(file);
           if (info.isFile() && !info.isSymbolicLink())

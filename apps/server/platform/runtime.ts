@@ -20,7 +20,7 @@ import { getToDooInstallationId } from '../to-doo/installation.js';
 import { createGraphService } from '../../../packages/core/graph/service.js';
 import { createGraphModel } from '../../../packages/core/graph/model.js';
 import { createKnowledgeGraph } from '../../../packages/core/graph/knowledge-service.js';
-import { officeSearchIndex } from '../../../packages/core/onlyoffice/search.js';
+import { officeSearchIndex } from '../../../packages/core/office/search.js';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 

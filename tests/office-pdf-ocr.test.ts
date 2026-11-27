@@ -2,7 +2,7 @@ import { appendFile, mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, it } from 'vitest';
-import { pdfOcrConfiguration, recognizePdfPages } from '../packages/core/onlyoffice/pdf-ocr.js';
+import { pdfOcrConfiguration, recognizePdfPages } from '../packages/core/office/pdf-ocr.js';
 
 const samplePdf = Buffer.from('%PDF-1.7\n%%EOF\n');
 

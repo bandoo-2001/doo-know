@@ -6,7 +6,7 @@ import { readKnowledgeRootIdentity } from '../indexing/root-identity.js';
 import { listKnowledgeDataDirectories } from '../knowledge-data.js';
 import { fail } from '../knowledge/errors.js';
 import { boundedText } from '../knowledge/limits.js';
-import { officeDigest, readOfficeDocument } from './documents.js';
+import { officeDigest, officeDirectory, readOfficeDocument } from './documents.js';
 import { extractIndexedOfficeText } from './extract.js';
 import type { OfficeFormat } from './formats.js';
 import { pdfOcrConfiguration } from './pdf-ocr.js';
@@ -19,7 +19,6 @@ const documentSegments = 512;
 const shortSearchRows = 4096;
 const searchVerificationBytes = 40 * 1024 * 1024;
 const searchVerificationDocuments = 24;
-const officeDirectory = 'apps/onlyoffice/documents';
 const documentIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 type Source = {

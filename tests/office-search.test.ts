@@ -5,13 +5,13 @@ import { join } from 'node:path';
 import { expect, it, vi } from 'vitest';
 import { openDatabase } from '../packages/core/db.js';
 import { writeKnowledgeDataFile } from '../packages/core/knowledge-data.js';
-import { officeSearchIndex } from '../packages/core/onlyoffice/search.js';
+import { officeSearchIndex } from '../packages/core/office/search.js';
 
 const ocr = vi.hoisted(() => ({ available: false }));
-vi.mock('../packages/core/onlyoffice/pdf-ocr.js', () => ({
+vi.mock('../packages/core/office/pdf-ocr.js', () => ({
   pdfOcrConfiguration: () => ({ available: ocr.available, cacheKey: String(ocr.available) }),
 }));
-vi.mock('../packages/core/onlyoffice/extract.js', () => ({
+vi.mock('../packages/core/office/extract.js', () => ({
   extractIndexedOfficeText: async (
     bytes: Buffer,
     type: string,

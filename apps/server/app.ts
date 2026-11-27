@@ -71,7 +71,7 @@ import { ZodError } from 'zod';
 import { createOutcomeNoteService } from './to-doo/outcome-note.js';
 import { createToDooAssets } from '../../packages/core/to-doo/assets.js';
 import { registerToDooAssetRoutes } from './to-doo/asset-routes.js';
-import { registerOnlyOfficeRoutes } from './onlyoffice/routes.js';
+import { registerOfficeRoutes } from './office/routes.js';
 export async function createApp(config: HostConfig, dependencies: { gitExec?: (db: ReturnType<typeof openDatabase>) => GitExec } = {}) {
   const app = Fastify({ logger: false, bodyLimit: 2 * 1024 * 1024 });
   const db = openDatabase(config.dataRoot, 'server');
@@ -309,10 +309,8 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   });
   app.post('/api/platform/setup/finish', async () => platform.settings.finish());
   const notes = lazyService(() => platform.get().notes);
-  registerOnlyOfficeRoutes(app, {
+  registerOfficeRoutes(app, {
     db,
-    origin: config.origin,
-    secret: config.secret,
     getRoot: () => platform.get().config.knowledgeRoot,
     scheduleIndex: (documentId) => {
       const runtime = platform.get();
