@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { expect, it } from 'vitest';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import {
@@ -6,12 +6,6 @@ import {
   StreamableHTTPClientTransport as NextHTTPTransport,
 } from '@modelcontextprotocol/client';
 import { request as httpRequest } from 'node:http';
-import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
-// @ts-expect-error build tool is plain ESM
-import { buildPlugins } from '../scripts/build-plugins.mjs';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
 import { createAuth } from '../apps/server/auth.js';
 import { openDatabase } from '../packages/core/db.js';
@@ -19,35 +13,23 @@ import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 import { currentToDooInstanceId } from '../packages/core/auth/permissions.js';
 import { verifyMcpToDooWorkflow } from '../scripts/support/verify-mcp-to-doo-workflow.js';
 
-let artifacts: string, catalog: any[];
-beforeAll(async () => {
-  artifacts = await mkdtemp(join(tmpdir(), 'mcp-build-'));
-  catalog = await buildPlugins({
-    output: artifacts,
-    ids: ['mcp'],
-    baseURL: pathToFileURL(artifacts + '/').href,
-  });
-}, 60000);
-afterAll(async () => {
-  if (artifacts) await rm(artifacts, { recursive: true, force: true });
-});
-
 async function connectedFixture(options: { toDoo?: boolean } = {}) {
-  const f = await createFixture({ pluginCatalog: catalog });
+  const f = await createFixture();
   let db: ReturnType<typeof openDatabase> | undefined;
   try {
     const headers = await loginFixtureOwner(f);
     const post = (url: string, payload: Record<string, unknown> = {}) =>
       f.app.inject({ method: 'POST', url, headers, payload });
-    const installed = await post('/api/platform/plugins/mcp/install');
-    expect(installed.statusCode, installed.body).toBe(200);
-    expect(installed.json().config).toMatchObject({ oauthEnabled: true, apiKeyEnabled: true });
-    expect(installed.json().manifest.configSchema.properties).not.toHaveProperty('tunnelToken');
-    let configVersion = installed.json().configVersion;
+    const { mcp } = (await f.app.inject({ url: '/api/platform/features', headers })).json();
+    expect(mcp.config).toMatchObject({ oauthEnabled: true, apiKeyEnabled: true });
+    expect(mcp.config).not.toHaveProperty('tunnelToken');
+    let configVersion = mcp.configVersion;
+    const switchMcp = (enabled: boolean) =>
+      f.app.inject({ method: 'PUT', url: '/api/platform/mcp/enabled', headers, payload: { enabled } });
     const configure = async (values: Record<string, unknown>) => {
       const response = await f.app.inject({
         method: 'PUT',
-        url: '/api/platform/plugins/mcp/config',
+        url: '/api/platform/mcp/config',
         headers,
         payload: { configVersion, values },
       });
@@ -84,7 +66,7 @@ async function connectedFixture(options: { toDoo?: boolean } = {}) {
           }
         : {}),
     });
-    expect((await post('/api/platform/plugins/mcp/enable')).statusCode).toBe(200);
+    expect((await switchMcp(true)).statusCode).toBe(200);
     const created = await post('/api/platform/mcp/api-clients', {
       name: 'HTTP fixture',
       permissionPolicy,
@@ -184,6 +166,7 @@ async function connectedFixture(options: { toDoo?: boolean } = {}) {
       headers,
       post,
       configure,
+      switchMcp,
       apiKey,
       apiClient: created.json().client,
       permissionPolicy,
@@ -272,7 +255,7 @@ it('serves both packaged MCP endpoints through the SDK with independent authenti
     expect(oauthOnApi.status).toBe(401);
     expect(oauthOnApi.headers.get('www-authenticate')).toBe('Bearer realm="DooKnow MCP API Key"');
     expect(oauthOnApi.headers.get('cache-control')).toBe('no-store');
-    const logs = await fixture.post('/api/plugins/mcp/call', {
+    const logs = await fixture.post('/api/platform/mcp/actions', {
       kind: 'provider',
       id: 'mcp.calls',
       input: {},
@@ -280,7 +263,7 @@ it('serves both packaged MCP endpoints through the SDK with independent authenti
     expect(logs.json().items.some((row: any) => row.tool === 'list_notes')).toBe(true);
     expect(JSON.stringify(logs.json())).not.toContain(apiKey);
     expect(JSON.stringify(logs.json())).not.toContain('private-body');
-    const status = await fixture.post('/api/plugins/mcp/call', {
+    const status = await fixture.post('/api/platform/mcp/actions', {
       kind: 'provider',
       id: 'mcp.status',
       input: {},
@@ -382,7 +365,7 @@ it('preserves protocol method, origin, host, preflight and request validation wi
   }
 }, 60000);
 
-it('applies independent mode switches, plugin lifecycle and bounded authentication failure throttling', async () => {
+it('applies independent mode switches, MCP service switch and bounded authentication failure throttling', async () => {
   const fixture = await connectedFixture();
   try {
     await fixture.configure({ oauthEnabled: false });
@@ -398,7 +381,7 @@ it('applies independent mode switches, plugin lifecycle and bounded authenticati
     expect(throttled.status).toBe(429);
     expect(Number(throttled.headers.get('retry-after'))).toBeGreaterThan(0);
     expect((await fixture.rpc('/mcp', fixture.oauthToken)).status).toBe(200);
-    expect((await fixture.post('/api/platform/plugins/mcp/disable')).statusCode).toBe(200);
+    expect((await fixture.switchMcp(false)).statusCode).toBe(200);
     expect((await fixture.rpc('/mcp', fixture.oauthToken)).status).toBe(404);
     expect((await fixture.rpc('/mcp/api-key', fixture.apiKey)).status).toBe(404);
   } finally {
@@ -526,7 +509,7 @@ it('does not claim native 2026 protocol support when a client explicitly disable
   }
 }, 60000);
 
-it('runs hierarchical goals, focus, habit, anniversary images and reviews through the packaged HTTP plugin with both credential types and SDK generations', async () => {
+it('runs hierarchical goals, focus, habit, anniversary images and reviews through the built-in HTTP service with both credential types and SDK generations', async () => {
   const fixture = await connectedFixture({ toDoo: true });
   try {
     for (const mode of ['v1', 'legacy', 'auto'] as const)

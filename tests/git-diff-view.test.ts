@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { createRenderer, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { afterAll, beforeAll, expect, it, vi } from 'vitest';
-import { GitDiffBody, GitDiffView, readGitDiff } from '../plugins/git/web/diff-view';
+import { DiffBody as GitDiffBody, DiffView as GitDiffView, readDiff as readGitDiff } from '../apps/web/git/diff-view';
 
 let root: string;
 let patch: string;
@@ -47,7 +47,7 @@ async function render(diff: string, layout: 'line-by-line' | 'side-by-side' = 'l
 }
 
 it('shares real patch rendering with Git while preserving line numbers and inert text', async () => {
-  const { DiffBody, DiffView, readDiff } = await import('../packages/plugin-ui/diff-view');
+  const { DiffBody, DiffView, readDiff } = await import('../apps/web/git/diff-view');
   expect(DiffBody).toBe(GitDiffBody);
   expect(DiffView).toBe(GitDiffView);
   expect(readDiff).toBe(readGitDiff);
@@ -66,7 +66,7 @@ it('shares real patch rendering with Git while preserving line numbers and inert
 });
 
 it('allows shared callers to explain truncation without exposing the partial patch', async () => {
-  const { DiffBody, readDiff } = await import('../packages/plugin-ui/diff-view');
+  const { DiffBody, readDiff } = await import('../apps/web/git/diff-view');
   const diff = patch + 'DO_NOT_DISPLAY_TRUNCATED_CONTENT';
   const document = await readDiff({ diff, truncated: true });
   const html = await renderToString(
@@ -158,10 +158,10 @@ it('keeps the raw patch readable when the lazy parser fails to load', async () =
     throw Error('Parser chunk unavailable');
   });
   try {
-    const module = await import('../plugins/git/web/diff-view');
-    const document = await module.readGitDiff({ diff: patch });
+    const module = await import('../apps/web/git/diff-view');
+    const document = await module.readDiff({ diff: patch });
     expect(document.status).toBe('unavailable');
-    const html = await renderToString(h(module.GitDiffBody, { document, diff: patch }));
+    const html = await renderToString(h(module.DiffBody, { document, diff: patch }));
     expect(html).toContain('原始差异');
     expect(html).toContain('删除这一行');
     expect(html).toMatch(/<details[^>]*open/);
@@ -214,7 +214,7 @@ it('retries a failed parser import from the view and renders the patch after rec
   });
   const root = { children: [] };
   const nodes = (node: any = root): any[] => [node, ...(node.children || []).flatMap(nodes)];
-  const { DiffView } = await import('../packages/plugin-ui/diff-view');
+  const { DiffView } = await import('../apps/web/git/diff-view');
   const app = renderer.createApp(DiffView, { diff: patch });
   try {
     app.mount(root);

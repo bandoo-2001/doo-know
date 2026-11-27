@@ -1,35 +1,28 @@
 import { expect, it } from 'vitest';
 import Ajv from 'ajv';
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { request as httpRequest } from 'node:http';
-import { pathToFileURL } from 'node:url';
-// @ts-expect-error build tool is plain ESM
-import { buildPlugins } from '../scripts/build-plugins.mjs';
 import { createFixture, loginFixtureOwner, type Fixture } from './support/fixture.js';
 import { createAuth } from '../apps/server/auth.js';
 import { openDatabase } from '../packages/core/db.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 
-it('runs the packaged MCP agent and blog contracts over HTTP with explicit grants, fixed receipts and disposal', async () => {
-  const artifacts = await mkdtemp(join(tmpdir(), 'dooknow-mcp-blog-package-'));
+it('runs the built-in MCP agent and blog contracts over HTTP with explicit grants, fixed receipts and disposal', async () => {
   let f: Fixture | undefined;
   let db: ReturnType<typeof openDatabase> | undefined;
   try {
-    const catalog = await buildPlugins({ output: artifacts, ids: ['mcp'], baseURL: pathToFileURL(artifacts + '/').href });
-    expect(catalog[0]).toMatchObject({ version: '2.0.5', apiVersion: '^1.5.0' });
-    expect(catalog[0].artifact.url).toMatch(/dooknow-plugin-mcp-2\.0\.5\.tar\.gz$/);
-    const fixture = f = await createFixture({ pluginCatalog: catalog });
+    const fixture = f = await createFixture();
     const ownerHeaders = await loginFixtureOwner(fixture);
     const admin = (url: string, payload: Record<string, unknown> = {}) => fixture.app.inject({ method: 'POST', url, headers: ownerHeaders, payload });
-    const installed = await admin('/api/platform/plugins/mcp/install');
-    expect(installed.statusCode, installed.body).toBe(200);
-    expect(installed.json()).toMatchObject({ installedVersion: '2.0.5', config: { readOnly: true, allowPublish: false } });
-    const enabled = await admin('/api/platform/plugins/mcp/enable');
+    const { mcp } = (await fixture.app.inject({ url: '/api/platform/features', headers: ownerHeaders })).json();
+    expect(mcp).toMatchObject({ state: 'disabled', config: { readOnly: true, allowPublish: false } });
+    const switchMcp = (enabled: boolean) =>
+      fixture.app.inject({ method: 'PUT', url: '/api/platform/mcp/enabled', headers: ownerHeaders, payload: { enabled } });
+    const enabled = await switchMcp(true);
     expect(enabled.statusCode, enabled.body).toBe(200);
-    expect(enabled.json()).toMatchObject({ state: 'enabled', activeVersion: '2.0.5' });
+    expect(enabled.json()).toMatchObject({ state: 'enabled' });
     const address = await fixture.app.listen({ host: '127.0.0.1', port: 0 });
     db = openDatabase(fixture.dataRoot);
     const database = db;
@@ -122,9 +115,9 @@ it('runs the packaged MCP agent and blog contracts over HTTP with explicit grant
       expect((database.prepare('SELECT count(*) AS count FROM blog_posts').get() as { count: number }).count).toBe(0);
     };
     await denied(); // The installed defaults do not permit public disclosure.
-    let configVersion = installed.json().configVersion as number;
+    let configVersion = mcp.configVersion as number;
     const configure = async (values: Record<string, unknown>) => {
-      const changed = await fixture.app.inject({ method: 'PUT', url: '/api/platform/plugins/mcp/config', headers: ownerHeaders, payload: { configVersion, values } });
+      const changed = await fixture.app.inject({ method: 'PUT', url: '/api/platform/mcp/config', headers: ownerHeaders, payload: { configVersion, values } });
       expect(changed.statusCode, changed.body).toBe(200); configVersion = changed.json().configVersion;
     };
     await configure({ readOnly: false, allowPublish: false, allowedPrefixes: ['00-Inbox'] });
@@ -169,14 +162,17 @@ it('runs the packaged MCP agent and blog contracts over HTTP with explicit grant
     expect(await ok('operation_status', { requestId: withdrawal.requestId })).toMatchObject({ status: 'succeeded', kind: 'blog.unpublish', result: withdrawn });
     expect((await publicPage()).status).toBe(404);
     expect(await ok('get_blog_status', { noteId: note.id })).toMatchObject({ publicationVersion: 3, post: { state: 'withdrawn', version: 3 } });
-    const disabled = await admin('/api/platform/plugins/mcp/disable');
+    const disabled = await switchMcp(false);
     expect(disabled.statusCode, disabled.body).toBe(200); expect(disabled.json().state).toBe('disabled');
     const unavailable = await rpc('tools/list', {});
-    expect(unavailable.status).toBe(404); expect(unavailable.body.error.data.code).toBe('PLUGIN_PROTOCOL_UNAVAILABLE');
-    const provider = await admin('/api/plugins/mcp/call', { kind: 'provider', id: 'mcp.status', input: {} });
-    expect(provider.statusCode).toBe(409); expect(provider.json().code).toBe('PLUGIN_DISABLED');
+    expect(unavailable.status).toBe(404); expect(unavailable.body.error.data.code).toBe('MCP_DISABLED');
+    const provider = await fixture.app.inject({
+      method: 'POST', url: '/api/platform/mcp/actions', headers: ownerHeaders,
+      payload: { kind: 'provider', id: 'mcp.status', input: {} },
+    });
+    expect(provider.statusCode).toBe(409); expect(provider.json().code).toBe('MCP_DISABLED');
   } finally {
     db?.close();
-    try { await f?.close(); } finally { await rm(artifacts, { recursive: true, force: true }); }
+    await f?.close();
   }
 }, 60000);

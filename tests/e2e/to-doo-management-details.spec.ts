@@ -89,6 +89,7 @@ test('long goal and review content keeps icons, counts and progress inside its r
     article.getByRole('button', { name: '＋ 添加下一步任务', exact: true }).locator('svg'),
   ).toBeVisible();
   await page.goto('/?view=apps&app=to-doo&appSection=settings&appPage=lists');
+  await page.getByRole('tab', { name: '归档与回收', exact: true }).click();
   for (const name of ['查看已归档任务', '查看任务回收站']) {
     const link = page.getByRole('button', { name, exact: true });
     await expect(link.locator('svg')).toBeVisible();

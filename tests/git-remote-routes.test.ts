@@ -70,7 +70,7 @@ it('requires owner authentication and CSRF, never returns credentials, and rejec
   }
 });
 
-it('blocks plugin lifecycle changes while a remote task is pending', async () => {
+it('blocks feature switch changes while a remote task is pending', async () => {
   const f = await createFixture();
   try {
     const headers = await loginFixtureOwner(f);
@@ -79,8 +79,10 @@ it('blocks plugin lifecycle changes while a remote task is pending', async () =>
       db.prepare('INSERT INTO git_remote_jobs(id,owner,request_id,kind,params,root,binding,status,phase,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)')
         .run('pending-fixture', 'owner', 'pending-fixture', 'push', '{}', f.knowledgeRoot, 0, 'running', 'pushing', Date.now(), Date.now());
     } finally { db.close(); }
-    for (const url of ['/api/platform/plugins/git/disable', '/api/platform/plugins/git/uninstall', '/api/platform/plugins/git/upgrade', '/api/platform/plugin-installations']) {
-      const response = await f.app.inject({ method: 'POST', url, headers, payload: { id: 'git', requestId: 'pending-plugin-install' } });
+    for (const enabled of [false, true]) {
+      const response = await f.app.inject({
+        method: 'PUT', url: '/api/platform/git/enabled', headers, payload: { enabled },
+      });
       expect(response.statusCode).toBe(409);
       expect(response.json().code).toBe('GIT_TASK_BUSY');
     }

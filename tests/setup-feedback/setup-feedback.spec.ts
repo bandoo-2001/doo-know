@@ -171,35 +171,23 @@ test.describe('accepted clone receipt', () => {
   });
 });
 
-test('failed optional registry blocks unsupported installs and recovers only after a real successful retry', async ({
+test('onboarding retries reading the built-in feature state without enabling either service', async ({
   page,
   slot,
 }, info) => {
-  let fail = true,
-    installs = 0;
-  await page.route('**/api/platform/plugins', (route) =>
+  let fail = true;
+  await page.route('**/api/platform/features', (route) =>
     fail ? route.abort('failed') : route.continue(),
   );
-  page.on('request', (request) => {
-    if (
-      request.method() === 'POST' &&
-      new URL(request.url()).pathname === '/api/platform/plugin-installations'
-    )
-      installs++;
-  });
   await features(page, slot);
-  await expect(page.getByRole('alert')).toContainText('暂时无法读取可选功能');
-  await expect(button(page, '添加连接设置')).toBeDisabled();
-  await expect(button(page, '添加版本记录')).toBeDisabled();
-  await expect(page.locator('.feature-state').filter({ hasText: '尚未确认可用性' })).toHaveCount(2);
-  await expect(page.getByText('暂未提供此功能，可以稍后再设置', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('alert')).toContainText('暂时无法读取功能状态');
   await expect(button(page, '暂时跳过')).toBeEnabled();
-  expect(installs).toBe(0);
-  await page.screenshot({ path: info.outputPath('registry-unavailable.png'), fullPage: false });
+  await page.screenshot({ path: info.outputPath('features-unavailable.png'), fullPage: false });
   fail = false;
-  await button(page, '重新读取可选功能').click();
-  await expect(button(page, '添加连接设置')).toBeEnabled();
-  expect(installs).toBe(0);
+  await button(page, '重试').click();
+  await expect(page.getByRole('alert').filter({ hasText: '暂时无法读取功能状态' })).toHaveCount(0);
+  await button(page, '设置 MCP 连接').click();
+  await expect(page.getByRole('switch', { name: '启用 MCP 服务', exact: true })).toHaveAttribute('aria-checked', 'false');
 });
 
 test('file receipt distinguishes one-byte-over-limit and tiny nonempty files, and only the selected finish action spins', async ({
@@ -273,6 +261,18 @@ test.describe('unavailable source presentation', () => {
     await button(page, '重新检查').click();
     const after = await slot.api('/api/platform/status');
     expect(after.phase).toBe(before.phase);
+    await expect(page.getByText('已重新检查，知识库仍未就绪。', { exact: true })).toBeVisible();
+    await expect(page.locator('.bound-path code')).toHaveText(before.knowledgeRoot);
+    await button(page, '打开设置与诊断').click();
+    const drawer = page.getByRole('dialog', { name: '设置与诊断', exact: true });
+    await expect(drawer.getByRole('button', { name: '下载脱敏诊断', exact: true })).toBeVisible();
+    await drawer.getByRole('tab', { name: '账号与安全', exact: true }).click();
+    await expect(drawer.getByRole('heading', { name: '登录设备', exact: true })).toBeVisible();
+    await drawer.getByRole('tab', { name: '通用与编辑', exact: true }).click();
+    await expect(drawer.getByRole('button', { name: '保存偏好', exact: true })).toBeVisible();
+    await drawer.getByRole('button', { name: '关闭设置与诊断', exact: true }).click();
+    await button(page, '退出登录').click();
+    await expect(page.getByRole('button', { name: '登录', exact: true })).toBeVisible();
   });
 });
 
@@ -518,4 +518,33 @@ test('an accepted import locks both finish intents until its real result is rece
   } finally {
     gate.release();
   }
+});
+
+test('first login explains folder and repository address errors at the input that needs correction', async ({ page, slot }) => {
+  await source(page);
+  await page.getByText('高级设置', { exact: true }).click();
+  const parent = page.getByLabel('保存到哪个文件夹', { exact: true });
+  await parent.fill('relative/folder');
+  await button(page, '确认并继续').click();
+  await expect(parent).toBeFocused();
+  await expect(parent).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.getByRole('alert')).toContainText('以 / 开头');
+  await parent.fill(slot.libraryParent + '/missing-' + randomUUID());
+  await button(page, '确认并继续').click();
+  await expect(page.getByRole('alert')).toContainText('找不到这个文件夹');
+  await expect(parent).toBeFocused();
+  await button(page, '使用已有资料').click();
+  const folder = page.getByLabel('服务器上的知识库目录', { exact: true });
+  await folder.fill('/unlisted-folder');
+  await button(page, '确认并继续').click();
+  await expect(page.getByRole('alert')).toContainText('允许的保存范围');
+  await expect(folder).toBeFocused();
+  await button(page, '从 GitHub／Gitee 导入').click();
+  const url = page.getByLabel('仓库克隆地址', { exact: true });
+  await url.fill('https://github.com/fixture/notes/tree/main');
+  await button(page, '导入并继续').click();
+  await expect(url).toBeFocused();
+  await expect(page.getByRole('alert')).toContainText('克隆地址');
+  await url.fill(slot.gitRemoteURL);
+  await expect(url).toHaveAttribute('aria-invalid', 'false');
 });

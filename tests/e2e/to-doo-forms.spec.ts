@@ -360,6 +360,7 @@ test('settings sections preserve drafts and keep unrelated forms out of preferen
   await duration.fill('47');
   await selectToDooContext(page, '数据与恢复');
   await expect(duration).not.toBeVisible();
+  await app.getByRole('tab', { name: '导入', exact: true }).click();
   const importContent = app.getByLabel('或粘贴文件内容', { exact: true });
   await expect(importContent).not.toBeVisible();
   await app.getByRole('button', { name: '粘贴文件内容', exact: true }).click();

@@ -8,7 +8,7 @@ export interface MCPConnectionAttempt {
 
 export interface MCPConnectionState {
   origin: string;
-  plugin: { installed: boolean; enabled: boolean; state: string; configVersion: number | null };
+  mcp: { enabled: boolean; state: string; configVersion: number };
   connection: {
     oauth: { ready: boolean; address: string; reason?: string };
     apiKey: { ready: boolean; address: string; reason?: string };

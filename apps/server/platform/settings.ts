@@ -71,12 +71,15 @@ export function platformSettings(config: HostConfig, db: AppDatabase) {
   function status(runtimeReady: boolean, initializing: boolean, error?: string): PlatformStatus {
     const saved = binding();
     let business: AppConfig | undefined;
+    let sourceProblem: PlatformStatus['sourceProblem'];
     try {
       business = configured();
       if (business) assertRoot(business, db);
     } catch (e) {
       error = (e as any).code || 'SOURCE_UNAVAILABLE';
+      sourceProblem = (e as { details?: Pick<PlatformStatus, 'sourceProblem'> }).details?.sourceProblem;
     }
+    const boundPath = business?.knowledgeRoot || saved?.knowledge_root || config.knowledgeRoot;
     const owner = !!db.prepare('SELECT id FROM user LIMIT 1').get();
     const phase =
       error === 'CONFIGURATION_CONFLICT'
@@ -96,7 +99,8 @@ export function platformSettings(config: HostConfig, db: AppDatabase) {
       phase,
       setupRequired: phase === 'setup_required',
       configurationSource: config.knowledgeRoot ? 'deployment' : saved ? 'application' : 'none',
-      ...(business ? { knowledgeRoot: business.knowledgeRoot } : {}),
+      ...(boundPath ? { knowledgeRoot: boundPath } : {}),
+      ...(sourceProblem ? { sourceProblem } : {}),
       timeZone: saved?.time_zone || 'Asia/Shanghai',
       bindingVersion: saved?.binding_version || 0,
       onboardingRequired: !!saved && !saved.onboarding_completed_at,

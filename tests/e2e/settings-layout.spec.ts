@@ -23,6 +23,7 @@ async function expectUnobscured(control: Locator) {
 test('editor preferences stay saveable while scrolling and survive reload', async ({
   page,
 }, info) => {
+  await page.setViewportSize({ width: info.project.name === 'mobile' ? 390 : 1280, height: 600 });
   await page.goto('/?view=settings&section=editor');
   await expect(page.getByRole('heading', { name: '编辑与阅读', exact: true })).toBeVisible();
   await closeSidebar(page);
@@ -31,6 +32,7 @@ test('editor preferences stay saveable while scrolling and survive reload', asyn
   await expectUnobscured(save);
   await expect(page.getByRole('region', { name: '编辑器显示预览', exact: true })).toBeHidden();
 
+  await page.getByRole('tab', { name: '阅读外观', exact: true }).click();
   const size = page.getByRole('combobox', { name: '文字大小', exact: true });
   const sizePicker = page.locator('.ant-select').filter({ has: size });
   await size.scrollIntoViewIfNeeded();
@@ -47,6 +49,7 @@ test('editor preferences stay saveable while scrolling and survive reload', asyn
   await save.click();
   await expect(page.getByRole('status').filter({ hasText: '编辑器偏好已保存' })).toBeVisible();
   await page.reload();
+  await page.getByRole('tab', { name: '阅读外观', exact: true }).click();
   await expect(
     page.locator('.ant-select').filter({ has: size }).locator('.ant-select-selection-item'),
   ).toHaveText('18 px');
@@ -56,7 +59,7 @@ test('editor preferences stay saveable while scrolling and survive reload', asyn
     .click();
   await expect(page.getByRole('region', { name: '编辑器显示预览', exact: true })).toBeVisible();
   await page.getByRole('combobox', { name: '外观', exact: true }).focus();
-  for (let step = 0; step < 6; step++) {
+  for (let step = 0; step < 3; step++) {
     await expectUnobscured(
       page.locator(
         '#editor-preferences-form .ant-select:focus-within, #editor-preferences-form .ant-switch:focus',
@@ -64,6 +67,9 @@ test('editor preferences stay saveable while scrolling and survive reload', asyn
     );
     await page.keyboard.press('Shift+Tab');
   }
+  await expect(page.getByRole('tabpanel', { name: '阅读外观' })).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(page.getByRole('tab', { name: '阅读外观' })).toBeFocused();
 });
 
 test('storage categories keep their amounts and file counts in a compact readable section', async ({
@@ -75,6 +81,7 @@ test('storage categories keep their amounts and file counts in a compact readabl
     new URL(response.url()).pathname === '/api/manage/storage' && response.request().method() === 'GET',
   );
   await page.goto('/?view=settings&section=library');
+  await page.getByRole('tab', { name: '存储与整理', exact: true }).click();
   const storage = page.getByRole('region', { name: '存储占用', exact: true });
   await expect(storage).toBeVisible();
   await closeSidebar(page);
@@ -167,4 +174,26 @@ test('import and export cards stay readable at intermediate widths and open thei
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1))
     .toBe(true);
+});
+
+test('mobile settings categories and contextual links open the selected page at its top', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 740 });
+  await page.goto('/?view=settings&section=library');
+  const picker = page.getByRole('combobox', { name: '切换设置分类', exact: true });
+  await expect(picker.locator('option')).toHaveCount(9);
+  await page.getByRole('tab', { name: '分享', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '共享链接', exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: '资料管理', exact: true }).click();
+  await page.getByRole('button', { name: '打开 Git 设置', exact: true }).click();
+  await expect(picker).toHaveValue('git');
+  await expect(page.getByLabel('作者邮箱', { exact: true })).toBeVisible();
+  await picker.selectOption('search');
+  await page.getByRole('button', { name: '查看索引状态', exact: true }).click();
+  await expect(picker).toHaveValue('status');
+  await expect(page.getByRole('heading', { name: '服务状态', exact: true })).toBeVisible();
+  await page.locator('.main-content').evaluate(el => { el.scrollTop = el.scrollHeight; });
+  await picker.selectOption('about');
+  await expect(page.getByRole('heading', { name: '关于与诊断', exact: true })).toBeVisible();
+  await expect.poll(() => page.locator('.main-content').evaluate(el => el.scrollTop)).toBe(0);
+  await expect(page.getByRole('button', { name: '下载脱敏诊断', exact: true })).toBeVisible();
 });

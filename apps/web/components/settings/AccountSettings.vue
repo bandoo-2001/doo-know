@@ -121,24 +121,21 @@ onMounted(() => void load());
 </script>
 <template>
   <div class="settings-stack">
-    <section class="settings-card">
-      <h2 class="settings-section-title"><Icon name="user" :size="18" />当前账户</h2>
-      <p>{{ username }}</p>
-      <p class="settings-muted">这是知识库所有者账户。</p>
-      <AButton danger @click="emit('logout')"
-        ><template #icon><Icon class="settings-button-icon" name="logout" :size="15" /></template
-        >退出当前设备</AButton
-      >
-    </section>
-    <SettingsActionCard
-      title="修改密码"
-      description="更新账户密码，保护知识库访问。修改成功后会退出其他设备。"
-      icon="lock"
-      action-label="修改密码"
-      @open="openPassword"
-    >
-      <p v-if="notice" class="settings-success" role="status">{{ notice }}</p>
-    </SettingsActionCard>
+    <div class="settings-action-grid account-overview">
+      <section class="settings-card account-identity">
+        <div class="settings-item-header">
+          <div><h2 class="settings-section-title"><Icon name="user" :size="18" />当前账户</h2>
+            <p class="account-name">{{ username }}</p></div>
+          <span class="settings-indicator">知识库所有者</span>
+        </div>
+        <AButton size="small" @click="emit('logout')"
+          ><template #icon><Icon class="settings-button-icon" name="logout" :size="15" /></template>退出当前设备</AButton>
+      </section>
+      <SettingsActionCard title="修改密码" description="修改后，其他设备需要重新登录。" icon="lock"
+        action-label="修改密码" @open="openPassword">
+        <p v-if="notice" class="settings-success" role="status">{{ notice }}</p>
+      </SettingsActionCard>
+    </div>
     <SettingsOverlay
       v-model:show="passwordOpen"
       title="修改密码"
@@ -222,7 +219,7 @@ onMounted(() => void load());
       <AAlert v-if="sessionError" type="error" :message="sessionError" show-icon />
       <p v-if="loading && !sessions.length" role="status">正在读取登录设备…</p>
       <p v-else-if="!sessions.length && !sessionError" class="settings-muted">暂无登录设备。</p>
-      <ul class="settings-list">
+      <ul class="settings-list settings-device-list">
         <li v-for="session in sessions" :key="session.id">
           <div class="settings-item-header">
             <div>
@@ -263,3 +260,9 @@ onMounted(() => void load());
     </section>
   </div>
 </template>
+
+<style scoped>
+.account-identity { display: grid; align-content: start; gap: 10px; }
+.account-identity .account-name { color: var(--text); font-size: 18px; font-weight: 600; overflow-wrap: anywhere; }
+.account-identity > .ant-btn { justify-self: start; }
+</style>

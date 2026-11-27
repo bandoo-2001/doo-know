@@ -58,19 +58,22 @@ export async function openSettingsSection(page: Page, label: string) {
     .click();
   await expect(page.locator('.settings-workspace')).toBeVisible();
 }
-export async function configurePlugin(page: Page, title: string) {
-  await openSettingsSection(page, '插件与连接');
-  await expect(page.getByRole('button', { name: '刷新插件状态', exact: true })).toBeEnabled();
-  const card = page.locator('.plugin-card').filter({ hasText: title });
-  if (await card.isVisible()) await card.getByRole('button', { name: '配置', exact: true }).click();
-  else {
-    await page.getByRole('tab', { name: '添加插件', exact: true }).click();
-    await page.getByRole('button', { name: '安装' + title, exact: true }).click();
-  }
-  await expect(
-    page.locator('.plugin-settings').getByRole('heading', { name: title + '设置', exact: true }),
-  ).toBeVisible();
-  if(title==='MCP 服务')await openLegacyMcpSettings(page);
+export type FeatureTitle = 'MCP 服务' | 'Git 版本管理';
+
+export async function openFeatureSettings(page: Page, title: FeatureTitle) {
+  const mcp = title === 'MCP 服务';
+  await openSettingsSection(page, mcp ? 'MCP 连接' : 'Git 版本管理');
+  await expect(page.getByRole('switch', { name: '启用 ' + title, exact: true })).toBeVisible();
+  if (mcp) await openLegacyMcpSettings(page);
+  else await expect(page.getByLabel('提交作者', { exact: true })).toBeVisible();
+}
+
+export async function setFeatureSwitch(page: Page, title: FeatureTitle, enabled: boolean) {
+  const control = page.getByRole('switch', { name: '启用 ' + title, exact: true });
+  await expect(control).toBeEnabled();
+  if (await control.getAttribute('aria-checked') !== String(enabled)) await control.click();
+  await expect(control).toHaveAttribute('aria-checked', String(enabled));
+  await expect(control).toBeEnabled();
 }
 export async function returnToNotes(page: Page) {
   await page
@@ -80,11 +83,17 @@ export async function returnToNotes(page: Page) {
   await expect(page.locator('.settings-workspace')).toHaveCount(0);
 }
 
-/** Legacy compatibility scenarios deliberately open the v1 form. New rights use domain cards. */
-export async function openLegacyMcpSettings(page:Page){
-  const summary=page.locator('summary').filter({hasText:'旧版兼容设置'});
-  if(await summary.isVisible()){
-    const open=await summary.evaluate(element=>(element.parentElement as HTMLDetailsElement).open);
-    if(!open)await summary.click();
-  }
+export async function openMcpTab(page: Page, name: '接入指南' | '客户端' | '权限设置' | '调用记录') {
+  const tab = page.getByRole('tablist', { name: 'MCP 连接选项' }).getByRole('tab', { name, exact: true });
+  await tab.click();
+  await expect(tab).toHaveAttribute('aria-selected', 'true');
+}
+
+/** Legacy compatibility scenarios deliberately open the v1 form. */
+export async function openLegacyMcpSettings(page: Page) {
+  await openMcpTab(page, '权限设置');
+  await expect(page.getByRole('switch', { name: '启用 OAuth 连接', exact: true })).toBeVisible();
+  const summary = page.locator('summary').filter({ hasText: '旧版兼容设置' });
+  if (await summary.isVisible() && !await summary.evaluate(el => (el.parentElement as HTMLDetailsElement).open))
+    await summary.click();
 }

@@ -1,3 +1,4 @@
+import { featureCapabilities } from '../../shared/feature-config.js';
 import { readFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -7,12 +8,12 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import assert from 'node:assert/strict';
 import { openDatabase } from '../../packages/core/db';
 import { platformRuntime } from '../../apps/server/platform/runtime';
-import { pluginHost } from '../../apps/server/plugins/host';
-import { pluginServices } from '../../apps/server/plugins/services';
+import { initializeFeatureSettings } from '../../packages/core/feature-settings.js';
+import { integrationServices } from '../../apps/server/features/services';
 import { oauthGrantStore } from '../../apps/server/platform/oauth-grants';
 import { currentToDooInstanceId, policyScopes } from '../../packages/core/auth/permissions';
-import { createOperations, registerOperations } from '../../plugins/mcp/server/operations';
-import { hostClient } from '../../plugins/mcp/server/service';
+import { createOperations, registerOperations } from '../../apps/server/mcp/operations';
+import { hostClient } from '../../apps/server/mcp/service';
 import type { AppConfig } from '../../shared/contracts';
 import type { PermissionPolicy } from '../../shared/permissions';
 
@@ -48,7 +49,7 @@ const priorPlugin = db.prepare("SELECT * FROM platform_plugins WHERE id='mcp'").
   | undefined;
 try {
   await platform.activate();
-  pluginHost(runtimeConfig, db);
+  initializeFeatureSettings(db);
   const policy: PermissionPolicy = {
     version: 2,
     domains: {
@@ -61,9 +62,7 @@ try {
       },
     },
   };
-  const manifest = JSON.parse(
-    await readFile(join(process.cwd(), 'plugins/mcp/manifest.json'), 'utf8'),
-  );
+  const manifest = { version: '2.0.5', capabilities: featureCapabilities.mcp };
   db.prepare(
     `INSERT INTO platform_plugins(id,installed_version,manifest_json,files_json,config_json,state)
       VALUES('mcp',?,?,'[]',?,'enabled') ON CONFLICT(id) DO UPDATE SET config_json=excluded.config_json,state='enabled'`,
@@ -88,7 +87,7 @@ try {
     policyVersion: 2 as const,
   };
   const services = () =>
-    pluginServices(platform, db, 'mcp', manifest.capabilities, {
+    integrationServices(platform, db, 'mcp', manifest.capabilities, {
       ownerId,
       principal,
       channel: 'mcp',

@@ -1,24 +1,13 @@
 import { randomUUID } from 'node:crypto';
-import { mkdtemp, readFile, rm, rmdir } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile, rmdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { expect, it } from 'vitest';
-// @ts-expect-error build tool is plain ESM
-import { buildPlugins } from '../scripts/build-plugins.mjs';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
 
 it('saves confirmed capture as inbox Markdown and exposes the saved body and source to MCP', async () => {
-  const artifacts = await mkdtemp(join(tmpdir(), 'dooknow-web-capture-mcp-'));
   let fixture: Awaited<ReturnType<typeof createFixture>> | undefined;
   try {
-    const catalog = await buildPlugins({
-      output: artifacts,
-      ids: ['mcp'],
-      baseURL: pathToFileURL(artifacts + '/').href,
-    });
     const f = (fixture = await createFixture({
-      pluginCatalog: catalog,
       indexing: { watch: false },
     }));
     const headers = await loginFixtureOwner(f);
@@ -56,9 +45,7 @@ it('saves confirmed capture as inbox Markdown and exposes the saved body and sou
     expect(duplicateTitle.json().relativePath).not.toBe(relativePath);
     expect((await post(savePath, other)).json().id).toBe(duplicateTitle.json().id);
 
-    const installed = await post('/api/platform/plugins/mcp/install');
-    expect(installed.statusCode, installed.body).toBe(200);
-    const enabled = await post('/api/platform/plugins/mcp/enable');
+    const enabled = await f.app.inject({ method: 'PUT', url: '/api/platform/mcp/enabled', headers, payload: { enabled: true } });
     expect(enabled.statusCode, enabled.body).toBe(200);
     const permissions = await f.app.inject({ url: '/api/platform/mcp/permissions', headers });
     const client = await post('/api/platform/mcp/api-clients', {
@@ -104,6 +91,5 @@ it('saves confirmed capture as inbox Markdown and exposes the saved body and sou
     expect(found.text).toContain(confirmation.markdown);
   } finally {
     await fixture?.close();
-    await rm(artifacts, { recursive: true, force: true });
   }
 });

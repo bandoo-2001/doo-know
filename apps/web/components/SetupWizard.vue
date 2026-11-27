@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { computed, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { Button as AButton, Input as AInput, Alert as AAlert, Select as ASelect } from 'ant-design-vue';
 import type { PlatformStatus } from '../../../shared/platform-contracts';
 import { api, ApiError } from '../api';
+import { setupLocationMessages, validSetupPathFormat, type SetupLocationIssue } from '../../../shared/setup-location';
 import SetupFeatures from './SetupFeatures.vue';
 import SetupImport from './SetupImport.vue';
 import GitRepositoryImport from './GitRepositoryImport.vue';
 import Icon from './Icon.vue';
-const props = defineProps<{ status: PlatformStatus }>();
-const emit = defineEmits<{ refresh: [] }>();
+import LibraryUnavailable from './LibraryUnavailable.vue';
+const props = defineProps<{
+  status: PlatformStatus; username?: string;
+  checking?: boolean; logoutBusy?: boolean; logoutError?: string;
+}>();
+const recovering = computed(() => ['source_unavailable', 'configuration_error'].includes(props.status.phase));
+const emit = defineEmits<{ refresh: []; logout: [] }>();
 const mode = ref<'new' | 'existing' | 'remote'>('new'),
   name = ref('我的知识库'),
   knowledgeRoot = ref('');
@@ -42,6 +48,21 @@ const messages: Record<string, string> = {
   VALIDATION_EXPIRED: '确认时间已过，请再次点击“确认并继续”。',
   SETUP_ALREADY_COMPLETE: '知识库已设置，请刷新页面继续。',
 };
+type SetupField = 'library-name' | 'setup-root' | 'setup-parent';
+const invalidField = ref<SetupField>();
+const fieldMessage = ref('');
+const advanced = ref<HTMLDetailsElement>();
+async function showFieldIssue(field: SetupField, message: string) {
+  invalidField.value = field;
+  fieldMessage.value = message;
+  if (field !== 'library-name' && advanced.value) advanced.value.open = true;
+  await nextTick();
+  document.getElementById(field)?.focus();
+}
+function clearIssue() {
+  invalidField.value = undefined;
+  fieldMessage.value = error.value = errorDetail.value = '';
+}
 function describe(e: unknown) {
   errorDetail.value = e instanceof Error ? e.message : String(e);
   if (e instanceof ApiError && e.status === 401) return '登录已过期，请重新登录后继续。';
@@ -54,7 +75,7 @@ function changed() {
   createdPath = '';
   createRequest = crypto.randomUUID();
   bindRequest = crypto.randomUUID();
-  error.value = '';
+  clearIssue();
 }
 async function browse(path?: string) {
   browserBusy.value = true;
@@ -69,7 +90,7 @@ async function browse(path?: string) {
 }
 async function selectMode(value: 'new' | 'existing' | 'remote') {
   mode.value = value;
-  error.value = '';
+  clearIssue();
   if (value === 'existing' && !browser.value) await browse();
 }
 function useFolder() {
@@ -77,14 +98,15 @@ function useFolder() {
   changed();
 }
 async function complete() {
-  if (
-    mode.value === 'remote' ||
-    busy.value ||
-    (mode.value === 'new' ? !name.value.trim() : !knowledgeRoot.value.trim())
-  )
-    return;
+  if (mode.value === 'remote' || busy.value) return;
+  clearIssue();
+  const field = mode.value === 'new' ? 'setup-parent' : 'setup-root';
+  const path = (mode.value === 'new' ? parentPath.value : knowledgeRoot.value).trim();
+  if (mode.value === 'new' && !name.value.trim())
+    return showFieldIssue('library-name', '请填写知识库名称。');
+  if ((!path && mode.value === 'existing') || (path && !validSetupPathFormat(path)))
+    return showFieldIssue(field, setupLocationMessages.format);
   busy.value = true;
-  error.value = '';
   try {
     if (mode.value === 'new') {
       if (!createdPath) {
@@ -108,7 +130,17 @@ async function complete() {
     });
     emit('refresh');
   } catch (e) {
-    error.value = describe(e);
+    // Server validation has finished. Re-enable the input before returning focus to it.
+    busy.value = false;
+    const code = e instanceof ApiError ? String(e.data.code || '') : '';
+    const issue = e instanceof ApiError ? String(e.data.pathIssue || '') : '';
+    if (code === 'DIRECTORY_EXISTS' || code === 'INVALID_LIBRARY_NAME')
+      await showFieldIssue('library-name', messages[code]);
+    else if (Object.hasOwn(setupLocationMessages, issue))
+      await showFieldIssue(field, setupLocationMessages[issue as SetupLocationIssue]);
+    else if (['INVALID_KNOWLEDGE_ROOT', 'FORBIDDEN_KNOWLEDGE_ROOT', 'DIRECTORY_NOT_WRITABLE'].includes(code))
+      await showFieldIssue(field, messages[code]);
+    else error.value = describe(e);
   } finally {
     busy.value = false;
   }
@@ -159,10 +191,10 @@ onBeforeUnmount(() => clearInterval(timer));
   <main class="setup-page" :aria-busy="busy">
     <header class="setup-brand">
       <Icon name="book" :size="29" /> DooKnow
-      <span class="welcome">欢迎使用</span>
+      <span v-if="!recovering" class="welcome">欢迎使用</span>
     </header>
     <section class="setup-card">
-      <ol class="setup-steps" aria-label="首次设置进度">
+      <ol v-if="!recovering" class="setup-steps" aria-label="首次设置进度">
         <li
           v-for="(label, i) in ['准备知识库', '选择功能', '开始使用']"
           :key="label"
@@ -178,7 +210,7 @@ onBeforeUnmount(() => clearInterval(timer));
         <h1 ref="heading" tabindex="-1">准备你的知识库</h1>
         <p class="intro">从一个新空间开始，或接入你已经整理好的资料。</p>
         <p class="hint">第一次使用可直接选择“创建新知识库”，无需云端账号或访问令牌。从 GitHub／Gitee 导入时，入口内有仓库和认证的申请说明。</p>
-        <component :is="mode === 'remote' ? 'div' : 'form'" @submit.prevent="complete">
+        <component :is="mode === 'remote' ? 'div' : 'form'" novalidate @submit.prevent="complete">
           <p class="field-title">资料来源</p>
           <div class="mode-options" aria-label="知识库来源">
             <button
@@ -222,6 +254,8 @@ onBeforeUnmount(() => clearInterval(timer));
               :value="name"
               :disabled="busy"
               id="library-name"
+                :aria-invalid="invalidField === 'library-name'" :status="invalidField === 'library-name' ? 'error' : undefined"
+                :aria-describedby="invalidField === 'library-name' ? 'setup-field-error' : undefined"
               aria-label="知识库名称"
               :maxlength="40"
               required
@@ -233,6 +267,7 @@ onBeforeUnmount(() => clearInterval(timer));
                 }
               "
             />
+            <p v-if="invalidField === 'library-name'" id="setup-field-error" class="field-error" role="alert">{{ fieldMessage }}</p>
             <p class="hint">资料保存在部署 DooKnow 的设备上。无需手动创建文件夹。</p>
           </div>
           <div v-if="mode === 'existing'" class="folder-browser">
@@ -296,7 +331,7 @@ onBeforeUnmount(() => clearInterval(timer));
             </div>
             <p class="hint">已有文件会保留，不会清空这个文件夹。</p>
           </div>
-          <details v-if="mode !== 'remote'" class="advanced">
+          <details v-if="mode !== 'remote'" ref="advanced" class="advanced">
             <summary>高级设置</summary>
             <p class="hint">需要自定义保存位置时再填写。</p>
             <template v-if="mode === 'new'"
@@ -305,6 +340,8 @@ onBeforeUnmount(() => clearInterval(timer));
                 :value="parentPath"
                 :disabled="busy"
                 id="setup-parent"
+                :aria-invalid="invalidField === 'setup-parent'" :status="invalidField === 'setup-parent' ? 'error' : undefined"
+                :aria-describedby="invalidField === 'setup-parent' ? 'setup-field-error' : undefined"
                 aria-label="保存到哪个文件夹"
                 placeholder="留空，使用推荐位置"
                 @update:value="
@@ -320,6 +357,8 @@ onBeforeUnmount(() => clearInterval(timer));
                 :value="knowledgeRoot"
                 :disabled="busy"
                 id="setup-root"
+                :aria-invalid="invalidField === 'setup-root'" :status="invalidField === 'setup-root' ? 'error' : undefined"
+                :aria-describedby="invalidField === 'setup-root' ? 'setup-field-error' : undefined"
                 aria-label="服务器上的知识库目录"
                 placeholder="填写已有文件夹的完整路径"
                 @update:value="
@@ -329,6 +368,7 @@ onBeforeUnmount(() => clearInterval(timer));
                   }
                 "
             /></template>
+            <p v-if="invalidField && invalidField !== 'library-name'" id="setup-field-error" class="field-error" role="alert">{{ fieldMessage }}</p>
             <p class="hint">允许保存的范围：{{ status.allowedKnowledgeBases?.join('、') }}</p>
           </details>
           <footer v-if="mode !== 'remote'" class="setup-footer">
@@ -337,7 +377,7 @@ onBeforeUnmount(() => clearInterval(timer));
               html-type="submit"
               type="primary"
               :loading="busy"
-              :disabled="busy || (mode === 'new' ? !name.trim() : !knowledgeRoot.trim())"
+              :disabled="busy"
               >确认并继续</AButton
             >
           </footer>
@@ -347,7 +387,7 @@ onBeforeUnmount(() => clearInterval(timer));
         <template v-if="step === 2">
           <p class="eyebrow">按自己的需要选择</p>
           <h1 ref="heading" tabindex="-1">选择需要的功能</h1>
-          <p class="intro">知识库已经可以使用。这些功能都可以跳过，以后在设置中添加。</p>
+          <p class="intro">知识库已经可以使用。这些功能可以稍后在设置中启用。</p>
           <SetupFeatures />
           <footer class="setup-footer">
             <AButton :disabled="busy" @click="go(3)">暂时跳过</AButton
@@ -396,15 +436,16 @@ onBeforeUnmount(() => clearInterval(timer));
         <h1>还差一个登录账号</h1>
         <p>请在部署设备上运行安装命令，完成账号创建后刷新此页。</p>
       </div>
-      <div v-else class="setup-state">
-        <h1>暂时无法打开知识库</h1>
-        <p>原有资料和设置已保留。请检查保存位置是否可用，再重试。</p>
-        <AButton type="primary" @click="emit('refresh')">重新检查</AButton>
-        <details class="advanced">
-          <summary>查看详细信息</summary>
-          {{ status.code || status.phase }}
-        </details>
-      </div>
+      <LibraryUnavailable
+        v-else
+        :status="status"
+        :username="username || ''"
+        :checking="checking"
+        :logout-busy="logoutBusy"
+        :logout-error="logoutError"
+        @refresh="emit('refresh')"
+        @logout="emit('logout')"
+      />
       <AAlert
         v-if="error"
         type="error"
@@ -422,7 +463,7 @@ onBeforeUnmount(() => clearInterval(timer));
         </template>
       </AAlert>
     </section>
-    <p class="setup-note">你的资料，由你掌握。</p>
+    <p v-if="!recovering" class="setup-note">你的资料，由你掌握。</p>
   </main>
 </template>
 <style scoped>
@@ -763,6 +804,7 @@ code {
 .preparing {
   padding: 8px 0 18px;
 }
+.field-error { margin: 5px 0; color: var(--danger, #b42318); font-size: 13px; }
 .setup-error {
   margin-top: 20px;
   overflow-wrap: anywhere;

@@ -58,7 +58,7 @@ test('all settings sections scroll with actual wheel or touch input and keep con
   page,
 }, info) => {
   test.setTimeout(90000);
-  for (const section of ['editor', 'library', 'search', 'backup', 'plugins', 'account', 'about']) {
+  for (const section of ['editor', 'library', 'search', 'backup', 'mcp', 'account', 'about']) {
     await test.step(section, async () => {
       await page.goto('/?view=settings&section=' + section);
       // The initial empty-workspace heading can appear before the requested route is restored.
@@ -72,15 +72,8 @@ test('all settings sections scroll with actual wheel or touch input and keep con
             /ant-btn-loading/,
           );
       }
-      if (section === 'plugins') {
-        await expect(root.getByRole('button', { name: '刷新插件状态', exact: true })).toBeEnabled();
-        if (await root.locator('.plugin-empty').isVisible()) {
-          const add = root.getByRole('tab', { name: '添加插件', exact: true });
-          if (info.project.name === 'mobile') await add.tap();
-          else await add.click();
-        }
-        await expect(root.locator('.plugin-card').first()).toBeVisible();
-      }
+      if (section === 'mcp')
+        await expect(root.getByRole('switch', { name: '启用 MCP 服务', exact: true })).toBeEnabled();
       await expect(async () => {
         const bounds = (await root.boundingBox())!;
         expect(bounds.y + bounds.height).toBeLessThanOrEqual(421);
@@ -93,7 +86,7 @@ test('all settings sections scroll with actual wheel or touch input and keep con
         ).toBe(true);
         return;
       }
-      if (section === 'plugins' && info.project.name === 'mobile') {
+      if (section === 'mcp' && info.project.name === 'mobile') {
         const nav = (await root.locator('.ant-tabs-nav-wrap').boundingBox())!;
         await scrollDown(page, root, true, { x: nav.x + nav.width / 2, y: nav.y + nav.height / 2 });
       } else await scrollDown(page, root, info.project.name === 'mobile');

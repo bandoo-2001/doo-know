@@ -1,9 +1,10 @@
+import { featureCapabilities } from '../shared/feature-config.js';
 import { afterEach, expect, it } from 'vitest';
 import { readFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
-import { pluginServices } from '../apps/server/plugins/services.js';
-import { pluginHost } from '../apps/server/plugins/host.js';
+import { integrationServices } from '../apps/server/features/services.js';
+import { initializeFeatureSettings } from '../packages/core/feature-settings.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 import { policyScopes, projectPermissionPrincipal } from '../packages/core/auth/permissions.js';
 import { platformPolicy } from '../packages/core/auth/grants.js';
@@ -12,8 +13,8 @@ import type { PermissionPolicy } from '../shared/permissions.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { createOperations, registerOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
+import { createOperations, registerOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
@@ -23,7 +24,7 @@ afterEach(async () => {
 async function integrated(actions = ['read', 'write', 'organize']) {
   const f = await pluginRuntimeFixture();
   cleanups.push(f.close);
-  pluginHost(f.config, f.db);
+  initializeFeatureSettings(f.db);
   const identity = f.platform.get().knowledge.organization.context(f.principal);
   const policy: PermissionPolicy = {
     version: 2,
@@ -37,9 +38,7 @@ async function integrated(actions = ['read', 'write', 'organize']) {
       },
     },
   };
-  const manifest = JSON.parse(
-    await readFile(new URL('../plugins/mcp/manifest.json', import.meta.url), 'utf8'),
-  );
+  const manifest = { version: '2.0.5', capabilities: featureCapabilities.mcp };
   f.db
     .prepare(
       `INSERT INTO platform_plugins(id,installed_version,manifest_json,files_json,config_json,state)
@@ -65,7 +64,7 @@ async function integrated(actions = ['read', 'write', 'organize']) {
     policyVersion: 2 as const,
   };
   const services = () =>
-    pluginServices(f.platform, f.db, 'mcp', manifest.capabilities, {
+    integrationServices(f.platform, f.db, 'mcp', manifest.capabilities, {
       ownerId: p.id,
       principal: p,
       channel: 'mcp',
@@ -256,7 +255,7 @@ it('applies an archive-disabled v2 ceiling to a legacy write connection', async 
       .get()
       .knowledge.core.archive(p, created.id, created.modifiedAt, 'legacy-ceiling-core-deny'),
   ).toThrowError(expect.objectContaining({ code: 'FORBIDDEN' }));
-  const service = pluginServices(
+  const service = integrationServices(
     f.platform,
     f.db,
     'mcp',
@@ -310,7 +309,7 @@ it('publishes through a real v2 host grant with source read permission and no so
     (f.db.prepare("SELECT manifest_json FROM platform_plugins WHERE id='mcp'").get() as any)
       .manifest_json,
   );
-  const services = pluginServices(f.platform, f.db, 'mcp', manifest.capabilities, {
+  const services = integrationServices(f.platform, f.db, 'mcp', manifest.capabilities, {
     ownerId: p.id,
     principal: p,
     channel: 'mcp',

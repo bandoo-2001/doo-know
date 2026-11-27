@@ -70,8 +70,7 @@ export interface GitJob {
   updatedAt: number;
 }
 export interface GitRemoteStatus {
-  pluginInstalled: boolean;
-  pluginEnabled: boolean;
+  enabled: boolean;
   repository: 'unbound' | 'missing' | 'ready' | 'unavailable';
   branch: string | null;
   head: string | null;

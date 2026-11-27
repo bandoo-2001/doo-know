@@ -350,6 +350,7 @@ test('320px dark Ant calendar popup and review modal keep their controls inside 
 }, info) => {
   await page.setViewportSize({ width: 320, height: 780 });
   await page.goto('/?view=settings&section=editor');
+  await page.getByRole('tab', { name: '阅读外观', exact: true }).click();
   const appearance = page.getByRole('combobox', { name: '外观', exact: true });
   await page
     .locator('.ant-select')

@@ -7,7 +7,7 @@ import { openDatabase, type AppDatabase } from '../packages/core/db.js';
 import { noteService } from '../packages/core/notes.js';
 import { readKnowledgeDataFile, writeKnowledgeDataFile } from '../packages/core/knowledge-data.js';
 import { backup, restore } from '../apps/server/backup.js';
-import { pluginHost } from '../apps/server/plugins/host.js';
+import { portableGitSettings } from '../apps/server/git/portable-settings.js';
 import type { AppConfig } from '../shared/contracts.js';
 
 // Model the committed SQLite outbox left behind when atomic file replacement
@@ -84,18 +84,17 @@ it('replays a pending favorite after a full backup is restored at a different ro
   }
 });
 
-it('replays pending plugin user data after restore without installing or activating the plugin', async () => {
+it('replays pending portable Git data after restore while Git is disabled', async () => {
   const f = await fixture();
   let restored: AppDatabase | undefined;
-  let targetHost: ReturnType<typeof pluginHost> | undefined;
-  const sourceHost = pluginHost({ ...f.config, pluginCatalog: [] }, f.db);
+  const sourceGit = portableGitSettings(f.db, () => f.config.knowledgeRoot);
   try {
     noteService(f.config, f.db);
-    const path = 'plugins/saved-data/state.json';
+    const path = 'plugins/git/state.json';
     const data = {
       schemaVersion: 1,
-      plugin: { id: 'saved-data', version: '1.0.0', apiVersion: '^1.0.0' },
-      config: {},
+      plugin: { id: 'git', version: '1.0.0', apiVersion: '^1.0.0' },
+      config: { authorName: 'Original Author' },
       userData: {} as Record<string, unknown>,
     };
     writeKnowledgeDataFile(
@@ -103,14 +102,12 @@ it('replays pending plugin user data after restore without installing or activat
       path,
       JSON.stringify({ format: 1, revision: randomUUID(), data }),
     );
-    expect(sourceHost.dataDependencies()).toMatchObject([
-      { id: 'saved-data', state: 'unavailable' },
-    ]);
+    expect(sourceGit.read({})).toEqual(data.config);
     f.db
       .prepare('INSERT INTO portable_plugin_data(root,plugin_id,key,value) VALUES(?,?,?,?)')
       .run(
         f.config.knowledgeRoot,
-        'saved-data',
+        'git',
         'draft',
         JSON.stringify({ content: 'Keep this draft' }),
       );
@@ -120,12 +117,8 @@ it('replays pending plugin user data after restore without installing or activat
     await restore(f.snapshot, f.target);
 
     restored = openDatabase(f.target.dataRoot);
-    targetHost = pluginHost({ ...f.target, pluginCatalog: [] }, restored);
-    expect(targetHost.dataDependencies()).toMatchObject([
-      { id: 'saved-data', state: 'unavailable' },
-    ]);
-    expect(targetHost.list()).toEqual([]);
-    expect(targetHost.contributions()).toEqual([]);
+    const restoredGit = portableGitSettings(restored, () => f.target.knowledgeRoot);
+    expect(restoredGit.read({})).toEqual(data.config);
     const persisted = JSON.parse(
       await readFile(join(f.target.knowledgeRoot, '_doo-data', path), 'utf8'),
     );
@@ -133,14 +126,12 @@ it('replays pending plugin user data after restore without installing or activat
     expect(
       restored
         .prepare('SELECT root,value FROM portable_plugin_data WHERE plugin_id=? AND key=?')
-        .get('saved-data', 'draft'),
+        .get('git', 'draft'),
     ).toEqual({
       root: f.target.knowledgeRoot,
       value: JSON.stringify({ content: 'Keep this draft' }),
     });
   } finally {
-    await targetHost?.close();
-    await sourceHost.close();
     restored?.close();
     f.db.close();
     await rm(f.root, { recursive: true, force: true });

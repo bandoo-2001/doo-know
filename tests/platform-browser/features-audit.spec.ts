@@ -1,5 +1,4 @@
 import { test, expect, type Page } from '@playwright/test';
-import { readFileSync } from 'node:fs';
 import { testPassword } from '../support/credentials.js';
 
 async function startFeatures(page: Page) {
@@ -88,139 +87,24 @@ test('optional search recovers after status failure, reopens a running task, can
   await expect(page.getByRole('heading', { name: '知识库准备好了', exact: true })).toBeVisible();
 });
 
-test('MCP resumes an existing install, reports failure, retries once, preserves draft and saves before enabling', async ({
-  page,
-}) => {
-  const manifest = JSON.parse(readFileSync('plugins/mcp/manifest.json', 'utf8'));
-  const catalog = [
-    {
-      id: manifest.id,
-      version: manifest.version,
-      title: manifest.title,
-      description: manifest.description,
-      capabilities: manifest.capabilities,
-    },
-  ];
-  let plugin: any;
-  const jobs = new Map<string, any>([
-    [
-      'old-install',
-      {
-        id: 'old-install',
-        pluginId: 'mcp',
-        version: manifest.version,
-        status: 'running',
-        phase: 'downloading',
-      },
-    ],
-  ]);
-  let posts = 0,
-    configSaves = 0;
-  const baseConfig = Object.fromEntries(
-    Object.entries(manifest.configSchema.properties)
-      .filter(([, f]: any) => f.default !== undefined)
-      .map(([key, f]: any) => [key, f.default]),
-  );
-  baseConfig.allowedPrefixes = ['00-Inbox'];
-  await page.route('**/api/platform/plugins', (route) =>
-    route.fulfill({ json: { catalog, installed: plugin ? [plugin] : [], contributions: [] } }),
-  );
-  await page.route('**/api/platform/plugin-installations', (route) => {
-    if (route.request().method() === 'GET')
-      return route.fulfill({ json: { items: [...jobs.values()] } });
-    posts++;
-    const input = route.request().postDataJSON();
-    expect(input.id).toBe('mcp');
-    const job = {
-      id: 'new-install',
-      pluginId: 'mcp',
-      version: manifest.version,
-      requestId: input.requestId,
-      status: 'running',
-      phase: 'downloading',
-    };
-    jobs.set(job.id, job);
-    return route.fulfill({ status: 202, json: job });
-  });
-  await page.route('**/api/platform/plugin-installations/*', (route) => {
-    const id = new URL(route.request().url()).pathname.split('/').at(-1)!;
-    const job = jobs.get(id);
-    if (id === 'old-install')
-      Object.assign(job, { status: 'failed', phase: 'verifying', error: 'PLUGIN_INSTALL_FAILED' });
-    else {
-      Object.assign(job, { status: 'succeeded', phase: 'complete' });
-      plugin = {
-        id: 'mcp',
-        installedVersion: manifest.version,
-        state: 'disabled',
-        configVersion: 1,
-        config: structuredClone(baseConfig),
-        configuredSecrets: [],
-        manifest,
-      };
-    }
-    return route.fulfill({ json: job });
-  });
-  await page.route('**/api/platform/plugins/mcp/config', (route) => {
-    const input = route.request().postDataJSON();
-    expect(input.configVersion).toBe(plugin.configVersion);
-    configSaves++;
-    plugin = { ...plugin, configVersion: plugin.configVersion + 1, config: input.values };
-    return route.fulfill({ json: plugin });
-  });
-  await page.route('**/api/platform/plugins/mcp/enable', (route) => {
-    plugin = { ...plugin, state: 'enabled' };
-    return route.fulfill({ json: plugin });
-  });
-  await page.route('**/api/platform/mcp/connection', (route) =>
-    route.fulfill({
-      json: {
-        origin: 'http://127.0.0.1:4178',
-        plugin: {
-          installed: !!plugin,
-          enabled: plugin?.state === 'enabled',
-          state: plugin?.state || 'missing',
-          configVersion: plugin?.configVersion || null,
-        },
-        connection: {
-          oauth: { ready: false, address: 'http://127.0.0.1:4178/mcp' },
-          apiKey: {
-            ready: plugin?.state === 'enabled',
-            address: 'http://127.0.0.1:4178/mcp/api-key',
-          },
-        },
-        externalVerification: 'unknown',
-        latestConnectionAttempt: null,
-        latestSuccessfulCall: null,
-        clients: [],
-      },
-    }),
-  );
-  await page.route('**/api/platform/mcp/api-clients', (route) =>
-    route.fulfill({ json: { items: [] } }),
-  );
+test('preserves an MCP settings draft through onboarding and enables the configured service', async ({ page }) => {
   await startFeatures(page);
-  await expect(page.getByRole('alert')).toContainText('功能添加失败');
-  expect(posts).toBe(0);
-  await page.getByRole('button', { name: '添加连接设置', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'MCP 连接', exact: true })).toBeVisible();
-  expect(posts).toBe(1);
-  await expect(page.getByText('外部连接尚未验证', { exact: true })).toBeVisible();
-  await expect(
-    page.getByText('OAuth 需要客户端和授权浏览器可达的 HTTPS 站点。', { exact: true }),
-  ).toBeVisible();
+  const open = page.getByRole('button', { name: '设置 MCP 连接', exact: true });
+  await open.click();
+  const enabled = page.getByRole('switch', { name: '启用 MCP 服务', exact: true });
+  await expect(enabled).toHaveAttribute('aria-checked', 'false');
+  await page.getByRole('tab', { name: '权限设置', exact: true }).click();
   const oauth = page.getByRole('switch', { name: '启用 OAuth 连接', exact: true });
   await oauth.click();
   await expect(oauth).not.toBeChecked();
-  await expect(page.getByRole('button', { name: '启用插件', exact: true })).toBeDisabled();
   await page.getByRole('button', { name: '设置内容搜索', exact: true }).click();
-  await page.getByRole('button', { name: '查看连接设置', exact: true }).click();
+  await open.click();
   await expect(oauth).not.toBeChecked();
-  await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
-  await expect(page.getByRole('status').filter({ hasText: '插件配置已保存' })).toBeVisible();
-  expect(configSaves).toBe(1);
-  await page.getByRole('button', { name: '启用插件', exact: true }).click();
-  await expect(page.getByRole('button', { name: '停用插件', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'API Key 接入', exact: true }).click();
-  await expect(page.getByRole('button', { name: '创建 API 客户端', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: '保存 MCP 配置', exact: true }).click();
+  await expect(page.getByText('MCP 配置已保存。', { exact: true })).toBeVisible();
+  await enabled.click();
+  await expect(enabled).toHaveAttribute('aria-checked', 'true');
+  const settings = await (await page.request.get('/api/platform/features')).json();
+  expect(settings.mcp).toMatchObject({ state: 'enabled', config: { oauthEnabled: false } });
+  expect(settings.git.state).toBe('disabled');
 });

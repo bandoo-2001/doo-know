@@ -1,3 +1,8 @@
+import { createHash } from 'node:crypto';
+import { posix } from 'node:path';
+import { DOO_ASSETS_DIRECTORY } from '../../shared/storage-paths';
+import { diagramRendererVersions, renderPreparedDiagramDocument } from '../../shared/diagram-primary';
+import { emptyWhiteboard } from '../../shared/whiteboard';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 import type { Page, Response } from '@playwright/test';
@@ -38,24 +43,31 @@ test('批量整理为关联原生白板准备预览，刷新记录后可撤销�
     })
   ).json();
   const scene = {
-    type: 'excalidraw',
-    version: 2,
-    elements: [
-      { id: 'label', type: 'text', text: '保留标签', link: target.relativePath.split('/').at(-1) },
-    ],
-    appState: {},
-    files: {},
+    ...emptyWhiteboard(),
+    elements: [{
+      id: 'linked-shape', type: 'rectangle', x: 16, y: 16, width: 140, height: 72,
+      angle: 0, strokeColor: '#1e1e1e', backgroundColor: 'transparent', fillStyle: 'solid',
+      strokeWidth: 2, strokeStyle: 'solid', roughness: 1, opacity: 100, groupIds: [],
+      frameId: null, index: 'a0', roundness: null, seed: 1, version: 1, versionNonce: 1,
+      isDeleted: false, boundElements: null, updated: 1, locked: false,
+      link: posix.relative(posix.join('00-Inbox', DOO_ASSETS_DIRECTORY), target.relativePath),
+    }],
   };
-  const board = await (
-    await page.request.post('/api/notes', {
-      headers,
-      data: {
-        folderPath: '00-Inbox',
-        fileName: 'batch-board-' + suffix + '.excalidraw',
-        content: JSON.stringify(scene),
-      },
-    })
-  ).json();
+  async function post(url: string, data: unknown) {
+    const response = await page.request.post(url, { headers, data });
+    expect(response.ok(), await response.text()).toBe(true);
+    return response.json();
+  }
+  const title = 'batch-board-' + suffix, source = JSON.stringify(scene);
+  const intent = await post('/api/diagram-documents/intents', { path: '00-Inbox/' + title + '.md', type: 'whiteboard', requestId: crypto.randomUUID() });
+  const prepared = await post('/api/diagram-documents/prepare', {
+    target: { kind: 'creation', intentId: intent.id }, type: 'whiteboard', title, source,
+    sourceHash: createHash('sha256').update(source).digest('hex'), renderer: diagramRendererVersions.whiteboard, config: {},
+    pngBase64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7i8AAAAASUVORK5CYII=', requestId: crypto.randomUUID(),
+  });
+  const board = await post('/api/diagram-documents/commit', {
+    preparedId: prepared.id, markdown: renderPreparedDiagramDocument({ prepared, title, source }), requestId: crypto.randomUUID(),
+  });
   const folderName = 'batch-' + suffix;
   expect(
     (
@@ -66,6 +78,7 @@ test('批量整理为关联原生白板准备预览，刷新记录后可撤销�
     ).ok(),
   ).toBe(true);
   await page.goto('/?view=settings&section=library');
+  await page.getByRole('tab', { name: '存储与整理', exact: true }).click();
   const panel = page
     .locator('section.settings-card')
     .filter({ has: page.getByRole('heading', { name: '批量整理', exact: true }) });
@@ -91,6 +104,7 @@ test('批量整理为关联原生白板准备预览，刷新记录后可撤销�
   expect(updated.preview.state).toBe('ready');
   expect(JSON.parse(updated.source.content).elements[0].link).toContain(folderName);
   await page.reload();
+  await page.getByRole('tab', { name: '存储与整理', exact: true }).click();
   const undo = page.waitForResponse(response =>
     response.request().method() === 'POST' &&
     /^\/api\/organization\/operations\/[^/]+\/undo$/.test(new URL(response.url()).pathname),

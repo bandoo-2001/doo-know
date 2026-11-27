@@ -63,8 +63,8 @@ it(
         knowledge: { indexing: { refresh: async () => ({}) } },
       }),
     };
-    const plugins: any = {
-      list: () => [{ id: 'git', state: 'enabled', installedVersion: '1.1.0' }],
+    const features: any = {
+      enabled: () => true,
     };
     let blocked = true,
       refusals = 0,
@@ -73,7 +73,7 @@ it(
       { dataRoot, secret: 'fixture-only-long-enough-secret', origin: 'http://localhost' } as any,
       db,
       platform,
-      plugins,
+      features,
       {
         exec: (cwd, args, options) => {
           if (args.includes('push')) {

@@ -6,13 +6,13 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { createToDooToolPort } from '../apps/server/to-doo/mcp-tools';
 import { createToDooAssets } from '../packages/core/to-doo/assets';
 import { createToDooAgentPort } from '../apps/server/to-doo/agent-port';
-import { createMcpTransferStore } from '../apps/server/plugins/mcp-transfers';
+import { createMcpTransferStore } from '../apps/server/mcp/mcp-transfers';
 import { pluginRuntimeFixture } from './support/plugin-runtime';
 import { requireScope } from '../packages/core/agent/auth';
-import { createOperations, registerOperations } from '../plugins/mcp/server/operations';
-import { hostClient } from '../plugins/mcp/server/service';
-import type { McpDomainContext } from '../apps/server/plugins/mcp-domain-context';
-import type { PluginServices } from '../packages/plugin-sdk';
+import { createOperations, registerOperations } from '../apps/server/mcp/operations';
+import { hostClient } from '../apps/server/mcp/service';
+import type { McpDomainContext } from '../apps/server/mcp/mcp-domain-context';
+import type { IntegrationServices } from '../packages/core/integration-ports';
 import { toDooFullToolSchemas } from '../shared/mcp-to-doo-tools';
 const png = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aRZkAAAAASUVORK5CYII=',
@@ -77,7 +77,7 @@ it('uploads, frames, reads and discovers a private anniversary image through the
   const f = await setup();
   let client: Client | undefined, server: McpServer | undefined;
   try {
-    const services = { toDooTools: f.port } as unknown as PluginServices;
+    const services = { toDooTools: f.port } as unknown as IntegrationServices;
     const registry = createOperations(
       { objectIdSecret: 'anniversary-sdk-fixture-object-secret' },
       hostClient(

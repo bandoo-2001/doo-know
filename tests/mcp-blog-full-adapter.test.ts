@@ -4,13 +4,13 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
-import { createMcpTransferStore } from '../apps/server/plugins/mcp-transfers.js';
+import { createMcpTransferStore } from '../apps/server/mcp/mcp-transfers.js';
 import { createBlogToolPort } from '../apps/server/blog/mcp-tools.js';
-import { createOperations, registerOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
+import { createOperations, registerOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
 import { blogToolDefinitions, blogToolVersionMetadata } from '../shared/mcp-blog-tools.js';
 import { requireScope } from '../packages/core/agent/auth.js';
-import { resultSize, budgets } from '../plugins/mcp/server/budgets.js';
+import { resultSize, budgets } from '../apps/server/mcp/budgets.js';
 import { currentBlogInstanceId } from '../packages/core/auth/permissions.js';
 import type { Principal } from '../shared/knowledge-contracts.js';
 

@@ -3,7 +3,6 @@ import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
-import { pluginFixture } from './support/plugin-fixture.js';
 import { openDatabase } from '../packages/core/db.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 import { loadHostConfig } from '../apps/server/platform/config.js';
@@ -11,8 +10,7 @@ import { createApp } from '../apps/server/app.js';
 import { createPlatformBackup, restorePlatformBackup } from '../apps/server/platform/backups.js';
 it('encrypts the complete backup and restores a new bound root with stable note identity and revoked sessions, shares, grants and process ownership', async () => {
   const root = await mkdtemp(join(tmpdir(), 'encrypted-backup-')),
-    entry = await pluginFixture(root),
-    f = await createFixture({ pluginCatalog: [entry] });
+    f = await createFixture();
   let restored: Awaited<ReturnType<typeof createApp>> | undefined;
   const db = openDatabase(f.dataRoot);
   try {
@@ -39,18 +37,12 @@ it('encrypts the complete backup and restores a new bound root with stable note 
         payload: {},
       })
     ).json();
-    await f.app.inject({
-      method: 'POST',
-      url: '/api/platform/plugins/counter/install',
-      headers,
-      payload: {},
-    });
-    await f.app.inject({
-      method: 'POST',
-      url: '/api/platform/plugins/counter/enable',
-      headers,
-      payload: {},
-    });
+    for (const feature of ['git', 'mcp']) {
+      const enabled = await f.app.inject({
+        method: 'PUT', url: '/api/platform/' + feature + '/enabled', headers, payload: { enabled: true },
+      });
+      expect(enabled.statusCode).toBe(200);
+    }
     const oldGrant = oauthGrantStore(db).approve(
       owner,
       'backup-client',
@@ -100,11 +92,8 @@ it('encrypts the complete backup and restores a new bound root with stable note 
           ).value,
         ),
       ).toBe(8);
-      expect(
-        check
-          .prepare('SELECT desired_enabled,state FROM platform_plugins WHERE id=?')
-          .get('counter'),
-      ).toMatchObject({ desired_enabled: 0, state: 'disabled' });
+      expect(check.prepare('SELECT desired_enabled,state FROM platform_plugins ORDER BY id').all())
+        .toEqual([{ desired_enabled: 0, state: 'disabled' }, { desired_enabled: 0, state: 'disabled' }]);
       expect(check.pragma('foreign_key_check')).toEqual([]);
       expect(
         (check.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as any)

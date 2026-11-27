@@ -1,4 +1,4 @@
-import type { ToDooPort, ServiceCallOptions } from '../../../packages/plugin-sdk/index.js';
+import type { ToDooPort, ServiceCallOptions } from '../../../packages/core/integration-ports.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import {
   TO_DOO_COLLECTIONS,

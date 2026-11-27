@@ -2,8 +2,8 @@ import { it, expect } from 'vitest';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
-import { createOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
+import { createOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
 it('runs inherited MCP tools through the host SDK and retains fixed write receipts and scope checks', async () => {
   const f = await pluginRuntimeFixture();
   try {

@@ -1,10 +1,11 @@
 export type SettingsSection =
   | 'editor'
   | 'library'
+  | 'git'
   | 'search'
   | 'status'
   | 'backup'
-  | 'plugins'
+  | 'mcp'
   | 'account'
   | 'about';
 export interface EditorPreferences {

@@ -10,7 +10,6 @@ import { join, resolve, dirname, basename } from 'node:path';
 import { tmpdir } from 'node:os';
 import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { pathToFileURL } from 'node:url';
 import { createServer as createViteServer } from 'vite';
 import { createApp } from '../../apps/server/app';
 import { initializeOwner } from '../../apps/server/auth';
@@ -52,14 +51,6 @@ await mkdir(join(root, 'knowledge'), { recursive: true });
 await mkdir(join(root, 'instances'), { recursive: true });
 const buildModule = '../../scripts/build-process-runner.mjs';
 await (await import(buildModule)).buildProcessRunner();
-const pluginModule = '../../scripts/build-plugins.mjs';
-const pluginCatalog = await (
-  await import(pluginModule)
-).buildPlugins({
-  output: join(root, 'plugins'),
-  ids: ['mcp', 'git'],
-  baseURL: pathToFileURL(join(root, 'plugins') + '/').href,
-});
 const gitRemoteURL = 'https://github.com/runtime-setup-fixture/notes.git';
 const gitRemoteRoot = join(root, 'remote.git'),
   seed = join(root, 'remote-seed');
@@ -111,7 +102,6 @@ async function allocate(mode: string) {
     origin,
     allowedKnowledgeBases: [libraryParent],
     indexing: { enabled: false, watch: false },
-    pluginCatalog,
     ...(mode === 'source-unavailable' ? { knowledgeRoot: unavailablePath } : {}),
   };
   await initializeOwner(config, 'owner', testPassword);
@@ -259,7 +249,7 @@ const vite = await createViteServer({
     port: webPort,
     strictPort: true,
     proxy: Object.fromEntries(
-      ['/api/', '/plugins/', '/__platform-ui-evidence/'].map((prefix) => [
+      ['/api/', '/__platform-ui-evidence/'].map((prefix) => [
         prefix,
         { target: 'http://127.0.0.1:' + apiPort },
       ]),

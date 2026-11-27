@@ -1,3 +1,4 @@
+import { readFeatureConfig } from '../feature-settings.js';
 import type { AppDatabase } from '../db.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { PermissionPolicy } from '../../../shared/permissions.js';
@@ -174,10 +175,9 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
   if (p.clientId.startsWith('plugin-web:')) {
     const id = p.clientId.slice('plugin-web:'.length);
     if (
+      (id === 'git' || id === 'mcp') &&
       db.prepare('SELECT id FROM user WHERE id=?').get(p.id) &&
-      db
-        .prepare("SELECT id FROM platform_plugins WHERE id=? AND installed=1 AND state='enabled'")
-        .get(id)
+      readFeatureConfig(db, id, true)
     )
       return {
         ...p,
@@ -212,19 +212,13 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
     return;
   let config: any;
   if (p.pluginId) {
-    const plugin = db
-      .prepare(
-        "SELECT config_json FROM platform_plugins WHERE id=? AND installed=1 AND state='enabled'",
-      )
-      .get(p.pluginId) as any;
-    if (!plugin) return;
-    if (p.pluginId === 'mcp') {
-      config = JSON.parse(plugin.config_json);
-      config.__selectionKey = 'plugin:mcp:legacy';
-      if (p.credentialKind === 'api-key') {
-        if (config.apiKeyEnabled === false || !mcpApiCredentialValid(db, p)) return;
-      } else if (p.authGeneration != null || config.oauthEnabled === false) return;
-    }
+    if (p.pluginId !== 'mcp') return;
+    config = readFeatureConfig(db, 'mcp', true);
+    if (!config) return;
+    config.__selectionKey = 'plugin:mcp:legacy';
+    if (p.credentialKind === 'api-key') {
+      if (config.apiKeyEnabled === false || !mcpApiCredentialValid(db, p)) return;
+    } else if (p.authGeneration != null || config.oauthEnabled === false) return;
   }
   if (grant.policy_version === 2) {
     let policy = normalizePermissionPolicy(JSON.parse(grant.policy_json));
@@ -258,7 +252,7 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
   if (config) {
     if (config.permissionPolicy) {
       const ceiling = normalizePermissionPolicy(config.permissionPolicy);
-      // A v1 client remains a path selection even after plugin policy upgrades.
+      // A v1 client remains a path selection even after MCP policy upgrades.
       const allowed = projectPermissionPrincipal(
         db,
         { ...p, scopes: legacyScopes(scopes, p.scopes) },

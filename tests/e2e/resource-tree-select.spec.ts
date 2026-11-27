@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import type { Locator, Page } from '@playwright/test';
-import type { PluginCatalogEntry, PluginView } from '../../packages/plugin-contracts';
+import type { FeatureView } from '../../shared/feature-contracts';
 import type { PermissionPolicy, ResourceRef } from '../../shared/permissions';
 import { test, expect } from '../support/browser-test';
 
@@ -78,49 +78,22 @@ async function inventory(page: Page, initial: PermissionPolicy) {
 
 // Only the resource inventory and persistence boundary are fixtures. The page,
 // permission editor and AntDV popup all execute their real browser code.
-async function openPlugin(page: Page, selected: ResourceRef[] = []) {
+async function openMcp(page: Page, selected: ResourceRef[] = []) {
   const initial = policy(selected);
   await inventory(page, initial);
-  const registry = (await (await page.request.get('/api/platform/plugins')).json()) as {
-    installed: PluginView[];
-    catalog: PluginCatalogEntry[];
-    contributions: unknown[];
-  };
-  const existing = registry.installed.find((plugin) => plugin.id === 'mcp');
-  const manifest = existing?.manifest ?? registry.catalog.find((plugin) => plugin.id === 'mcp')!;
-  const plugin: PluginView = {
-    id: 'mcp',
-    installedVersion: manifest.version,
-    desiredEnabled: false,
-    state: 'disabled',
-    configVersion: 1,
-    restartRequired: false,
-    manifest,
-    configuredSecrets: [],
-    ...existing,
-    config: {
-      ...existing?.config,
-      oauthEnabled: true, apiKeyEnabled: false,
-      allowedPrefixes: ['00-Inbox'],
-      permissionPolicy: initial,
-    },
-  };
-  registry.installed = [...registry.installed.filter((entry) => entry.id !== 'mcp'), plugin];
-  await page.route('**/api/platform/plugins', (route) => route.fulfill({ json: registry }));
-  await page.route('**/api/platform/plugins/mcp/config', async (route) => {
+  const registry = (await (await page.request.get('/api/platform/features')).json()) as { git: FeatureView; mcp: FeatureView };
+  const feature = registry.mcp;
+  feature.config = { ...feature.config, oauthEnabled: true, apiKeyEnabled: false, allowedPrefixes: ['00-Inbox'], permissionPolicy: initial };
+  await page.route('**/api/platform/features', (route) => route.fulfill({ json: registry }));
+  await page.route('**/api/platform/mcp/config', async (route) => {
     if (route.request().method() !== 'PUT') return route.continue();
-    plugin.config = route.request().postDataJSON().values;
-    plugin.configVersion += 1;
-    await route.fulfill({ json: plugin });
+    feature.config = route.request().postDataJSON().values;
+    feature.configVersion += 1;
+    await route.fulfill({ json: feature });
   });
-  await page.goto('/?view=settings&section=plugins');
-  await expect(page.getByRole('button', { name: '刷新插件状态', exact: true })).toBeEnabled();
-  await page
-    .locator('.plugin-card')
-    .filter({ hasText: 'MCP 服务' })
-    .getByRole('button', { name: '配置', exact: true })
-    .click();
-  await expect(page.getByRole('heading', { name: 'MCP 服务设置', exact: true })).toBeVisible();
+  await page.goto('/?view=settings&section=mcp');
+  await expect(page.getByRole('region', { name: 'MCP 服务设置', exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: '权限设置', exact: true }).click();
   return page.getByRole('article', { name: '知识库权限', exact: true });
 }
 
@@ -154,15 +127,15 @@ async function choose(page: Page, title: string) {
   await row(page, title).locator('.ant-select-tree-checkbox').click();
 }
 
-async function savePlugin(page: Page) {
+async function saveMcpConfig(page: Page) {
   const request = page.waitForRequest(
     (request) =>
-      new URL(request.url()).pathname === '/api/platform/plugins/mcp/config' &&
+      new URL(request.url()).pathname === '/api/platform/mcp/config' &&
       request.method() === 'PUT',
   );
-  await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
+  await page.getByRole('button', { name: '保存 MCP 配置', exact: true }).click();
   const submitted = (await request).postDataJSON();
-  await expect(page.locator('.form-success')).toContainText('插件配置已保存');
+  await expect(page.locator('.mcp-config-footer [role="status"]')).toContainText('MCP 配置已保存。');
   return submitted.values.permissionPolicy as PermissionPolicy;
 }
 
@@ -177,7 +150,7 @@ async function expectWithinViewport(page: Page, element: Locator) {
 test('selecting a parent displays inherited descendants and saves only the parent identity', async ({
   page,
 }, info) => {
-  const knowledge = await openPlugin(page);
+  const knowledge = await openMcp(page);
   await picker(page).click();
   await expand(page, '项目资料');
   await expand(page, '研究');
@@ -196,7 +169,7 @@ test('selecting a parent displays inherited descendants and saves only the paren
     animations: 'disabled',
   });
   await picker(page).press('Escape');
-  const saved = await savePlugin(page);
+  const saved = await saveMcpConfig(page);
   expect(saved.domains.knowledge.resources).toEqual({
     mode: 'selected',
     resources: [{ kind: 'directory', id: 'projects' }],
@@ -206,7 +179,7 @@ test('selecting a parent displays inherited descendants and saves only the paren
 test('selecting every leaf in a directory never promotes them into a directory grant', async ({
   page,
 }) => {
-  const knowledge = await openPlugin(page);
+  const knowledge = await openMcp(page);
   await picker(page).click();
   await expand(page, '项目资料');
   await expand(page, '研究');
@@ -217,7 +190,7 @@ test('selecting every leaf in a directory never promotes them into a directory g
   );
   await expect(knowledge).toContainText('已选 0 个目录 · 2 篇笔记');
   await picker(page).press('Escape');
-  const saved = await savePlugin(page);
+  const saved = await saveMcpConfig(page);
   expect(saved.domains.knowledge.resources).toEqual({
     mode: 'selected',
     resources: [
@@ -275,7 +248,7 @@ test('OAuth can narrow a parent ceiling to one child note without exposing adjac
 test('search finds nested notes and Escape closes the popup without changing selection', async ({
   page,
 }) => {
-  await openPlugin(page);
+  await openMcp(page);
   await picker(page).click();
   await picker(page).fill('入门指南');
   await expect(row(page, '入门指南.md')).toBeVisible();
@@ -284,7 +257,7 @@ test('search finds nested notes and Escape closes the popup without changing sel
   await picker(page).press('Escape');
   await expect(popup(page)).toHaveCount(0);
   await expect(picker(page)).toBeFocused();
-  const saved = await savePlugin(page);
+  const saved = await saveMcpConfig(page);
   expect(saved.domains.knowledge.resources).toEqual({
     mode: 'selected',
     resources: [{ kind: 'note', id: 'guide' }],
@@ -294,7 +267,7 @@ test('search finds nested notes and Escape closes the popup without changing sel
 test('long selections fold after two tags and remain removable without overflowing the viewport', async ({
   page,
 }) => {
-  const knowledge = await openPlugin(page, [
+  const knowledge = await openMcp(page, [
     { kind: 'note', id: 'long-note' },
     { kind: 'note', id: 'guide' },
     { kind: 'note', id: 'design' },
@@ -311,7 +284,7 @@ test('long selections fold after two tags and remain removable without overflowi
   await missing.locator('.ant-select-tree-checkbox').click();
   await picker(page).press('Escape');
   await expect(selector).toContainText('另 1 项');
-  const saved = await savePlugin(page);
+  const saved = await saveMcpConfig(page);
   expect(saved.domains.knowledge.resources).toEqual({
     mode: 'selected',
     resources: [

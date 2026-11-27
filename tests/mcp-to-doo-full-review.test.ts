@@ -2,12 +2,12 @@ import { expect, it } from 'vitest';
 import { createHash } from 'node:crypto';
 import { createToDooToolPort } from '../apps/server/to-doo/mcp-tools';
 import { createToDooAgentPort } from '../apps/server/to-doo/agent-port';
-import { createMcpTransferStore } from '../apps/server/plugins/mcp-transfers';
+import { createMcpTransferStore } from '../apps/server/mcp/mcp-transfers';
 import { pluginRuntimeFixture } from './support/plugin-runtime';
 import { requireScope } from '../packages/core/agent/auth';
 import { KnowledgeError } from '../packages/core/knowledge/errors';
 import { mcpResultFrameSize, mcpMaximumFrameBytes } from '../shared/mcp-frame';
-import type { McpDomainContext } from '../apps/server/plugins/mcp-domain-context';
+import type { McpDomainContext } from '../apps/server/mcp/mcp-domain-context';
 const rights = ['to-doo:read', 'to-doo:write', 'to-doo:share', 'to-doo:integrations'];
 
 it('requires tasks content for selected-list feed URLs and managed feed writes', async () => {

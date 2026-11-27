@@ -27,6 +27,7 @@ const errors = ref({ index: '', runtime: '', conflicts: '' }),
   actionError = ref(''),
   notice = ref('');
 const tasks = ref<InstanceType<typeof TransferTasks>>();
+const taskRegion = ref<HTMLElement>();
 const runtimeLabels: Record<string, string> = {
   queued: '等待准备',
   downloading: '下载搜索组件',
@@ -165,21 +166,17 @@ onBeforeUnmount(() => {
   <div class="settings-stack status-settings">
     <div class="status-toolbar">
       <p class="settings-muted">每 4 秒自动更新后台任务与服务状态。</p>
+      <div class="status-toolbar-actions">
+        <AButton v-if="tasks?.attentionCount" type="link" size="small" @click="taskRegion?.focus()">
+          查看待处理任务（{{ tasks.attentionCount }}）</AButton>
       <AButton :loading="refreshing || loading || tasks?.loading" @click="refreshAll">
         <template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template>
         刷新状态
       </AButton>
+      </div>
     </div>
     <AAlert v-if="actionError" type="error" :message="actionError" show-icon />
     <p v-if="notice" class="settings-success" role="status">{{ notice }}</p>
-    <TransferTasks
-      ref="tasks"
-      compact
-      :poll-interval="4000"
-      :poll-always="true"
-      @open-note="openNote"
-      @changed="emit('changed')"
-    />
     <section class="settings-card status-services">
       <div class="status-services-heading">
         <h2 class="settings-section-title"><Icon name="task" :size="18" />服务状态</h2>
@@ -398,6 +395,16 @@ onBeforeUnmount(() => {
         </div>
       </details>
     </section>
+    <div ref="taskRegion" tabindex="-1" class="status-task-region">
+    <TransferTasks
+      ref="tasks"
+      compact
+      :poll-interval="4000"
+      :poll-always="true"
+      @open-note="openNote"
+      @changed="emit('changed')"
+    />
+    </div>
     <div class="status-management-links">
       <AButton type="text" size="small" @click="navigate('library')"
         >导入与导出<Icon name="forward" :size="13"
@@ -409,6 +416,8 @@ onBeforeUnmount(() => {
   </div>
 </template>
 <style scoped>
+.status-toolbar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.status-task-region:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .status-toolbar {
   display: flex;
   align-items: center;

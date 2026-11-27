@@ -94,30 +94,27 @@ export async function createPlatformBackup(
     return await workspaceExclusive(database, { kind: 'platform.backup' }, async () => {
       const business = platformSettings(config, database).configured();
       if (business) independent(destination, business.knowledgeRoot);
-      const pluginRoot = config.pluginRoot || join(config.dataRoot, '..', 'plugins');
       const originalSecrets = config.secretFile
         ? dirname(config.secretFile)
         : join(config.dataRoot, 'secrets');
-      const pluginSources = [
-        pluginRoot,
+      const featureSources = [
         join(config.dataRoot, 'plugins'),
         join(originalSecrets, 'plugins'),
       ];
-      const pluginsBefore = await Promise.all(pluginSources.map(optionalInventory));
+      const featuresBefore = await Promise.all(featureSources.map(optionalInventory));
       const empty = join(stage, 'empty');
       await mkdir(empty);
       const snapshot = join(stage, 'snapshot');
       await backup({ ...config, knowledgeRoot: business?.knowledgeRoot || empty }, snapshot);
-      await copyIfPresent(pluginRoot, join(snapshot, 'plugin-packages'));
       await copyIfPresent(join(config.dataRoot, 'plugins'), join(snapshot, 'data/plugins'));
       const secrets = join(snapshot, 'secrets');
       await mkdir(secrets, { mode: 0o700 });
       await writeFile(join(secrets, 'auth.key'), config.secret, { mode: 0o600 });
       await copyIfPresent(join(originalSecrets, 'plugins'), join(secrets, 'plugins'));
       await copyIfPresent(join(originalSecrets, 'vector.key'), join(secrets, 'vector.key'));
-      const pluginsAfter = await Promise.all(pluginSources.map(optionalInventory));
-      if (JSON.stringify(pluginsBefore) !== JSON.stringify(pluginsAfter))
-        throw Error('备份期间插件文件变化，请暂停相关操作后重新备份');
+      const featuresAfter = await Promise.all(featureSources.map(optionalInventory));
+      if (JSON.stringify(featuresBefore) !== JSON.stringify(featuresAfter))
+        throw Error('备份期间 Git 或 MCP 的运行文件变化，请暂停相关操作后重新备份');
       const rawProfile =
         config.profileFile && existsSync(config.profileFile)
           ? JSON.parse(await readFile(config.profileFile, 'utf8'))
@@ -190,7 +187,7 @@ export async function createPlatformBackup(
 export async function restorePlatformBackup(options: {
   source: string;
   keyFile: string;
-  target: { dataRoot: string; knowledgeRoot?: string; profileFile: string; pluginRoot?: string };
+  target: { dataRoot: string; knowledgeRoot?: string; profileFile: string };
   origin?: string;
   /** Optional managed-upload quotas; CLI defaults retain existing limits. */
   maxBytes?: number;
@@ -198,13 +195,11 @@ export async function restorePlatformBackup(options: {
 }) {
   const source = resolve(options.source),
     dataRoot = resolve(options.target.dataRoot),
-    profileFile = resolve(options.target.profileFile),
-    pluginRoot = resolve(options.target.pluginRoot || join(dataRoot, '..', 'plugins'));
+    profileFile = resolve(options.target.profileFile);
   const knowledgeRoot = options.target.knowledgeRoot && resolve(options.target.knowledgeRoot),
     secretRoot = join(dirname(profileFile), 'secrets');
   for (const path of [
     dataRoot,
-    pluginRoot,
     secretRoot,
     dirname(profileFile),
     ...(knowledgeRoot ? [knowledgeRoot] : []),
@@ -212,12 +207,9 @@ export async function restorePlatformBackup(options: {
     await safeTarget(path);
     independent(source, path);
   }
-  independent(dataRoot, pluginRoot);
   independent(dataRoot, dirname(profileFile));
-  independent(pluginRoot, dirname(profileFile));
   if (knowledgeRoot) {
     independent(dataRoot, knowledgeRoot);
-    independent(pluginRoot, knowledgeRoot);
     independent(dirname(profileFile), knowledgeRoot);
   }
   if (existsSync(profileFile)) throw Error('恢复目标配置已存在，拒绝覆盖');
@@ -243,7 +235,6 @@ export async function restorePlatformBackup(options: {
       throw Error('此备份包含知识库，必须指定新的空目录 --knowledge-root');
     for (const path of [
       dataRoot,
-      pluginRoot,
       secretRoot,
       ...(knowledgeRoot ? [knowledgeRoot] : []),
     ])
@@ -252,7 +243,7 @@ export async function restorePlatformBackup(options: {
     await writeFile(
       receiptFile,
       JSON.stringify(
-        { phase: 'copying', source, dataRoot, pluginRoot, secretRoot, knowledgeRoot, profileFile },
+        { phase: 'copying', source, dataRoot, secretRoot, knowledgeRoot, profileFile },
         null,
         2,
       ) + '\n',
@@ -261,7 +252,6 @@ export async function restorePlatformBackup(options: {
     const root = knowledgeRoot || join(stage, 'rootless');
     const secret = await readFile(join(extracted, 'secrets/auth.key'), 'utf8');
     await restore(extracted, { ...meta.portable, dataRoot, knowledgeRoot: root, secret });
-    await copyIfPresent(join(extracted, 'plugin-packages'), pluginRoot);
     for (const entry of await readdir(join(extracted, 'secrets')))
       await cp(join(extracted, 'secrets', entry), join(secretRoot, entry), {
         recursive: true,
@@ -282,7 +272,6 @@ export async function restorePlatformBackup(options: {
       ...meta.portable,
       origin: options.origin || meta.portable.origin,
       dataRoot,
-      pluginRoot,
       secretFile: join(secretRoot, 'auth.key'),
       serviceManaged: false,
     };
@@ -309,7 +298,7 @@ export async function restorePlatformBackup(options: {
       profileFile,
       dataRoot,
       ...(knowledgeRoot ? { knowledgeRoot } : {}),
-      pluginsDisabled: true,
+      featuresDisabled: true,
       sessionsRevoked: true,
       sharesRevoked: true,
       searchNeedsPreparation: true,
@@ -324,7 +313,6 @@ export async function restorePlatformBackup(options: {
             phase: 'incomplete',
             source,
             dataRoot,
-            pluginRoot,
             secretRoot,
             knowledgeRoot,
             profileFile,

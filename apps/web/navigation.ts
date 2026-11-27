@@ -46,9 +46,10 @@ export type WorkspaceRoute = {
   section?:
     | 'editor'
     | 'library'
+    | 'git'
     | 'account'
     | 'search'
-    | 'plugins'
+    | 'mcp'
     | 'status'
     | 'backup'
     | 'about'
@@ -121,9 +122,11 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
     ...([
       'editor',
       'library',
+      'git',
       'account',
       'search',
       'plugins',
+      'mcp',
       'status',
       'backup',
       'about',
@@ -132,7 +135,7 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
       ? {
           section: (query.get('section') === 'maintenance'
             ? 'backup'
-            : query.get('section')) as WorkspaceRoute['section'],
+            : query.get('section') === 'plugins' ? 'mcp' : query.get('section')) as WorkspaceRoute['section'],
         }
       : {}),
   };

@@ -548,7 +548,6 @@ button:disabled {
 .settings-intro,
 .account-settings,
 .settings-view > .search-runtime-settings,
-.settings-view > .plugin-manager,
 .settings-signout {
   width: 100%;
   max-width: 960px;
@@ -1077,8 +1076,7 @@ button:disabled {
   background: #fff;
 }
 .settings-view #account-settings,
-.settings-view #search-settings,
-.settings-view #plugins-settings {
+.settings-view #search-settings {
   scroll-margin-top: 64px;
 }
 .settings-view .settings-signout {
@@ -1166,13 +1164,12 @@ button:disabled {
     font-size: 12px;
   }
   .settings-view #account-settings,
-  .settings-view #search-settings,
-  .settings-view #plugins-settings {
+  .settings-view #search-settings {
     scroll-margin-top: 58px;
   }
 }
 
-.note-action-menu .plugin-note-actions .n-button {
+.note-action-menu .note-extra-actions .n-button {
   width: 100%;
   justify-content: flex-start;
   min-height: 38px;
@@ -1180,10 +1177,10 @@ button:disabled {
   background: transparent;
   font-size: 13px;
 }
-.note-action-menu .plugin-note-actions .n-button__border,
-.note-action-menu .plugin-note-actions .n-button__state-border {
+.note-action-menu .note-extra-actions .n-button__border,
+.note-action-menu .note-extra-actions .n-button__state-border {
   display: none;
 }
-.plugin-note-actions:empty {
+.note-extra-actions:empty {
   display: none;
 }

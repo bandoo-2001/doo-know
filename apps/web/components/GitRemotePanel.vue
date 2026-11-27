@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import Icon from './Icon.vue';
+import { parseGitRemote } from '../../../shared/git-remote';
+import { gitAuthorIssue } from '../../../shared/git-author';
+import { setupLocationMessages, validSetupPathFormat, type SetupLocationIssue } from '../../../shared/setup-location';
 import { computed, nextTick, onMounted, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { Button as AButton, Alert as AAlert } from 'ant-design-vue';
 import type {
@@ -12,7 +15,7 @@ import type {
   GitRemoteHost,
 } from '../../../shared/git-contracts';
 import { api, ApiError } from '../api';
-import { pluginRegistry, refreshPlugins } from '../plugins';
+import { features, refreshFeatures, saveFeatureConfig } from '../features';
 import SettingsOverlay from './settings/SettingsOverlay.vue';
 import SettingsActionCard from './settings/SettingsActionCard.vue';
 import {
@@ -50,6 +53,21 @@ const error = ref(''),
   loading = ref(false),
   editorOpen = ref(false);
 const credentialHelpId = useId();
+const remoteFieldId = useId();
+const remoteField = ref<'url' | 'parent'>();
+const remoteFieldMessage = ref('');
+function fieldFeedback(field: 'url' | 'parent', message: string) {
+  remoteField.value = field;
+  remoteFieldMessage.value = message;
+  void nextTick(() => document.getElementById(remoteFieldId + '-' + field)?.focus());
+}
+watch([url, parentPath], () => { remoteField.value = undefined; });
+const jobResultLabels: Partial<Record<GitJob['status'], string>> = {
+  failed: '任务失败',
+  needs_reconciliation: '任务结果待核对',
+  cancelled: '任务已取消',
+  succeeded: '任务完成',
+};
 const credentialName = ref(''),
   credentialKind = ref<'https' | 'ssh'>('https'),
   credentialHost = ref<GitRemoteHost>('github.com');
@@ -69,9 +87,7 @@ const message = ref(''),
   commitUnknown = ref(false);
 const authorName = ref(''),
   authorEmail = ref('');
-const gitPlugin = computed(() =>
-  pluginRegistry.value.installed.find((entry) => entry.id === 'git'),
-);
+const gitFeature = computed(() => features.value.git);
 const editingCredentialBinding = ref<Pick<GitCredentialSummary, 'host' | 'kind'>>();
 const reuseCredentialSecret = computed(
   () =>
@@ -80,7 +96,7 @@ const reuseCredentialSecret = computed(
     editingCredentialBinding.value?.kind === credentialKind.value,
 );
 const authorReady = computed(
-  () => !!gitPlugin.value?.config.authorName && !!gitPlugin.value?.config.authorEmail,
+  () => !gitAuthorIssue(gitFeature.value?.config.authorName, gitFeature.value?.config.authorEmail),
 );
 const running = computed(() => busy.value || jobPending(job.value));
 const repositoryPending = computed(() => state.value?.code === 'WORKSPACE_BUSY');
@@ -308,7 +324,7 @@ function cancelPreview() {
   previewMessage.value = '';
   commitRequest.value = '';
   if (previous?.token)
-    void api('/api/plugins/git/call', 'POST', {
+    void api('/api/platform/git/actions', 'POST', {
       kind: 'command',
       id: 'git.cancelPreview',
       input: { token: previous.token },
@@ -432,12 +448,14 @@ async function load() {
       branch.value = next.connection?.branch || next.branch || '';
       credentialId.value = next.connection?.credentialId || '';
     }
-    authorName.value ||= String(gitPlugin.value?.config.authorName || '');
-    authorEmail.value ||= String(gitPlugin.value?.config.authorEmail || '');
+    authorName.value ||= String(gitFeature.value?.config.authorName || '');
+    authorEmail.value ||= String(gitFeature.value?.config.authorEmail || '');
     if (!job.value) {
+      const latest = next.jobs[0];
       job.value =
-        next.jobs.find((entry) => jobPending(entry) || entry.status === 'needs_reconciliation') ||
-        next.jobs.find((entry) => entry.status === 'failed');
+        next.jobs.find(jobPending) ||
+        next.jobs.find((entry) => entry.status === 'needs_reconciliation') ||
+        (latest?.status === 'failed' ? latest : undefined);
       if (jobPending(job.value)) schedule(owner);
     }
   } catch (e) {
@@ -489,7 +507,7 @@ async function completed(next: GitJob, owner = nextReceipt()) {
           }),
         );
       if (next.kind === 'push') committedHead.value = '';
-      if (['connect', 'clone'].includes(next.kind)) await refreshPlugins().catch(() => {});
+      if (['connect', 'clone'].includes(next.kind)) await refreshFeatures().catch(() => {});
       if (ownsJob(owner)) await load();
       // This accepted result changed the repository even if a newer panel task has started.
       if (!active) return;
@@ -568,6 +586,18 @@ async function startJob(kind: GitJobKind) {
     await reconcile();
     return;
   }
+  if (['clone', 'connect', 'test'].includes(kind) && !parseGitRemote(url.value.trim())) {
+    error.value = '';
+    fieldFeedback('url', url.value.trim()
+      ? '请输入 GitHub 或 Gitee 的 HTTPS 或 SSH 克隆地址，例如 https://github.com/owner/repo.git。'
+      : '请填写仓库克隆地址。');
+    return;
+  }
+  if (kind === 'clone' && parentPath.value.trim() && !validSetupPathFormat(parentPath.value.trim())) {
+    error.value = '';
+    fieldFeedback('parent', setupLocationMessages.format);
+    return;
+  }
   const owner = nextJobIntent();
   error.value = '';
   notice.value = '';
@@ -611,6 +641,11 @@ async function startJob(kind: GitJobKind) {
     if (!ownsJob(owner)) return;
     // A definite rejection cannot have created a job. Transport loss must be reconciled.
     if (e instanceof ApiError && e.status > 0) unresolved.value = undefined;
+    const issue = e instanceof ApiError ? String(e.data.pathIssue || '') : '';
+    if (kind === 'clone' && Object.hasOwn(setupLocationMessages, issue)) {
+      fieldFeedback('parent', setupLocationMessages[issue as SetupLocationIssue]);
+      return;
+    }
     error.value = gitError(e);
     if (kind === 'ssh-host') revealCredentialError(error.value);
   } finally {
@@ -745,21 +780,22 @@ async function removeCredential(entry: GitCredentialSummary) {
   }
 }
 async function saveAuthor() {
-  if (running.value || !gitPlugin.value || !active) return;
+  if (running.value || !gitFeature.value || !active) return;
   busy.value = true;
   error.value = '';
   try {
-    const plugin = gitPlugin.value;
-    await api('/api/platform/plugins/git/config', 'PUT', {
-      values: {
-        ...plugin.config,
-        authorName: authorName.value.trim(),
-        authorEmail: authorEmail.value.trim(),
-      },
-      configVersion: plugin.configVersion,
-    });
+    const feature = gitFeature.value;
+    const issue = gitAuthorIssue(authorName.value.trim(), authorEmail.value.trim());
+    if (issue) {
+      error.value = issue === 'email' ? '请填写有效邮箱，例如 name@example.com。' : '请填写有效的提交作者姓名。';
+      return;
+    }
+    await saveFeatureConfig('git', {
+      authorName: authorName.value.trim(),
+      authorEmail: authorEmail.value.trim(),
+    }, feature.configVersion);
     if (active) {
-      await refreshPlugins();
+      await refreshFeatures();
       connectionBaseline.value.authorName = authorName.value;
       connectionBaseline.value.authorEmail = authorEmail.value;
       reviewAuthorBaseline.value = { name: authorName.value, email: authorEmail.value };
@@ -799,12 +835,12 @@ async function previewCommit() {
   notice.value = '';
   try {
     if (previous)
-      await api('/api/plugins/git/call', 'POST', {
+      await api('/api/platform/git/actions', 'POST', {
         kind: 'command',
         id: 'git.cancelPreview',
         input: { token: previous.token },
       });
-    const next = await api<any>('/api/plugins/git/call', 'POST', {
+    const next = await api<any>('/api/platform/git/actions', 'POST', {
       kind: 'command',
       id: 'git.preview',
       input: { message: explanation },
@@ -814,7 +850,7 @@ async function previewCommit() {
       previewMessage.value = explanation;
       commitRequest.value = crypto.randomUUID();
     } else if (next?.token) {
-      void api('/api/plugins/git/call', 'POST', {
+      void api('/api/platform/git/actions', 'POST', {
         kind: 'command',
         id: 'git.cancelPreview',
         input: { token: next.token },
@@ -843,7 +879,7 @@ async function confirmCommit() {
   let pushed = false;
   try {
     const result = await api<{ commit: string; needsReconciliation?: boolean }>(
-      '/api/plugins/git/call',
+      '/api/platform/git/actions',
       'POST',
       {
         kind: 'command',
@@ -897,7 +933,7 @@ onMounted(() => {
             mode === 'import' ? '从 GitHub／Gitee 导入' : '云端同步'
           }}
         </h2>
-        <p>保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。</p>
+        <p v-if="mode === 'import'">将云端仓库下载到服务器上的新文件夹。</p>
       </div>
       <AButton :loading="loading" :disabled="running" @click="load"
         ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
@@ -946,10 +982,12 @@ onMounted(() => {
           state.changes
         }}
       </p>
-      <p v-if="state.head" class="remote-code">当前版本：{{ state.head }}</p>
+
       <template v-if="connection"
         ><p class="remote-code">云端：{{ connection.url }} · {{ connection.branch }}</p>
         <p>待推送：{{ connection.ahead ?? '未知' }} · 待拉取：{{ connection.behind ?? '未知' }}</p>
+        <details><summary>同步详情</summary>
+        <p v-if="state.head" class="remote-code">当前版本：{{ state.head }}</p>
         <p>
           最近检查：{{
             connection.lastCheckedAt
@@ -964,6 +1002,7 @@ onMounted(() => {
               : '推送权限尚未验证。读取连接成功不代表可以推送。'
           }}
         </p>
+        </details>
         <p v-if="!connection.credentialAvailable">凭据不可用，请重新选择认证并关联。</p></template
       >
       <p v-else>尚未关联云端仓库。关联后仍需手动提交和同步。</p>
@@ -1014,7 +1053,7 @@ onMounted(() => {
       :tabindex="resumedClone ? -1 : undefined"
     >
       <strong>{{
-        job.status === 'cancelled' ? '任务已取消' : jobPhases[job.phase] || '正在处理任务'
+        jobResultLabels[job.status] || jobPhases[job.phase] || '正在处理任务'
       }}</strong>
       <template v-if="resumedClone">
         <p class="remote-code">任务编号：{{ job.id }}</p>
@@ -1125,8 +1164,8 @@ onMounted(() => {
         </AAlert>
         <template v-if="overlay === 'connection' || (mode === 'import' && !overlay)">
           <section v-if="!resumedClone" aria-label="云端仓库配置">
-            <aside class="remote-start-guide" aria-label="云端仓库入门">
-              <strong>第一次连接云端仓库？</strong>
+            <details class="remote-start-guide" aria-label="云端仓库入门">
+              <summary>如何获取仓库地址和凭据</summary>
               <ol>
                 <li>
                   先在 GitHub 或 Gitee 准备一个仓库，从仓库页的“Code／克隆”入口复制 HTTPS 地址。
@@ -1139,20 +1178,18 @@ onMounted(() => {
                 </li>
               </ol>
               <p>只在本机记笔记或保留版本，不需要注册云端账号，可以先跳过云端同步。</p>
-            </aside>
-            <p>
-              此操作会安装并启用 Git
-              插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。
-            </p>
+            </details>
             <label
               >仓库克隆地址<input
                 v-model="url"
                 aria-label="仓库克隆地址"
+                :id="remoteFieldId + '-url'" :aria-invalid="remoteField === 'url'"
+                :aria-describedby="remoteField === 'url' ? remoteFieldId + '-error' : undefined"
                 placeholder="https://github.com/owner/repository.git"
                 :disabled="running"
                 autocomplete="off"
             /></label>
-            <p>请复制仓库页面的 HTTPS 或 SSH 克隆地址。公开 HTTPS 仓库可不配置认证。</p>
+            <p v-if="remoteField === 'url'" :id="remoteFieldId + '-error'" class="field-error" role="alert">{{ remoteFieldMessage }}</p>
             <label
               >云端分支（选填）<input
                 v-model="branch"
@@ -1193,9 +1230,11 @@ onMounted(() => {
                 >导入保存位置（选填）<input
                   v-model="parentPath"
                   aria-label="导入保存位置（选填）"
+                  :id="remoteFieldId + '-parent'" :aria-invalid="remoteField === 'parent'"
+                  :aria-describedby="remoteField === 'parent' ? remoteFieldId + '-error' : undefined"
                   placeholder="留空使用推荐位置，路径位于服务器上"
                   :disabled="running"
-              /></label>
+              /></label><p v-if="remoteField === 'parent'" :id="remoteFieldId + '-error'" class="field-error" role="alert">{{ remoteFieldMessage }}</p>
               <p>下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。</p></template
             >
             <div class="remote-actions">
@@ -1204,7 +1243,7 @@ onMounted(() => {
                 :disabled="
                   running ||
                   repositoryPending ||
-                  (!unresolved && (!url.trim() || (mode === 'import' && !name.trim())))
+                  (!unresolved && mode === 'import' && !name.trim())
                 "
                 @click="startJob(mode === 'import' ? 'clone' : 'connect')"
                 ><template #icon
@@ -1764,4 +1803,6 @@ pre {
     padding: 12px;
   }
 }
+.git-remote-panel .field-error { color: var(--danger, #b42318); }
+[aria-invalid="true"] { border-color: var(--danger, #b42318); }
 </style>

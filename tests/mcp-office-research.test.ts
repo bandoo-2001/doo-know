@@ -6,10 +6,10 @@ import { KnowledgeError } from '../packages/core/knowledge/errors.js';
 import type {
   KnowledgePort,
   OfficeResearchPort,
-  PluginServices,
-} from '../packages/plugin-sdk/index.js';
-import { createOperations, registerOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
+  IntegrationServices,
+} from '../packages/core/integration-ports.js';
+import { createOperations, registerOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
 
 const principal = {
   id: 'owner',
@@ -118,7 +118,7 @@ function makeRegistry(options: {
   const services = {
     knowledge: knowledge as unknown as KnowledgePort,
     officeResearch: options.officeResearch,
-    operations: {} as PluginServices['operations'],
+    operations: {} as IntegrationServices['operations'],
   };
   return createOperations(
     { objectIdSecret: 'office-research-fixture-secret-at-least-thirty-two' },

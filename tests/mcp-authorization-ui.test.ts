@@ -6,7 +6,6 @@ import * as Vue from 'vue';
 import { isResourceScope } from '../shared/authorization-scopes';
 import * as permissionHelpers from '../apps/web/mcp-permissions';
 const api = vi.fn();
-const registry = Vue.shallowRef({ installed: [] as any[] });
 const cleanup: (() => void)[] = [];
 const connection = (active: boolean) => ({
   clients: [
@@ -44,8 +43,8 @@ async function mount(file: string, props = {}) {
       if (id === 'ant-design-vue') return { Alert: 'aside', Button: 'button', Card: 'section', Checkbox: { Group: 'div' }, Spin: 'span' };
       if (id === '../api') return { api };
       if (id === '../mcp-permissions') return permissionHelpers;
-      if (id === './MCPDomainPermissions.vue' || id === './MCPClientPermissions.vue' || id === './MCPApiClients.vue') return { default: {render:()=>null} };
-      if (id === '../plugins') return { pluginRegistry: registry };
+      if (id === './settings/SettingsTabs.vue' || id === './MCPActivity.vue' || id === './MCPDomainPermissions.vue' || id === './MCPClientPermissions.vue' || id === './MCPApiClients.vue') return { default: {render:()=>null} };
+      if (id === '../copy-text') return { copyText: vi.fn() };
       if (id === './Icon.vue' || id === './KnowledgeResourceTreeSelect.vue') return { default: { render: () => null } };
       if (id === '../../../shared/authorization-scopes') return { isResourceScope };
       throw Error('Unexpected component dependency: ' + id);
@@ -75,7 +74,6 @@ async function mount(file: string, props = {}) {
   return (app as any)._instance.setupState;
 }
 beforeEach(() => {
-  registry.value = { installed: [] };
   api.mockReset();
   api.mockImplementation(async (_url, method) =>
     method === 'POST' ? { revoked: true } : connection(true),
@@ -85,17 +83,17 @@ afterEach(() => {
   while (cleanup.length) cleanup.pop()!();
 });
 it('does not let a stale authorization read overwrite a confirmed revocation', async () => {
-  const view = await mount('MCPAuthorizationManager.vue');
+  const view = await mount('MCPConnectionTabs.vue', { feature: { id: 'mcp', state: 'disabled', configVersion: 0, config: {} }, dirty: false });
   const stale = deferred<ReturnType<typeof connection>>();
   api.mockImplementationOnce(() => stale.promise);
   const reading = view.load();
-  view.pending = 'client';
+  view.revokeClient = 'client';
   api.mockResolvedValueOnce({ revoked: true }).mockResolvedValueOnce(connection(false));
   await view.revoke();
-  expect(view.clients[0].active).toBe(false);
+  expect(view.state.clients[0].active).toBe(false);
   stale.resolve(connection(true));
   await reading;
-  expect(view.clients[0].active).toBe(false);
+  expect(view.state.clients[0].active).toBe(false);
 });
 
 it('leaves blog publication unchecked when OAuth requests include the public disclosure grant', async () => {
@@ -104,8 +102,8 @@ it('leaves blog publication unchecked when OAuth requests include the public dis
   expect(view.scopes).toEqual(['knowledge:read', 'offline_access']);
 });
 it('keeps a rejected revocation visible when a subsequent status read succeeds', async () => {
-  const view = await mount('MCPConnectionGuide.vue', {
-    plugin: { id: 'mcp', state: 'disabled', configVersion: 0, config: {} },
+  const view = await mount('MCPConnectionTabs.vue', {
+    feature: { id: 'mcp', state: 'disabled', configVersion: 0, config: {} },
     mode: 'oauth',
     dirty: false,
   });
@@ -117,8 +115,8 @@ it('keeps a rejected revocation visible when a subsequent status read succeeds',
 });
 
 it('marks a confirmed revocation locally when the following status refresh fails', async () => {
-  const view = await mount('MCPConnectionGuide.vue', {
-    plugin: { id: 'mcp', state: 'disabled', configVersion: 0, config: {} },
+  const view = await mount('MCPConnectionTabs.vue', {
+    feature: { id: 'mcp', state: 'disabled', configVersion: 0, config: {} },
     mode: 'oauth',
     dirty: false,
   });
@@ -130,31 +128,20 @@ it('marks a confirmed revocation locally when the following status refresh fails
   expect(view.notice).toContain('授权已撤销');
 });
 
-it.each(['MCPAuthorizationManager.vue', 'MCPConnectionGuide.vue'])(
-  'uses a fresh revoked state to resolve an uncertain revocation in %s',
-  async (file) => {
-    const view = await mount(
-      file,
-      file === 'MCPConnectionGuide.vue'
-        ? {
-            plugin: { id: 'mcp', state: 'disabled', configVersion: 0, config: {} },
-            mode: 'oauth',
-            dirty: false,
-          }
-        : {},
-    );
-    if (file === 'MCPConnectionGuide.vue') view.revokeClient = 'client';
-    else view.pending = 'client';
-    api.mockImplementation(async (_url, method) => {
-      if (method === 'POST') throw Error('response lost');
-      return connection(false);
-    });
-    await view.revoke();
-    await view.load();
-    expect(view.actionError).toBe('');
-    expect(view.notice).toContain('撤销');
-  },
-);
+it('uses a fresh revoked state to resolve an uncertain revocation', async () => {
+  const view = await mount('MCPConnectionTabs.vue', {
+    feature: { id: 'mcp', state: 'disabled', configVersion: 0, config: {} }, dirty: false,
+  });
+  view.revokeClient = 'client';
+  api.mockImplementation(async (_url, method) => {
+    if (method === 'POST') throw Error('response lost');
+    return connection(false);
+  });
+  await view.revoke();
+  await view.load();
+  expect(view.actionError).toBe('');
+  expect(view.notice).toContain('撤销');
+});
 
 it('loads v2 consent as independent domain permissions with publication unchecked', async () => {
   const allowedPolicy={version:2,domains:{knowledge:{enabled:true,ownerId:'owner',instanceId:'lib',actions:['read','write','organize','archive'],resources:{mode:'all'}},blog:{enabled:true,ownerId:'owner',instanceId:'blog',actions:['read','publish'],resources:{mode:'all'}}}};
@@ -180,7 +167,7 @@ it('starts narrowing from the effective identity grant without editing the origi
   expect(api).toHaveBeenCalledWith('/api/platform/mcp/clients/narrow','POST',expect.objectContaining({clientId:'agent',expectedGrantVersion:2,permissionPolicy:expect.objectContaining({version:2})}));
 });
 it('shows the API Key endpoint from the saved connection state', async () => {
-  const view = await mount('MCPConnectionGuide.vue', { plugin: { id: 'mcp', state: 'enabled', configVersion: 1, config: {} }, dirty: false });
+  const view = await mount('MCPConnectionTabs.vue', { feature: { id: 'mcp', state: 'enabled', configVersion: 1, config: {} }, dirty: false });
   view.path = 'api-key';
   expect(view.endpoint).toBe('http://127.0.0.1:3000/mcp/api-key');
   expect(view.localReady).toBe(true);

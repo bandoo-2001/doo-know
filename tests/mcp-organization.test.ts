@@ -1,7 +1,7 @@
 import { expect, it, vi } from 'vitest';
-import { createOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
-import { createPluginDraft, serializePluginDraft } from '../apps/web/plugin-config.js';
+import { createOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
+import { loadMcpDraft, clearMcpSettings, mcpDraftSession, mcpSettingsDraft } from '../apps/web/mcp-settings-draft.js';
 const principal = { id: 'owner', clientId: 'agent', scopes: ['knowledge:read','knowledge:write','knowledge:organize'], allowedPrefixes: [], knowledgeAll: true };
 const registry = (services: any = {}) => createOperations({ objectIdSecret: 'test-organization-secret-at-least-thirty-two-characters' }, hostClient(() => ({ knowledge: {}, ...services } as any), () => ({})));
 it('discovers five organization tools and refuses missing host services without falling back', async () => {
@@ -36,14 +36,16 @@ it('accepts directory identities including explicit root without a legacy path',
   expect(input.safeParse(base).success).toBe(false);
   expect(input.safeParse({...base,directoryId:''}).success).toBe(false);
 });
-it('keeps permission drafts structured and isolated from installed configuration', () => {
+it('keeps permission drafts structured and isolated from saved configuration', () => {
   const permissionPolicy = {version:2,domains:{knowledge:{enabled:true,ownerId:'owner',instanceId:'library',actions:['read','write','organize'],resources:{mode:'all'}}}};
-  const plugin = {id:'mcp',configVersion:1,config:{permissionPolicy},manifest:{configSchema:{properties:{permissionPolicy:{type:'object'}}}},configuredSecrets:[]} as any;
-  const draft = createPluginDraft(plugin);
-  expect(draft.values.permissionPolicy).toEqual(permissionPolicy);
-  draft.values.permissionPolicy.domains.knowledge.actions.push('index');
-  expect(permissionPolicy.domains.knowledge.actions).not.toContain('index');
-  expect(serializePluginDraft(draft,plugin).values.permissionPolicy).toEqual(draft.values.permissionPolicy);
+  const feature = {id:'mcp',configVersion:1,config:{permissionPolicy, allowedPrefixes:['00-Inbox']}} as any;
+  try {
+    loadMcpDraft(feature, mcpDraftSession());
+    const values = mcpSettingsDraft.value!.values;
+    expect(values.permissionPolicy).toEqual(permissionPolicy);
+    values.permissionPolicy!.domains.knowledge.actions.push('index');
+    expect(permissionPolicy.domains.knowledge.actions).not.toContain('index');
+  } finally { clearMcpSettings(); }
 });
 it('accepts a legacy path input under a host-signed v2 all grant',async()=>{
   const p={...principal,knowledgeAll:undefined,permissionPolicy:{version:2 as const,domains:{knowledge:{enabled:true,ownerId:'owner',instanceId:'library',actions:['read','write','organize'],resources:{mode:'all' as const}}}}};
@@ -55,9 +57,8 @@ it('lets the host resolve selected directory identities before checking a legacy
   const r=registry({knowledge:{create:async()=>({id:'note',relativePath:'Moved/a.md',modifiedAt:'123',contentHash:'a'.repeat(64),sizeBytes:1,indexState:'pending'})}});
   expect(await r.execute('create_note',p,{directory:'Moved',fileName:'a.md',content:'A',requestId:'selected-current-path'})).toMatchObject({data:{relativePath:'Moved/a.md'}});
 });
-it('refuses plugin policies that request unimplemented domains',async()=>{
-  const {activate}=await import('../plugins/mcp/server/index.js');
+it('refuses MCP policies that request unimplemented domains',async()=>{
+  const {validateMcpConfig}=await import('../apps/server/mcp/index.js');
   const config={allowedPrefixes:['00-Inbox'],permissionPolicy:{version:2,domains:{todo:{enabled:true,ownerId:'owner',instanceId:'tasks',actions:['write'],resources:{mode:'all'}}}}};
-  const context={config:()=>config,secrets:{getOrCreate:()=> 'test-secret'},storage:{get:()=>undefined,set:()=>{}},registerProvider:()=>{},registerCommand:()=>{},registerProtocol:()=>{},onConfigure:()=>{},onDispose:()=>{}} as any;
-  expect(()=>activate(context)).toThrowError(expect.objectContaining({code:'INVALID_CONFIGURATION'}));
+  expect(() => validateMcpConfig(config)).toThrowError(expect.objectContaining({ code: 'INVALID_CONFIGURATION' }));
 });

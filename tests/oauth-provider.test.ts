@@ -8,6 +8,8 @@ it('runs real DCR, PKCE, owner consent, signed JWT, refresh and immediate grant 
   const f = await createFixture(); const db = openDatabase(f.dataRoot);
   try {
     const headers = await loginFixtureOwner(f); const owner = (db.prepare('SELECT id FROM user').get() as any).id;
+    const enabled = await f.app.inject({ method: 'PUT', url: '/api/platform/mcp/enabled', headers, payload: { enabled: true } });
+    expect(enabled.statusCode).toBe(200);
     const auth = await createAuth(f.config, db);
     const registered = await (auth.api as any).registerOAuthClient({ body: {
       client_name: 'DooKnow OAuth fixture', redirect_uris: ['https://client.example/callback'],
@@ -59,6 +61,8 @@ it('keeps RFC 9207 issuer identification on declined ChatGPT callback-specific D
   const f = await createFixture(), db = openDatabase(f.dataRoot);
   try {
     const headers = await loginFixtureOwner(f), auth = await createAuth(f.config, db);
+    const enabled = await f.app.inject({ method: 'PUT', url: '/api/platform/mcp/enabled', headers, payload: { enabled: true } });
+    expect(enabled.statusCode).toBe(200);
     const callback = 'https://chatgpt.com/connector/oauth/release-fixture';
     const registered = await (auth.api as any).registerOAuthClient({ body: {
       client_name: 'ChatGPT DCR compatibility fixture', redirect_uris: [callback],
@@ -90,7 +94,7 @@ it.each([false, true])('keeps blog publication separate in OAuth consent and tok
   const f = await createFixture(), db = openDatabase(f.dataRoot);
   try {
     const headers = await loginFixtureOwner(f), auth = await createAuth(f.config, db);
-    db.prepare("INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.1.0',1,'{}','{}','enabled',?)").run(JSON.stringify({ readOnly: false, allowPublish, allowedPrefixes: ['00-Inbox'] }));
+    db.prepare("UPDATE platform_plugins SET state='enabled',config_json=? WHERE id='mcp'").run(JSON.stringify({ readOnly: false, allowPublish, allowedPrefixes: ['00-Inbox'] }));
     const scope = 'knowledge:read knowledge:write blog:publish offline_access';
     const registered = await (auth.api as any).registerOAuthClient({ body: { client_name: 'Blog OAuth fixture', redirect_uris: ['https://client.example/callback'], token_endpoint_auth_method: 'none', grant_types: ['authorization_code', 'refresh_token'], response_types: ['code'], scope } });
     const verifier = randomBytes(32).toString('base64url');

@@ -3,21 +3,36 @@ import { homedir } from 'node:os';
 import { resolve, relative, sep } from 'node:path';
 import type { HostConfig } from '../../../shared/platform-contracts.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
+import {
+  setupLocationMessages,
+  validSetupPathFormat,
+  type SetupLocationIssue,
+} from '../../../shared/setup-location.js';
+
+function rejectLocation(issue: SetupLocationIssue): never {
+  const forbidden = issue === 'base' || issue === 'outside' || issue === 'protected';
+  return fail(
+    forbidden ? 403 : 400,
+    forbidden ? 'FORBIDDEN_KNOWLEDGE_ROOT' : 'INVALID_KNOWLEDGE_ROOT',
+    setupLocationMessages[issue],
+    false,
+    { pathIssue: issue },
+  );
+}
 export function setupDirectoryPolicy(config: HostConfig) {
   const strictChild = (path: string, parent: string) => path.startsWith(parent + sep);
   const overlap = (a: string, b: string) => a === b || strictChild(a, b) || strictChild(b, a);
   return function checkRoot(input: unknown, options: { browse?: boolean; missing?: boolean } = {}) {
-    if (typeof input !== 'string' || !input || input.includes('\0') || !input.startsWith('/'))
-      fail(400, 'INVALID_KNOWLEDGE_ROOT');
+    if (!validSetupPathFormat(input)) rejectLocation('format');
     const path = resolve(input);
     const allowed = (config.allowedKnowledgeBases || [homedir()]).map((p) => resolve(p));
     const parent = allowed.find((p) => strictChild(path, p) || (options.browse && path === p));
-    if (!parent) fail(403, 'FORBIDDEN_KNOWLEDGE_ROOT');
+    if (!parent) rejectLocation(allowed.includes(path) ? 'base' : 'outside');
     try {
-      if (realpathSync(parent) !== parent) fail(400, 'INVALID_KNOWLEDGE_ROOT');
+      if (realpathSync(parent) !== parent) rejectLocation('link');
       let current = parent;
       for (const component of relative(parent, path).split(sep).filter(Boolean)) {
-        if (component.startsWith('.')) fail(400, 'INVALID_KNOWLEDGE_ROOT');
+        if (component.startsWith('.')) rejectLocation('hidden');
         current = resolve(current, component);
         let s;
         try {
@@ -26,7 +41,8 @@ export function setupDirectoryPolicy(config: HostConfig) {
           if (options.missing && (e as NodeJS.ErrnoException).code === 'ENOENT') continue;
           throw e;
         }
-        if (!s.isDirectory() || s.isSymbolicLink()) fail(400, 'INVALID_KNOWLEDGE_ROOT');
+        if (s.isSymbolicLink()) rejectLocation('link');
+        if (!s.isDirectory()) rejectLocation('file');
       }
       for (const forbidden of [
         config.dataRoot,
@@ -48,7 +64,7 @@ export function setupDirectoryPolicy(config: HostConfig) {
             ? path === canonical || strictChild(path, canonical)
             : overlap(path, canonical)
         )
-          fail(403, 'FORBIDDEN_KNOWLEDGE_ROOT');
+          rejectLocation('protected');
       }
       if (options.missing) return { path, dev: '', ino: '' };
       accessSync(path, constants.R_OK | constants.W_OK | constants.X_OK);
@@ -56,6 +72,10 @@ export function setupDirectoryPolicy(config: HostConfig) {
       return { path: realpathSync(path), dev: String(s.dev), ino: String(s.ino) };
     } catch (e) {
       if (e instanceof Error && 'statusCode' in e) throw e;
+      const code = (e as NodeJS.ErrnoException).code;
+      if (code === 'ENOENT') rejectLocation('missing');
+      if (code === 'ENOTDIR') rejectLocation('file');
+      if (code === 'EACCES' || code === 'EPERM' || code === 'EROFS') rejectLocation('access');
       fail(400, 'INVALID_KNOWLEDGE_ROOT');
     }
   };

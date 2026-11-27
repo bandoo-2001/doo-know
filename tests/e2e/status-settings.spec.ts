@@ -59,7 +59,7 @@ test('status settings keep tasks and management links visible while details rema
   await expect(drawer).toContainText('暂无进行中的任务');
   const tasks = drawer.getByRole('heading', { name: '任务与结果', exact: true });
   const search = drawer.getByRole('heading', { name: '搜索准备', exact: true });
-  expect((await tasks.boundingBox())!.y).toBeLessThan((await search.boundingBox())!.y);
+  expect((await search.boundingBox())!.y).toBeLessThan((await tasks.boundingBox())!.y);
   for (const name of ['导入与导出', '备份与恢复']) {
     await expect(drawer.getByRole('button', { name, exact: true })).toBeVisible();
   }

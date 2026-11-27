@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { useSessionStorage } from '@vueuse/core';
-import { Button as AButton, Checkbox as ACheckbox, Popover as APopover } from 'ant-design-vue';
+import {
+  Button as AButton,
+  Checkbox as ACheckbox,
+  Dropdown as ADropdown,
+  Menu as AMenu,
+  MenuItem as AMenuItem,
+  Popover as APopover,
+} from 'ant-design-vue';
 import type { ToDooAppSection } from '../../navigation';
-import type { ToDooEntityMap } from '../../../../shared/to-doo-contracts';
+import { TO_DOO_LIST_MAX_DEPTH, type ToDooEntityMap } from '../../../../shared/to-doo-contracts';
 import { toDooQuickViews, type ToDooQuickFilter } from '../../to-doo-presentation';
 import { toDooListRows } from '../../to-doo-list-tree';
 import '../../to-doo-list-tree.css';
@@ -32,6 +39,9 @@ const emit = defineEmits<{
   quick: [view: ToDooQuickFilter];
   list: [id: string];
   'new-list': [];
+  'edit-list': [list: ToDooEntityMap['list']];
+  'delete-list': [list: ToDooEntityMap['list']];
+  'new-child-list': [parentId: string];
   'load-lists': [];
   back: [];
   'toggle-directory': [event: MouseEvent];
@@ -83,6 +93,20 @@ watch(() => [props.listId, props.lists] as const, () => {
     collapsedLists.value = collapsedListIds.value.filter((id) => !ancestors.has(id));
   if (!listsExpanded.value) listsExpanded.value = true;
 }, { immediate: true });
+const menuList = ref('');
+function setListMenu(id: string, open: boolean) {
+  if (open) menuList.value = id;
+  else if (menuList.value === id) menuList.value = '';
+}
+function listMenuKey(event: KeyboardEvent, id: string) {
+  if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+    event.preventDefault();
+    setListMenu(id, true);
+  }
+}
+function menuContainer(trigger: HTMLElement) {
+  return trigger.closest<HTMLElement>('[role="dialog"]') || document.body;
+}
 const listItemsId = 'todo-directory-lists-' + useId();
 const unreadId = 'todo-navigation-unread-' + useId();
 
@@ -121,6 +145,7 @@ function dismissRailHint(event: KeyboardEvent) {
   event.stopPropagation();
 }
 function closeTransientMenus() {
+  menuList.value = '';
   hideRailHint();
   moduleMoreOpen.value = false;
   scopeMoreOpen.value = false;
@@ -304,27 +329,45 @@ const moreActive = computed(
         </div>
         <div :id="listItemsId" class="todo-navigation-list-items" :hidden="!listsExpanded">
           <div v-for="row in listRows" :key="row.list.id" class="todo-nav-list-row"
-            :class="{ active: taskSection && listId === row.list.id }"
-            :style="{ '--todo-list-depth': Math.min(row.depth, 7) }"
-            :data-list-id="row.list.id">
-            <AButton v-if="row.hasChildren" type="text" class="todo-nav-list-toggle"
-              :aria-label="(collapsedListIds.includes(row.list.id) ? '展开清单 ' : '折叠清单 ') + row.list.name"
-              :title="collapsedListIds.includes(row.list.id) ? '展开子清单' : '折叠子清单'"
-              :aria-expanded="!collapsedListIds.includes(row.list.id)" @click="toggleList(row.list.id)">
-              <ToDooIcon name="chevron" :size="12" />
-            </AButton>
-            <span v-else class="todo-nav-list-toggle-placeholder" aria-hidden="true" />
-            <AButton
-              type="text"
-              block
-              class="todo-nav-list-select"
+              @contextmenu.prevent="setListMenu(row.list.id, true)" @keydown="listMenuKey($event, row.list.id)"
               :class="{ active: taskSection && listId === row.list.id }"
-              :aria-label="row.list.name"
-              :title="row.list.name"
-              :aria-current="taskSection && listId === row.list.id ? 'page' : undefined"
-              @click="emit('list', row.list.id)"
-              ><ToDooListIcon :list="row.list" :size="18" />
-              <span class="todo-nav-list-name">{{ row.list.name }}</span></AButton>
+              :style="{ '--todo-list-depth': Math.min(row.depth, 7) }"
+              :data-list-id="row.list.id">
+              <AButton v-if="row.hasChildren" type="text" class="todo-nav-list-toggle"
+                :aria-label="(collapsedListIds.includes(row.list.id) ? '展开清单 ' : '折叠清单 ') + row.list.name"
+                :title="collapsedListIds.includes(row.list.id) ? '展开子清单' : '折叠子清单'"
+                :aria-expanded="!collapsedListIds.includes(row.list.id)" @click="toggleList(row.list.id)">
+                <ToDooIcon name="chevron" :size="12" />
+              </AButton>
+              <span v-else class="todo-nav-list-toggle-placeholder" aria-hidden="true" />
+              <AButton
+                type="text"
+                block
+                class="todo-nav-list-select"
+                :class="{ active: taskSection && listId === row.list.id }"
+                :aria-label="row.list.name"
+                aria-haspopup="menu"
+                :title="row.list.name"
+                :aria-current="taskSection && listId === row.list.id ? 'page' : undefined"
+                @click="emit('list', row.list.id)"
+                ><ToDooListIcon :list="row.list" :size="18" />
+                <span class="todo-nav-list-name">{{ row.list.name }}</span></AButton>
+              <ADropdown :trigger="['click']" placement="bottomRight"
+                :open="menuList === row.list.id" :get-popup-container="menuContainer" :overlay-style="{ zIndex: 1450 }"
+                overlay-class-name="todo-ant-popup" @open-change="setListMenu(row.list.id, $event)">
+                <AButton type="text" size="small" class="todo-nav-list-more" :aria-label="row.list.name + '的更多操作'"
+                  title="清单操作" aria-haspopup="menu" :aria-expanded="menuList === row.list.id">
+                  <ToDooIcon name="more" :size="16" />
+                </AButton>
+            <template #overlay>
+              <AMenu @click="menuList = ''" :aria-label="row.list.name + '清单操作'" :selectable="false">
+                <AMenuItem key="edit" @click="emit('edit-list', row.list)">编辑清单</AMenuItem>
+                <AMenuItem key="new-child" :disabled="row.depth + 1 >= TO_DOO_LIST_MAX_DEPTH"
+                  @click="emit('new-child-list', row.list.id)">新建子清单</AMenuItem>
+                <AMenuItem key="delete" danger @click="emit('delete-list', row.list)">删除清单</AMenuItem>
+              </AMenu>
+            </template>
+              </ADropdown>
           </div>
           <AButton
             v-if="!split && !allListRows.length"

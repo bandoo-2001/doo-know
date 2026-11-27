@@ -35,7 +35,7 @@ it('isolates Vite serve caches by the final inline port while respecting explici
   expect(explicit.cacheDir).toBe(resolve(tmpdir(), 'dooknow-explicit-vite-cache'));
 });
 
-it('starts the official plugin catalog and authenticated API on isolated developer ports', async () => {
+it('starts the built-in features and authenticated API on isolated developer ports', async () => {
   const root = await mkdtemp(join(tmpdir(), 'dooknow-dev-bootstrap-'));
   const reservations = [createServer(), createServer()];
   let child: ChildProcess | undefined;
@@ -152,12 +152,11 @@ net.Socket.prototype.connect = function (...args) { check(args); return connect.
       .getSetCookie()
       .map((value) => value.split(';')[0])
       .join('; ');
-    const registry = await fetch(origin + '/api/platform/plugins', { headers: { cookie } });
+    const registry = await fetch(origin + '/api/platform/features', { headers: { cookie } });
     expect(registry.status).toBe(200);
-    const plugins = (await registry.json()) as any;
-    expect(plugins.catalog.map((entry: any) => entry.id).sort()).toEqual(['git', 'mcp']);
-    expect(plugins.installed).toEqual([]);
-    expect(plugins.contributions).toEqual([]);
+    const features = (await registry.json()) as any;
+    expect(features.git).toMatchObject({ id: 'git', state: 'disabled' });
+    expect(features.mcp).toMatchObject({ id: 'mcp', state: 'disabled' });
     const tree = await fetch(origin + '/api/tree', { headers: { cookie } });
     expect(tree.status).toBe(200);
     expect(JSON.stringify(await tree.json())).toContain('00-Inbox/bootstrap.md');

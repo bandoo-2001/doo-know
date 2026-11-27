@@ -99,7 +99,7 @@ async function mount(
         node.parent = null;
       }
     },
-    createElement: () => ({ children: [] }),
+    createElement: () => ({ children: [], style: {} }),
     createText: () => ({}),
     createComment: () => ({}),
     setText() {},
@@ -201,6 +201,7 @@ it('forwards actual task completion through TransferPanel, LibrarySettings and S
   mockApi.mockResolvedValue({ library: { ready: true, timeZone: 'UTC' } });
   const f = await mount('SettingsWorkspace', { section: 'library', username: 'owner' }, [
     'LibrarySettings',
+    'SettingsTabs',
     'TransferPanel',
   ]);
   childEmits.get('TransferTasks')!('changed');

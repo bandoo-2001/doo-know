@@ -47,13 +47,9 @@ for (const compact of [false, true]) {
     page,
   }, info) => {
     if (compact) {
-      // Full-suite users can have both Git and plugin actions in this footer.
-      await page.route('**/api/platform/plugins', (route) => route.fulfill({ json: {
-        catalog: [], installed: [],
-        contributions: ['云端同步', '提交全部变更'].map((title, index) => ({
-          id: 'scroll-tool-' + index, pluginId: 'scroll-fixture',
-          slot: 'navigation', title, command: 'scroll-tool-' + index,
-        })),
+      await page.route('**/api/platform/features', (route) => route.fulfill({ json: {
+        git: { id: 'git', state: 'enabled', desiredEnabled: true, configVersion: 0, config: {} },
+        mcp: { id: 'mcp', state: 'disabled', desiredEnabled: false, configVersion: 0, config: {} },
       } }));
     }
     await page.setViewportSize(

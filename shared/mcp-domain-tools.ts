@@ -1,6 +1,6 @@
 import type { Buffer } from 'node:buffer';
 import type { Principal } from './knowledge-contracts.js';
-import type { ServiceCallOptions } from '../packages/plugin-sdk/index.js';
+import type { ServiceCallOptions } from '../packages/core/integration-ports.js';
 
 export type McpBusinessDomain = 'knowledge' | 'blog' | 'to-doo';
 export type McpTransferBinding = {

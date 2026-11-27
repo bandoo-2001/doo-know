@@ -7,7 +7,7 @@ import { writeFile, realpath } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import Database from 'better-sqlite3';
-import { showSidebar, closeSidebar, configurePlugin } from '../../tests/support/settings-navigation';
+import { showSidebar, closeSidebar, openFeatureSettings, setFeatureSwitch } from '../../tests/support/settings-navigation';
 import { showSource, showRead } from '../../tests/support/editor-navigation';
 import { clickNoteAction, selectHistoryVersion } from '../../tests/support/note-actions';
 import { chooseGraphMode } from '../../tests/support/graph-navigation';
@@ -279,7 +279,7 @@ export const workspaceScenes: Scene[] = [
   }, { window: true, importantStates: { 'WS-063': ['Kind/reason/line need list'] }, tests: ['tests/diagram-save-dialog.test.ts'] }),
   recipe('history-original', ['WS-065'], 'Actual selected historical source tab', '.note-history-dialog', async env => { await history(env); await env.page.getByRole('tab', { name: '历史原文', exact: true }).click(); await expect(env.page.locator('.note-history-source')).toContainText('第一版取证正文'); }, { window: true, importantStates: { 'WS-065': ['Complete historical original'] }, tests: ['tests/e2e/note-history.spec.ts'] }),
   recipe('git-history-source', ['WS-066'], 'Git source with real plugin availability or missing-repository warning', '.note-history-dialog', async env => {
-    await configurePlugin(env.page, 'Git 版本管理'); const enable = env.page.locator('.plugin-settings').getByRole('button', { name: '启用插件', exact: true }); if (await enable.isVisible()) await enable.click();
+    await openFeatureSettings(env.page, 'Git 版本管理'); await setFeatureSwitch(env.page, 'Git 版本管理', true);
     await history(env); await env.page.getByRole('tab', { name: 'Git 提交', exact: true }).click(); await expect(env.page.getByText('正在加载 Git 提交…', { exact: true })).toBeHidden({ timeout: 30000 }); await expect(env.page.locator('.note-history-git-list, .note-history-dialog [role=alert], .note-history-empty:visible').last()).toBeVisible();
   }, { window: true, tests: ['tests/e2e/unified-note-history.spec.ts'] }),
   recipe('history-restore-confirm', ['WS-067'], 'Real historical restore replacement warning before mutation', '.note-history-dialog', async env => { await history(env); await button(env.page, '恢复此版本').click(); await expect(env.page.locator('.note-history-dialog')).toContainText('替换当前已保存内容'); }, { window: true, importantStates: { 'WS-067': ['Explicit replacement warning'] }, tests: ['tests/e2e/note-history.spec.ts'] }),
@@ -309,7 +309,7 @@ export const workspaceScenes: Scene[] = [
     await expect(env.page.locator('.graph-inspector:visible')).toContainText(note.title); await expect(env.page.locator('.graph-inspector:visible').getByRole('button', { name: '打开原文', exact: true })).toBeVisible();
   }, { widths: kind === 'mobile' ? [320, 390, 360] : [1440], window: kind === 'mobile', importantStates: kind === 'desktop' ? { 'WS-094': ['Note open/focus controls'] } : undefined, tests: ['tests/e2e/knowledge-graph.spec.ts', 'tests/e2e/graph-hosted-navigation.spec.ts'] })),
   recipe('cloud-sync-host', ['WS-100'], 'Actual enabled Git plugin opens Workspace cloud-sync drawer', modal('云端同步'), async env => {
-    await configurePlugin(env.page, 'Git 版本管理'); const enable = env.page.locator('.plugin-settings').getByRole('button', { name: '启用插件', exact: true }); if (await enable.isVisible()) await enable.click();
+    await openFeatureSettings(env.page, 'Git 版本管理'); await setFeatureSwitch(env.page, 'Git 版本管理', true);
     await env.page.goto('/'); await showSidebar(env.page); await button(env.page, '云端同步').click(); await expect(env.page.getByRole('dialog', { name: '云端同步', exact: true })).toBeVisible();
   }, { window: true, importantStates: { 'WS-100': ['Only if gitAvailable'] }, tests: ['tests/e2e/z-git-remote.spec.ts'], fault: 'No external Git connection/init/network mutation; uses actual plugin enable/config UI only' }),
   recipe('note-task-capture', ['WS-101'], 'Unsaved note source snapshot in actual linked-task form', card('从资料创建任务'), async env => {

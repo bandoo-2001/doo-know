@@ -39,86 +39,13 @@ test('first login binds an empty knowledge base and creates its first root note,
   await page.getByRole('button', { name: '创建新知识库', exact: true }).click();
   await page.getByRole('button', { name: '确认并继续', exact: true }).click();
   await expect(page.getByRole('heading', { name: '选择需要的功能' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '让 ChatGPT 使用你的资料' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '连接 MCP 客户端' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '记录文件版本' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '搜索资料内容' })).toBeVisible();
-  let mcpInstalled = false;
-  await page.route('**/api/platform/plugins', (route) =>
-    route.fulfill({
-      json: {
-        catalog: [
-          { id: 'mcp', title: 'ChatGPT 连接', version: '1.0.0', capabilities: [] },
-          { id: 'git', title: '文件版本', version: '1.0.0', capabilities: [] },
-        ],
-        installed: mcpInstalled
-          ? [
-              {
-                id: 'mcp',
-                installedVersion: '1.0.0',
-                state: 'disabled',
-                configVersion: 3,
-                config: { allowedPrefixes: ['00-Inbox'] },
-                configuredSecrets: [],
-                manifest: {
-                  title: 'ChatGPT 连接',
-                  configSchema: {
-                    properties: {
-                      allowedPrefixes: { type: 'array', title: '允许的目录', default: [] },
-                    },
-                  },
-                },
-              },
-            ]
-          : [],
-        contributions: [],
-      },
-    }),
-  );
-  const installationJobs = new Map<string, any>();
-  const installedRequests: string[] = [];
-  const installationPolls: string[] = [];
-  await page.route('**/api/platform/plugin-installations', (route) => {
-    if (route.request().method() === 'GET')
-      return route.fulfill({ json: { items: [...installationJobs.values()] } });
-    const input = route.request().postDataJSON();
-    expect(['mcp', 'git']).toContain(input.id);
-    installedRequests.push(input.id);
-    const job = {
-      id: 'setup-install-' + input.id,
-      pluginId: input.id,
-      requestId: input.requestId,
-      version: '1.0.0',
-      status: 'running',
-      phase: 'downloading',
-    };
-    installationJobs.set(job.id, job);
-    return route.fulfill({ status: 202, json: job });
-  });
-  await page.route('**/api/platform/plugin-installations/*', (route) => {
-    const id = new URL(route.request().url()).pathname.split('/').at(-1)!;
-    const job = installationJobs.get(id);
-    expect(job).toBeDefined();
-    installationPolls.push(job.pluginId);
-    if (job.pluginId === 'mcp') mcpInstalled = true;
-    Object.assign(
-      job,
-      job.pluginId === 'mcp'
-        ? { status: 'succeeded', phase: 'complete' }
-        : { status: 'failed', phase: 'verifying', error: 'PLUGIN_INSTALL_FAILED' },
-    );
-    return route.fulfill({ json: job });
-  });
-  await page.getByRole('button', { name: '重新读取可选功能', exact: true }).click();
-  await page.getByRole('button', { name: '添加连接设置', exact: true }).click();
-  await page.getByText('旧版兼容设置', { exact: true }).click();
-  const prefixes = page.getByRole('textbox', { name: '允许的目录', exact: true });
-  await expect(prefixes).toHaveValue('00-Inbox');
-  expect(installedRequests).toEqual(['mcp']);
-  expect(installationPolls).toContain('mcp');
-  await page.getByRole('button', { name: '添加版本记录', exact: true }).click();
-  await expect(page.getByRole('alert').filter({ hasText: '可以先跳过' })).toBeVisible();
-  expect(installedRequests).toEqual(['mcp', 'git']);
-  expect(installationPolls).toContain('git');
+  await page.getByRole('button', { name: '设置 MCP 连接', exact: true }).click();
+  await expect(page.getByRole('switch', { name: '启用 MCP 服务', exact: true })).toHaveAttribute('aria-checked', 'false');
+  await page.getByRole('button', { name: '设置版本记录', exact: true }).click();
+  await expect(page.getByRole('switch', { name: '启用 Git 版本管理', exact: true })).toHaveAttribute('aria-checked', 'false');
   await page.route('**/api/platform/search-runtime', (route) =>
     route.fulfill({
       json: {
@@ -131,7 +58,6 @@ test('first login binds an empty knowledge base and creates its first root note,
   await page.getByRole('button', { name: '设置内容搜索', exact: true }).click();
   await expect(page.getByText('内容搜索尚未就绪，可以稍后再设置。', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: '设置内容搜索', exact: true }).click();
-  await page.unroute('**/api/platform/plugins');
   await page.screenshot({
     path: `.local/onboarding-${info.project.name}-features.png`,
     fullPage: true,

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onDeactivated, ref, watch } from 'vue';
 import { Alert as AAlert, Button as AButton, Input as AInput } from 'ant-design-vue';
 import type { ToDooRequest } from '../../to-doo-workbench';
 import { useToDooConfirm } from '../../to-doo-controls';
 
-const props = defineProps<{ request: ToDooRequest }>();
+const props = defineProps<{ request: ToDooRequest; active?: boolean }>();
 const confirm = useToDooConfirm();
 const endpoint = '/api/to-doo/watch/devices';
 const devices = ref<{ id: string; createdAt: string }[]>([]);
@@ -60,7 +60,8 @@ async function revoke(id: string) {
   });
 }
 
-onMounted(() => run(refresh));
+watch(() => props.active !== false, enabled => { if (enabled) void run(refresh); }, { immediate: true });
+onDeactivated(() => { userCode.value = ''; });
 </script>
 
 <template>

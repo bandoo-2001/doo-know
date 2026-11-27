@@ -1,3 +1,6 @@
+import * as vueuse from '@vueuse/core';
+import * as clipboard from '../apps/web/copy-text';
+import * as contextNavigation from '../apps/web/to-doo-context-navigation';
 import * as popupControls from '../apps/web/to-doo-controls';
 import { readFileSync } from 'node:fs';
 import { compileScript, parse } from '@vue/compiler-sfc';
@@ -60,6 +63,10 @@ function component(name: string): Vue.Component {
   new Function('require', 'module', 'exports', source)(
     (id: string) => {
       if (id === 'vue') return Vue;
+      if (id === '@vueuse/core') return vueuse;
+      if (id.endsWith('/copy-text')) return clipboard;
+      if (id.endsWith('/to-doo-context-navigation')) return contextNavigation;
+      if (id.endsWith('/SettingsTabs.vue')) return { default: component('../settings/SettingsTabs') };
       if (id === 'ant-design-vue')
         return {
           ...toDooAntStubs,
@@ -180,7 +187,7 @@ function model() {
   const state = Vue.reactive<any>({
     snapshot: {
       ...Object.fromEntries(Object.values(contracts.TO_DOO_COLLECTIONS).map((name) => [name, []])),
-      now,
+      now, datasetId: 'settings-fixture',
       settings: contracts.toDooEntitySchemas.settings.parse(stamp),
       statistics: { from: now.slice(0, 10), to: now.slice(0, 10), completedByDay: {}, byList: {} },
     },
@@ -201,8 +208,8 @@ function model() {
     state,
     load,
     taskLists: () => state.snapshot.lists.filter((list: any) => !list.deletedAt),
-    ensureListCatalog: vi.fn(async () => {}),
     saveEntity: vi.fn(),
+    ensureListCatalog: vi.fn(async () => {}),
     loadPendingOperations: vi.fn(),
     request: vi.fn(
       async (url: string, _method?: string, _body?: unknown): Promise<any> =>
@@ -271,6 +278,7 @@ test('pasted import content opens on demand and remains a protected draft across
   await settleSettings();
   view.instance.activeTab = 'data';
   await Vue.nextTick();
+  await selectPanels(view, '导入');
   const content = () => view.all().find(node => node.tag === 'textarea' && node.props.placeholder === '粘贴 JSON、CSV 或 ICS 内容')!;
   expect(view.visible(content())).toBe(false);
   view.button('粘贴文件内容').props.onClick();
@@ -456,7 +464,9 @@ test('recovery and calendar forms are folded while drafts and pending recovery s
   const value = model(),
     view = mount('ToDooSettings', value);
   await Vue.nextTick();
+  await selectPanels(view, '数据与恢复', '进度与恢复');
   expect(view.disclosure('成果笔记恢复')?.props.open).toBe(false);
+  await selectPanels(view, '提醒与连接', '日历');
   expect(view.disclosure('连接外部只读日历')?.props.open).toBe(false);
   expect(view.disclosure('创建 To Doo 只读订阅链接')?.props.open).toBe(false);
   const address = view.all().find((row) => row.tag === 'input' && row.props.type === 'url')!;
@@ -483,6 +493,7 @@ test('host and device configuration is secondary while current status and errors
   const value = model(),
     view = mount('ToDooSettings', value);
   for (let turn = 0; turn < 5; turn++) await Vue.nextTick();
+  await selectPanels(view, '提醒与连接');
   expect(view.disclosure('主机与设备管理')?.props.open).toBe(false);
   expect(view.button('启用当前设备桌面提醒')).toBeDefined();
   expect(view.text()).toContain('当前设备需要通过 HTTPS');
@@ -493,8 +504,9 @@ test('recovery errors reveal the section and never claim the pending records are
   value.state.operationError = '成果进度读取失败';
   const view = mount('ToDooSettings', value);
   await Vue.nextTick();
+  await view.button('查看进度').props.onClick();
+  await settleSettings();
   expect(view.disclosure('成果笔记恢复').props.open).toBe(true);
-  expect(view.button('查看进度')).toBeDefined();
   expect(view.text()).toContain('成果进度读取失败');
   expect(view.text()).not.toContain('当前已读取的记录没有待继续项');
 });
@@ -504,6 +516,12 @@ test('recovery errors reveal the section and never claim the pending records are
 const settleSettings = async () => {
   for (let turn = 0; turn < 8; turn++) await Vue.nextTick();
 };
+async function selectPanels(view: ReturnType<typeof mount>, ...labels: string[]) {
+  for (const label of labels) {
+    view.button(label).props.onClick();
+    await settleSettings();
+  }
+}
 function settingField(view: ReturnType<typeof mount>, label: string, tag = 'input') {
   return view
     .all()
@@ -541,6 +559,7 @@ async function settingsImport(count = 1) {
   );
   const view = mount('ToDooSettings', value);
   await settleSettings();
+  await selectPanels(view, '数据与恢复', '导入');
   view
     .all()
     .find((row) => row.tag === 'textarea')!
@@ -701,6 +720,7 @@ test.each(['来源名称', '订阅名称', '包含的清单（不选表示全部
     const value = model(),
       view = mount('ToDooSettings', value);
     await settleSettings();
+    await selectPanels(view, '提醒与连接', '日历');
     if (label === '包含的清单（不选表示全部）')
       settingField(view, label, 'select').props.onChange(['list-a']);
     else if (label === '包含任务说明') {
@@ -736,6 +756,7 @@ test('successful calendar and feed submission consume their drafts without retai
   const value = model(),
     view = mount('ToDooSettings', value);
   await settleSettings();
+  await selectPanels(view, '提醒与连接', '日历');
   settingField(view, '来源名称').props.onInput({ target: { value: '工作日历' } });
   settingField(view, 'HTTPS 日历地址').props.onInput({
     target: { value: 'https://example.test/readonly.ics' },
@@ -787,6 +808,7 @@ test('import option drafts are protected before a file or body is supplied', asy
   const value = model(),
     view = mount('ToDooSettings', value);
   await settleSettings();
+  await selectPanels(view, '数据与恢复', '导入');
   expect((view.instance as any).hasUnsavedChanges()).toBe(false);
   settingField(view, '重复处理', 'select').props.onChange({ target: { value: 'update' } });
   await settleSettings();
@@ -866,6 +888,7 @@ test('calendar connection completion consumes only the submitted draft', async (
   const value = model(),
     view = mount('ToDooSettings', value);
   await settleSettings();
+  await selectPanels(view, '提醒与连接', '日历');
   settingField(view, '来源名称').props.onInput({ target: { value: '已提交名称' } });
   settingField(view, 'HTTPS 日历地址').props.onInput({
     target: { value: 'https://example.test/a.ics' },
@@ -889,6 +912,7 @@ test('subscription completion preserves fields edited while its request was pend
   const value = model(),
     view = mount('ToDooSettings', value);
   await settleSettings();
+  await selectPanels(view, '提醒与连接', '日历');
   settingField(view, '订阅名称').props.onInput({ target: { value: '已提交订阅' } });
   let finish!: (result: any) => void;
   value.request.mockImplementationOnce(() => new Promise((resolve) => (finish = resolve)));
@@ -944,6 +968,7 @@ test('clearing CSV mappings and restoring options removes the import draft guard
   const value = model(),
     view = mount('ToDooSettings', value);
   await settleSettings();
+  await selectPanels(view, '数据与恢复', '导入');
   expect((view.instance as any).hasUnsavedChanges()).toBe(false);
   settingField(view, '格式', 'select').props.onChange({ target: { value: 'csv' } });
   await settleSettings();
@@ -985,12 +1010,13 @@ test('controlled settings follows route contexts while retaining preference and 
     contextualNavigation: true,
   });
   await settleSettings();
-  expect(view.all().some((row) => row.props['aria-label'] === '设置分类')).toBe(false);
+  expect(view.all().some((row) => row.props['aria-label'] === 'To Doo 设置分类')).toBe(false);
   settingField(view, '显示时区').props.onInput({ target: { value: 'Asia/Tokyo' } });
   view.setProps({ context: 'connections' });
   await settleSettings();
   expect(view.instance.activeTab).toBe('connections');
   expect(view.visible(view.button('启用当前设备桌面提醒'))).toBe(true);
+  await selectPanels(view, '日历');
   settingField(view, '来源名称').props.onInput({ target: { value: '未保存日历' } });
   view.setProps({ context: 'preferences' });
   await settleSettings();
@@ -1023,7 +1049,7 @@ test('settings recovery navigation emits a route request and keeps its controlle
 test('standalone settings retains local category navigation', async () => {
   const view = mount('ToDooSettings', model());
   await settleSettings();
-  expect(view.all().some((row) => row.props['aria-label'] === '设置分类')).toBe(true);
+  expect(view.all().some((row) => row.props['aria-label'] === 'To Doo 设置分类')).toBe(true);
   view.instance.activeTab = 'connections';
   await Vue.nextTick();
   expect(view.visible(view.button('启用当前设备桌面提醒'))).toBe(true);
@@ -1231,6 +1257,7 @@ test('list archive and recycle links request the actual task scopes', async () =
     'onTask-scope': navigate,
   });
   await settleSettings();
+  await selectPanels(view, '归档与回收');
   expect(view.button('查看已归档任务')).toBeDefined();
   expect(view.button('查看任务回收站')).toBeDefined();
   await view.button('查看已归档任务').props.onClick();

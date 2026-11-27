@@ -388,7 +388,7 @@ test('retrying a deleted list refreshes the sidebar after its editor was closed'
   );
   const editor = page.getByRole('dialog', { name: /^编辑(目标|清单)$/ });
   await editor.getByRole('button', { name: '移入回收站', exact: true }).click();
-  await confirmToDooAction(page);
+  await confirmToDooAction(page, '删除清单');
   await expect(editor.getByRole('alert')).toContainText('删除暂时不可用');
   await editor.getByRole('button', { name: '取消', exact: true }).click();
   await expect(editor).not.toBeVisible();

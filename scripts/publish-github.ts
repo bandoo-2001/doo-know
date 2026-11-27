@@ -9,7 +9,7 @@ import { verifyReleaseEvidence } from './release-verification.js';
 
 type Options = { directory: string; repository: string; tag: string; commit: string; token: string; bootstrap: string; verification?: string; visibility?: "private" | "public"; upload?: typeof curlGithubUpload };
 type Asset = { id: number; name: string; size: number; state: string; digest: string };
-const names = /^(?:install\.sh|release(?:-[0-9A-Za-z.+-]{1,80})?\.(?:txt|json)|catalog\.json|dooknow-[0-9A-Za-z.+-]{1,120}\.tar\.gz)$/;
+const names = /^(?:install\.sh|release(?:-[0-9A-Za-z.+-]{1,80})?\.(?:txt|json)|dooknow-(?!plugin-)[0-9A-Za-z.+-]{1,120}\.tar\.gz)$/;
 async function digest(file: string) { const h = createHash('sha256'); for await (const b of createReadStream(file)) h.update(b); return h.digest('hex'); }
 export function renderGithubBootstrap(helper: string, repository: string, tag: string, assetId: number, sha256: string) {
   return `#!/usr/bin/env bash
@@ -56,12 +56,6 @@ export async function publishGithubRelease(o: Options) {
   if (info.version !== o.tag.slice(1) || info.sourceCommit !== o.commit || info.dirty !== false || info.source !== `https://github.com/${o.repository}/releases/download/${o.tag}` || local.get(info.file)?.sha !== info.sha256 || !local.has('install.sh') || !local.has('release.txt')) throw Error('PUBLISH_METADATA_MISMATCH');
   if ((await readFile(join(directory, 'release.txt'), 'utf8')).trim() !== `${info.version} ${info.file} ${info.sha256}` ||
       JSON.stringify(JSON.parse(await readFile(join(directory, `release-${info.version}.json`), 'utf8'))) !== JSON.stringify(info)) throw Error('PUBLISH_METADATA_MISMATCH');
-  const catalog = JSON.parse(await readFile(join(directory, 'catalog.json'), 'utf8'));
-  if (!Array.isArray(catalog)) throw Error('INVALID_PLUGIN_CATALOG');
-  for (const plugin of catalog) {
-    const artifact = plugin.artifact, name = typeof artifact?.url === 'string' && artifact.url.startsWith(info.source + '/') ? artifact.url.slice(info.source.length + 1) : '';
-    if (!names.test(name) || local.get(name)?.sha !== artifact.sha256) throw Error('PUBLISH_PLUGIN_CHECKSUM_MISMATCH');
-  }
   const api = `https://api.github.com/repos/${o.repository}`;
   const headers = { authorization: 'Bearer ' + o.token, accept: 'application/vnd.github+json', 'user-agent': 'DooKnow-publisher', 'x-github-api-version': '2022-11-28' };
   async function request(path: string, method = 'GET', body?: unknown, missing = false): Promise<any> {
@@ -93,7 +87,7 @@ export async function publishGithubRelease(o: Options) {
     if (releases.length < 100) break;
     if (page === 16) throw Error('GITHUB_TOO_MANY_RELEASES');
   }
-  if (!release) release = await request('/releases', 'POST', { tag_name: o.tag, target_commitish: o.commit, name: 'DooKnow ' + info.version, draft: true, prerelease: o.tag.includes('-'), make_latest: 'false', body: (privateRepository ? '私有' : '公开') + '原生发行：Linux x86_64，systemd 用户服务；含独立 MCP/Git 与可选离线检索制品。安装方法见仓库 README。' });
+  if (!release) release = await request('/releases', 'POST', { tag_name: o.tag, target_commitish: o.commit, name: 'DooKnow ' + info.version, draft: true, prerelease: o.tag.includes('-'), make_latest: 'false', body: (privateRepository ? '私有' : '公开') + '原生发行：Linux x86_64，systemd 用户服务；内置 MCP 和 Git，提供可选离线检索制品。安装方法见仓库 README。' });
   if (!Number.isSafeInteger(release.id) || release.id <= 0 || release.tag_name !== o.tag) throw Error('INVALID_GITHUB_RELEASE');
   const assets: Asset[] = [];
   for (let page = 1; page <= 16; page++) {

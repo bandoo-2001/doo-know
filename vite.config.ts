@@ -33,18 +33,11 @@ export default defineConfig({
         cacheDir: resolve(projectRoot, `node_modules/.vite-dooknow-${config.server?.port ?? 5173}`),
       };
     },
-  }, {
-    name: 'dooknow-plugin-import-map',
-    transformIndexHtml: { order: 'pre', handler: (_html, context) => [{
-      tag: 'script', attrs: { type: 'importmap' }, children: JSON.stringify({ imports: context.server
-        ? { vue: '/plugin-runtime.ts', '@dooknow/plugin-ui': '/@fs/' + resolve(projectRoot, 'packages/plugin-ui/index.ts') }
-        : { vue: '/assets/plugin-runtime.js', '@dooknow/plugin-ui': '/assets/plugin-ui.js' } }), injectTo: 'head-prepend',
-    }] },
   }],
   root: 'apps/web',
   // Async views must not depend on a stylesheet preload that cannot be retried.
   build: { manifest: true, cssCodeSplit: false, outDir: resolve(projectRoot, 'dist/web'), emptyOutDir: true, rollupOptions: {
-    input: { app: resolve(projectRoot, 'apps/web/index.html'), 'plugin-runtime': resolve(projectRoot, 'apps/web/plugin-runtime.ts'), 'plugin-ui': resolve(projectRoot, 'packages/plugin-ui/index.ts') },
+    input: { app: resolve(projectRoot, 'apps/web/index.html') },
     preserveEntrySignatures: 'strict',
     output: { entryFileNames: 'assets/[name].js' },
   } },
@@ -53,7 +46,7 @@ export default defineConfig({
     port: Number(process.env.VITE_PORT || 5173),
     strictPort: true,
     fs: {
-      allow: ['apps/web', 'node_modules', 'shared', 'packages/plugin-ui', 'packages/plugin-contracts'].map((path) => resolve(projectRoot, path)),
+      allow: ['apps/web', 'node_modules', 'shared'].map((path) => resolve(projectRoot, path)),
       deny: [
         '**/.env',
         '**/.env.*',
@@ -70,7 +63,8 @@ export default defineConfig({
     },
     proxy: {
       '/api/': 'http://127.0.0.1:' + (process.env.PORT || 3010),
-      '/plugins/': 'http://127.0.0.1:' + (process.env.PORT || 3010),
+      '^/mcp(?:/|\\?|$)': 'http://127.0.0.1:' + (process.env.PORT || 3010),
+      '/.well-known/': 'http://127.0.0.1:' + (process.env.PORT || 3010),
       '^/blog(?:/|\\?|$)': 'http://127.0.0.1:' + (process.env.PORT || 3010),
     },
   },

@@ -31,3 +31,14 @@ it('renders actual domain rights and full versus selected scopes', () => {
 });
 
 it('edits a reactive policy without mutating the saved Vue state',()=>{const saved=reactive(policy());const edited=domainPreset(saved,'edit');expect(edited.domains.knowledge.actions).toEqual(['read','write']);expect(saved.domains.knowledge.actions).toEqual(['read']);});
+
+it('preserves independently selected share, management, archive and index actions across knowledge presets', () => {
+  const original = policy();
+  const independent = ['share', 'manage', 'archive', 'index'];
+  original.domains.knowledge.actions.push(...independent);
+  for (const preset of ['read', 'edit', 'organize']) {
+    const next = domainPreset(original, preset);
+    expect(next.domains.knowledge.actions).toEqual(expect.arrayContaining(independent));
+    expect(new Set(next.domains.knowledge.actions).size).toBe(next.domains.knowledge.actions.length);
+  }
+});

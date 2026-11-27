@@ -79,13 +79,14 @@ async function mount(authenticated = true) {
       if (id === 'ant-design-vue/es/locale/zh_CN') return { default: {} };
       if (id === './ant-design') return { antTheme: {} };
       if (id === './api') return { api: mockApi, refreshCsrf: vi.fn(), resetCsrf: vi.fn() };
-      if (id === './plugin-drafts')
-        return { clearPluginDrafts: clearDrafts, hasUnsavedPluginDrafts: () => false };
-      if (id === './plugins') return { disposePluginUIs: disposePlugins };
+      if (id === './git/settings-draft') return { hasUnsavedGitSettings: () => false };
+      if (id === './mcp-settings-draft')
+        return { clearMcpSettings: clearDrafts, hasUnsavedMcpSettings: () => false };
+      if (id === './features') return { clearFeatures: disposePlugins };
       if (id === './app-shortcuts') return AppShortcuts;
     if (id === './platform-theme') return PlatformTheme;
       if (id === './preferences')
-        return { initializeEditorPreferences: vi.fn(), resolvedTheme: Vue.ref('light') };
+        return { initializeEditorPreferences: vi.fn(), resolvedTheme: Vue.ref('light'), discardEditorSettingsDraft: vi.fn(), hasUnsavedEditorSettings: () => false };
       if (id.endsWith('/Workspace.vue')) return { __esModule: true, default: workspace };
       if (id.endsWith('/Login.vue')) return { __esModule: true, default: login };
       if (id.endsWith('.vue')) return { __esModule: true, default: provider };

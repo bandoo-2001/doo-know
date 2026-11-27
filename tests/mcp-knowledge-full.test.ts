@@ -9,7 +9,7 @@ import { currentPrincipalPolicy } from '../packages/core/agent/config.js';
 import { projectPermissionPrincipal } from '../packages/core/auth/permissions.js';
 import type { Principal } from '../shared/knowledge-contracts.js';
 import { directoryByPath } from '../packages/core/organization/catalog.js';
-import { createMcpTransferStore } from '../apps/server/plugins/mcp-transfers.js';
+import { createMcpTransferStore } from '../apps/server/mcp/mcp-transfers.js';
 import { createHash } from 'node:crypto';
 import { emptyWhiteboard } from '../shared/whiteboard.js';
 import { writeFile } from 'node:fs/promises';
@@ -25,7 +25,7 @@ async function fixture() {
   f.principal.scopes.push('knowledge:archive', 'knowledge:organize', 'knowledge:share');
   let caller: Principal = f.principal;
   const transfers = createMcpTransferStore(f.config, f.db);
-  const module = await import('../apps/server/plugins/knowledge-tools.js').catch(() => undefined);
+  const module = await import('../apps/server/mcp/knowledge-tools.js').catch(() => undefined);
   expect(module, 'caller-aware knowledge domain adapter is available').toBeDefined();
   const port = module!.createKnowledgeToolPort({
     config: f.config,

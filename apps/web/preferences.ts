@@ -13,6 +13,27 @@ const defaults: EditorPreferences = {
 };
 const mutable = reactive<EditorPreferences>({ ...defaults });
 export const editorPreferences = readonly(mutable);
+export const editorPreferencesPersisted = ref(true);
+export const editorSettingsDraft = reactive<EditorPreferences>({ ...defaults });
+const fields = Object.keys(defaults) as (keyof EditorPreferences)[];
+
+export function hasUnsavedEditorSettings() {
+  return fields.some((key) => editorSettingsDraft[key] !== mutable[key]);
+}
+
+export function discardEditorSettingsDraft() {
+  Object.assign(editorSettingsDraft, mutable);
+}
+
+function applySavedPreferences(next: EditorPreferences, discardDraft = false) {
+  const changed = discardDraft ? {} : Object.fromEntries(
+    fields.filter((key) => editorSettingsDraft[key] !== mutable[key])
+      .map((key) => [key, editorSettingsDraft[key]]),
+  );
+  Object.assign(mutable, next);
+  Object.assign(editorSettingsDraft, next, changed);
+}
+
 let storage: PreferenceStorage | undefined;
 let accountKey = 'dooknow.preferences.v1:guest';
 function normalize(value: Partial<EditorPreferences> | undefined): EditorPreferences {
@@ -36,6 +57,7 @@ export function initializeEditorPreferences(
   accountId: string,
   selectedStorage?: PreferenceStorage,
 ) {
+  const previousAccount = accountKey;
   accountKey = 'dooknow.preferences.v1:' + encodeURIComponent(accountId || 'guest');
   try {
     storage = selectedStorage || (typeof localStorage !== 'undefined' ? localStorage : undefined);
@@ -45,20 +67,32 @@ export function initializeEditorPreferences(
   let value;
   try {
     value = JSON.parse(storage?.getItem(accountKey) || 'null');
-  } catch {}
-  Object.assign(mutable, normalize(value && typeof value === 'object' ? value : undefined));
+    editorPreferencesPersisted.value = !!storage;
+  } catch {
+    editorPreferencesPersisted.value = false;
+  }
+  applySavedPreferences(normalize(value && typeof value === 'object' ? value : undefined), accountKey !== previousAccount);
 }
 export function setEditorPreferences(patch: Partial<EditorPreferences>) {
-  Object.assign(mutable, normalize({ ...mutable, ...patch, ...(patch.mode === 'split' && patch.editorKind === undefined ? {editorKind: 'source' as const} : {}) }));
-  try {
-    storage?.setItem(accountKey, JSON.stringify(mutable));
-  } catch {}
+  applySavedPreferences(normalize({ ...mutable, ...patch, ...(patch.mode === 'split' && patch.editorKind === undefined ? {editorKind: 'source' as const} : {}) }));
+  let saved = false;
+  if (storage) {
+    try {
+      storage.setItem(accountKey, JSON.stringify(mutable));
+      saved = true;
+    } catch { /* The active page still uses the user's chosen display options. */ }
+  }
+  editorPreferencesPersisted.value = saved;
+  return saved;
 }
 export function resetEditorPreferences() {
-  Object.assign(mutable, defaults);
+  applySavedPreferences(defaults, true);
   try {
     storage?.removeItem(accountKey);
-  } catch {}
+    editorPreferencesPersisted.value = !!storage;
+  } catch {
+    editorPreferencesPersisted.value = false;
+  }
 }
 const systemDark =
   typeof matchMedia !== 'undefined' ? matchMedia('(prefers-color-scheme: dark)') : undefined;

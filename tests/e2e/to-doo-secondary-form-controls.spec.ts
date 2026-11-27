@@ -124,6 +124,7 @@ test('settings show parent paths and reuse the tree for import and calendar feed
   });
   await page.goto('/?view=apps&app=to-doo&appSection=settings&appPage=data');
   const settings = page.locator('.todo-settings');
+  await settings.getByRole('tab', { name: '导入', exact: true }).click();
   await expandToDooGroup(settings, '导入选项');
   const input = await openTree(settings, '目标清单');
   const popup = page.locator('.todo-list-tree-popup:visible');
@@ -133,6 +134,7 @@ test('settings show parent paths and reuse the tree for import and calendar feed
   await expect(popup.locator('.todo-list-tree-add, .todo-list-tree-footer')).toHaveCount(0);
   await input.press('Escape');
   await page.goto('/?view=apps&app=to-doo&appSection=settings&appPage=connections');
+  await page.getByRole('tab', { name: '日历', exact: true }).click();
   await expandToDooGroup(page.locator('.todo-settings'), '创建 To Doo 只读订阅链接');
   await openTree(page.locator('.todo-settings'), '包含的清单（不选表示全部）');
   const ranges = page.locator('.todo-list-tree-multi-popup:visible');

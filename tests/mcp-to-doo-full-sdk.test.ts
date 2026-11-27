@@ -1,22 +1,22 @@
+import { featureCapabilities } from '../shared/feature-config.js';
 import { expect, it } from 'vitest';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { readFile } from 'node:fs/promises';
 import { pluginRuntimeFixture } from './support/plugin-runtime';
-import { pluginHost } from '../apps/server/plugins/host';
-import { pluginServices } from '../apps/server/plugins/services';
+import { initializeFeatureSettings } from '../packages/core/feature-settings.js';
+import { integrationServices } from '../apps/server/features/services';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants';
 import { policyScopes, currentToDooInstanceId } from '../packages/core/auth/permissions';
-import { createOperations, registerOperations } from '../plugins/mcp/server/operations';
-import { hostClient } from '../plugins/mcp/server/service';
+import { createOperations, registerOperations } from '../apps/server/mcp/operations';
+import { hostClient } from '../apps/server/mcp/service';
 import type { PermissionPolicy } from '../shared/permissions';
 
 it('discovers exact To Doo schemas and invokes scoped typed writes/exports through the actual SDK and live host grants', async () => {
   const f = await pluginRuntimeFixture();
   let client: Client | undefined, server: McpServer | undefined;
   try {
-    pluginHost(f.config, f.db);
+    initializeFeatureSettings(f.db);
     const policy: PermissionPolicy = {
       version: 2,
       domains: {
@@ -29,9 +29,7 @@ it('discovers exact To Doo schemas and invokes scoped typed writes/exports throu
         },
       },
     };
-    const manifest = JSON.parse(
-      await readFile(new URL('../plugins/mcp/manifest.json', import.meta.url), 'utf8'),
-    );
+    const manifest = { version: '2.0.5', capabilities: featureCapabilities.mcp };
     f.db
       .prepare(
         "INSERT INTO platform_plugins(id,installed_version,manifest_json,files_json,config_json,state) VALUES('mcp',?,?,'[]',?,'enabled')",
@@ -56,7 +54,7 @@ it('discovers exact To Doo schemas and invokes scoped typed writes/exports throu
       policyVersion: 2 as const,
     };
     const services = () =>
-      pluginServices(f.platform, f.db, 'mcp', manifest.capabilities, {
+      integrationServices(f.platform, f.db, 'mcp', manifest.capabilities, {
         ownerId: p.id,
         principal: p,
         channel: 'mcp',
@@ -163,7 +161,7 @@ it('reads complete template JSON through the actual SDK with only task read acce
   const f = await pluginRuntimeFixture();
   let client: Client | undefined, server: McpServer | undefined;
   try {
-    pluginHost(f.config, f.db);
+    initializeFeatureSettings(f.db);
     const todo = f.platform.get().toDoo;
     todo.command({
       requestId: 'sdk-read-template-seed',
@@ -193,9 +191,7 @@ it('reads complete template JSON through the actual SDK with only task read acce
         },
       },
     };
-    const manifest = JSON.parse(
-      await readFile(new URL('../plugins/mcp/manifest.json', import.meta.url), 'utf8'),
-    );
+    const manifest = { version: '2.0.5', capabilities: featureCapabilities.mcp };
     f.db
       .prepare(
         "INSERT INTO platform_plugins(id,installed_version,manifest_json,files_json,config_json,state) VALUES('mcp',?,?,'[]',?,'enabled')",
@@ -221,7 +217,7 @@ it('reads complete template JSON through the actual SDK with only task read acce
       };
     expect(p.scopes).toEqual(['to-doo:read']);
     const services = () =>
-      pluginServices(f.platform, f.db, 'mcp', manifest.capabilities, {
+      integrationServices(f.platform, f.db, 'mcp', manifest.capabilities, {
         ownerId: p.id,
         principal: p,
         channel: 'mcp',

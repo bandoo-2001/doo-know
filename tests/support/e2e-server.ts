@@ -11,10 +11,6 @@ import { createApp } from '../../apps/server/app.js';
 import { graphModelFixture } from './graph-model-fixture.js';
 import { initializeOwner } from '../../apps/server/auth.js';
 import { testPassword } from './credentials.js';
-import { pathToFileURL } from 'node:url';
-// @ts-expect-error build tool is plain ESM
-import { buildPlugins } from '../../scripts/build-plugins.mjs';
-import { pluginFixture } from './plugin-fixture.js';
 import { browserFixtureDiagnostics } from './e2e-diagnostics.js';
 // @ts-expect-error native build tool is plain ESM
 import { buildProcessRunner } from '../../scripts/build-process-runner.mjs';
@@ -97,7 +93,7 @@ for (const signal of ['SIGINT', 'SIGTERM'])
   process.on(signal, () => {
     shutdownRequested = true;
     // Initialization owns its current operation until it settles. Closing early
-    // could race a database, plugin or HTTP server that is still being created.
+    // could race a database or HTTP server that is still being created.
     if (initializationFinished) void shutdown();
   });
 async function initialize() {
@@ -197,14 +193,6 @@ async function initialize() {
     secret: 'e2e-only-at-least-thirty-two-character-secret',
     origin: 'http://127.0.0.1:' + frontendPort,
     ...(process.env.DOOKNOW_E2E_HTTP_ALIAS ? { allowedOrigins: [process.env.DOOKNOW_E2E_HTTP_ALIAS] } : {}),
-    pluginCatalog: [
-      await pluginFixture(root),
-      ...(await buildPlugins({
-        output: join(root, 'plugins'),
-        ids: ['mcp', 'git'],
-        baseURL: pathToFileURL(join(root, 'plugins') + '/').href,
-      })),
-    ],
     ...(process.env.DOOKNOW_E2E_PRODUCTION === '1'
       ? { staticRoot: resolve(process.env.DOOKNOW_E2E_STATIC_ROOT || 'dist/web') }
       : {}),
@@ -296,7 +284,8 @@ async function initialize() {
       ws: { server: frontend },
       proxy: {
         '/api/': backendOrigin,
-        '/plugins/': backendOrigin,
+        '^/mcp(?:/|\\?|$)': backendOrigin,
+        '/.well-known/': backendOrigin,
         '^/blog(?:/|\\?|$)': backendOrigin,
       },
     },

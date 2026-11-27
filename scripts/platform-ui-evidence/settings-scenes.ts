@@ -62,53 +62,32 @@ async function onlyTemporary(env: SceneEnv) {
   )
     throw Error('Refusing non-isolated settings fixture');
 }
-async function plugin(env: SceneEnv, id: 'mcp' | 'git') {
-  let registry = await env.fixture.api('/api/platform/plugins');
-  let entry = registry.installed.find((p: any) => p.id === id);
-  if (!entry) {
-    const job = await env.fixture.api('/api/platform/plugin-installations', 'POST', {
-      id,
-      requestId: randomUUID(),
-    });
-    await expect
-      .poll(
-        async () => (await env.fixture.api('/api/platform/plugin-installations/' + job.id)).status,
-        { timeout: 90_000, intervals: [250, 500, 1000] },
-      )
-      .toBe('succeeded');
-    registry = await env.fixture.api('/api/platform/plugins');
-    entry = registry.installed.find((p: any) => p.id === id);
-  }
-  if (!entry) throw Error('Isolated plugin installation did not expose plugin');
-  const values =
-    id === 'mcp'
-      ? { oauthEnabled: true, apiKeyEnabled: true }
-      : { authorName: 'Capture Fixture', authorEmail: 'capture@example.invalid' };
-  await env.fixture.api('/api/platform/plugins/' + id + '/config', 'PUT', {
-    configVersion: entry.configVersion,
-    values,
-  });
-  if (entry.state !== 'enabled')
-    await env.fixture.api('/api/platform/plugins/' + id + '/enable', 'POST', {});
+async function enableFeature(env: SceneEnv, id: 'mcp' | 'git') {
+  const entry = (await env.fixture.api('/api/platform/features'))[id];
+  const values = id === 'mcp'
+    ? { oauthEnabled: true, apiKeyEnabled: true }
+    : { authorName: 'Capture Fixture', authorEmail: 'capture@example.invalid' };
+  await env.fixture.api('/api/platform/' + id + '/config', 'PUT', { configVersion: entry.configVersion, values });
+  if (entry.state !== 'enabled') await env.fixture.api('/api/platform/' + id + '/enabled', 'PUT', { enabled: true });
 }
 async function config(page: Page, id: 'mcp' | 'git') {
-  await page
-    .locator('.plugin-card')
-    .filter({ hasText: id === 'mcp' ? 'MCP 服务' : 'Git 版本管理' })
-    .getByRole('button', { name: '配置', exact: true })
-    .click();
-  await expect(page.locator('.plugin-settings')).toBeVisible();
+  if (id === 'mcp')
+    await expect(page.getByRole('region', { name: 'MCP 服务设置', exact: true })).toBeVisible();
+  else
+    await expect(page.getByRole('region', { name: 'Git 版本管理', exact: true })).toBeVisible();
   await closeSidebar(page);
 }
 async function mcp(env: SceneEnv) {
   await config(env.page, 'mcp');
+  await env.page.getByRole('tab', { name: '权限设置', exact: true }).click();
 }
-async function apiGuide(env: SceneEnv) {
-  await mcp(env);
-  await btn(env.page, 'API Key 接入').click();
+async function openApiClients(env: SceneEnv) {
+  await config(env.page, 'mcp');
+  await env.page.getByRole('tab', { name: '客户端', exact: true }).click();
+  await btn(env.page, 'API Key 客户端').click();
 }
 async function apiClient(env: SceneEnv) {
-  await plugin(env, 'mcp');
+  await enableFeature(env, 'mcp');
   const inventory = await env.fixture.api('/api/platform/mcp/permissions');
   const name = '隔离客户端-' + randomUUID();
   const result = await env.fixture.api('/api/platform/mcp/api-clients', 'POST', {
@@ -122,7 +101,7 @@ async function apiClient(env: SceneEnv) {
 const clientRow = (page: Page) =>
   page.getByRole('article', { name: store(page).client.name, exact: true });
 async function editClient(env: SceneEnv, label: string) {
-  await apiGuide(env);
+  await openApiClients(env);
   await clientRow(env.page).getByRole('button', { name: label, exact: true }).click();
 }
 async function importStep(env: SceneEnv, review = false) {
@@ -177,11 +156,12 @@ async function backup(env: SceneEnv) {
 async function openBackup(env: SceneEnv) {
   const card = env.page
     .locator('.settings-card')
-    .filter({ has: env.page.getByRole('heading', { name: '加密备份', exact: true }) });
+    .filter({ has: env.page.getByRole('heading', { name: '备份记录', exact: true }) });
   const row = card.locator('li').filter({ hasText: store(env.page).backupId });
   await row.getByRole('button', { name: '恢复到独立副本', exact: true }).click();
 }
 async function connection(env: SceneEnv) {
+  await env.page.getByRole('tab', { name: '云端同步', exact: true }).click();
   await env.page
     .getByRole('region', { name: '云端同步面板', exact: true })
     .getByRole('button', { name: /^(管理同步|关联云端仓库)$/ })
@@ -192,7 +172,7 @@ async function credential(env: SceneEnv) {
   await btn(env.page, '添加凭据').click();
 }
 async function gitReady(env: SceneEnv) {
-  await plugin(env, 'git');
+  await enableFeature(env, 'git');
   const call = async (kind: string, id: string, input: unknown = {}) => {
     let result: any;
     // Retry only the backend's explicit, definite workspace-gate refusal.
@@ -201,7 +181,7 @@ async function gitReady(env: SceneEnv) {
       .poll(
         async () => {
           try {
-            result = await env.fixture.api('/api/plugins/git/call', 'POST', { kind, id, input });
+            result = await env.fixture.api('/api/platform/git/actions', 'POST', { kind, id, input });
             return 'readable';
           } catch (error) {
             if (/returned 503 code=WORKSPACE_BUSY$/.test(String((error as Error).message)))
@@ -244,7 +224,7 @@ async function nativeReview(env: SceneEnv) {
     .fill('隔离同步预览-' + randomUUID());
   const response = env.page.waitForResponse(
     (reply) =>
-      new URL(reply.url()).pathname === '/api/plugins/git/call' &&
+      new URL(reply.url()).pathname === '/api/platform/git/actions' &&
       reply.request().method() === 'POST' &&
       reply.request().postDataJSON()?.id === 'git.preview',
     { timeout: 20000 },
@@ -318,7 +298,7 @@ async function inspectConflict(env: SceneEnv) {
   await expect(env.page.getByText('采用当前磁盘版本？', { exact: true })).toBeVisible();
 }
 async function oauthModel(env: SceneEnv) {
-  await plugin(env, 'mcp');
+  await enableFeature(env, 'mcp');
   const policy = (await env.fixture.api('/api/platform/mcp/permissions')).policy;
   const current = await env.fixture.api('/api/platform/mcp/connection');
   const client = {
@@ -338,7 +318,9 @@ async function oauthModel(env: SceneEnv) {
   );
 }
 async function oauthRow(env: SceneEnv) {
-  await mcp(env);
+  await config(env.page, 'mcp');
+  await env.page.getByRole('tab', { name: '客户端', exact: true }).click();
+  await btn(env.page, 'OAuth 授权').click();
   return env.page
     .locator('.guide-client')
     .filter({ hasText: store(env.page).oauthClient.clientId });
@@ -431,6 +413,7 @@ export const settingsScenes: Scene[] = [
     'Revoke fails without removing fixture share',
     '.settings-workspace',
     async ({ page }) => {
+      await page.getByRole('tab', { name: '分享', exact: true }).click();
       await page.getByRole('button', { name: '撤销', exact: true }).first().click();
       await page
         .locator('.ant-popconfirm:visible')
@@ -855,26 +838,25 @@ export const settingsScenes: Scene[] = [
   scene(
     'plugin-config-conflict',
     ['ST-051', 'ST-049'],
-    'plugins',
+    'mcp',
     'Real CAS conflict preserves unsaved plugin draft',
-    '.plugin-settings',
+    '[aria-label="MCP 服务设置"]',
     async (env) => {
       await mcp(env);
       await env.page.getByRole('switch', { name: '启用 API Key 连接', exact: true }).click();
-      const r = await env.fixture.api('/api/platform/plugins');
-      const p = r.installed.find((x: any) => x.id === 'mcp');
-      await env.fixture.api('/api/platform/plugins/mcp/config', 'PUT', {
+      const r = await env.fixture.api('/api/platform/features');
+      const p = r.mcp;
+      await env.fixture.api('/api/platform/mcp/config', 'PUT', {
         configVersion: p.configVersion,
         values: { oauthEnabled: !p.config.oauthEnabled },
       });
-      await btn(env.page, '刷新插件状态').click();
-      await expect(btn(env.page, '保存插件配置')).toBeDisabled();
+      await expect(btn(env.page, '保存 MCP 配置')).toBeDisabled();
       await expect(
-        env.page.getByText('已保存配置在其他位置发生变化', { exact: true }),
+        env.page.getByText('MCP 配置已在其他位置更新。', { exact: true }),
       ).toBeVisible();
     },
     {
-      before: (env) => plugin(env, 'mcp'),
+      before: (env) => enableFeature(env, 'mcp'),
       importantStates: { 'ST-051': ['输入保留但禁保存/启用'], 'ST-049': ['配置版本冲突'] },
       tests: ['tests/e2e/plugin-config.spec.ts'],
     },
@@ -882,93 +864,31 @@ export const settingsScenes: Scene[] = [
   scene(
     'plugin-reload-confirm',
     ['ST-052', 'ST-051'],
-    'plugins',
+    'mcp',
     'Plugin draft discard and reload popconfirm',
     '.ant-popconfirm:visible',
     async (env) => {
       await mcp(env);
       await env.page.getByRole('switch', { name: '启用 API Key 连接', exact: true }).click();
-      const r = await env.fixture.api('/api/platform/plugins');
-      const p = r.installed.find((x: any) => x.id === 'mcp');
-      await env.fixture.api('/api/platform/plugins/mcp/config', 'PUT', {
+      const r = await env.fixture.api('/api/platform/features');
+      const p = r.mcp;
+      await env.fixture.api('/api/platform/mcp/config', 'PUT', {
         configVersion: p.configVersion,
         values: { oauthEnabled: !p.config.oauthEnabled },
       });
-      await btn(env.page, '刷新插件状态').click();
       await btn(env.page, '重新载入已保存配置').click();
     },
     {
-      before: (env) => plugin(env, 'mcp'),
+      before: (env) => enableFeature(env, 'mcp'),
       window: true,
       importantStates: { 'ST-052': ['远端冲突警告上下文'] },
       tests: ['tests/e2e/plugin-config.spec.ts'],
     },
   ),
   scene(
-    'plugin-install-reconciliation',
-    ['ST-054'],
-    'plugins',
-    'Interrupted installation receipt requiring reconciliation',
-    '.plugin-manager',
-    async ({ page }) => {
-      await expect(page.getByText(/结果待核对，请刷新安装状态后重试/)).toBeVisible();
-    },
-    {
-      before: async (env) => {
-        await plugin(env, 'mcp');
-        await env.page.route('**/api/platform/plugin-installations', (route) =>
-          route.fulfill({
-            json: {
-              items: [
-                {
-                  id: randomUUID(),
-                  pluginId: 'mcp',
-                  version: '2.0.0',
-                  requestId: randomUUID(),
-                  status: 'needs_reconciliation',
-                  phase: 'verifying',
-                  error: 'PLUGIN_INSTALL_INTERRUPTED',
-                },
-              ],
-            },
-          }),
-        );
-      },
-      fault: 'Synthetic unresolved installation receipt; no install success fabricated.',
-    },
-  ),
-  scene(
-    'plugin-ui-load-failed',
-    ['ST-055'],
-    'plugins',
-    'Actual failed plugin resource load renderer',
-    '.plugin-settings',
-    async (env) => {
-      await mcp(env);
-      await expect(
-        env.page.getByRole('alert').filter({ hasText: '插件界面暂时无法加载' }),
-      ).toBeVisible();
-    },
-    {
-      before: async (env) => {
-        await plugin(env, 'mcp');
-        const registry = await env.fixture.api('/api/platform/plugins');
-        const webUrl = registry.installed.find((entry: any) => entry.id === 'mcp')?.webUrl;
-        if (!webUrl) throw Error('Real enabled MCP plugin has no web entry URL');
-        const entryURL = new URL(webUrl, env.fixture.origin);
-        await env.page.route(
-          (url) => url.origin === entryURL.origin && url.pathname === entryURL.pathname,
-          (route) => route.abort('failed'),
-        );
-      },
-      fault: 'Abort only real MCP plugin JavaScript resource; actual host error renderer.',
-      importantStates: { 'ST-055': ['pluginUIErrors错误'] },
-    },
-  ),
-  scene(
     'oauth-narrow-form',
     ['ST-060'],
-    'plugins',
+    'mcp',
     'OAuth narrowing form under original grant ceiling',
     '.client-permissions',
     async (env) => {
@@ -986,7 +906,7 @@ export const settingsScenes: Scene[] = [
   scene(
     'oauth-revoke-confirm',
     ['ST-061'],
-    'plugins',
+    'mcp',
     'OAuth inline revoke confirmation',
     '.guide-client',
     async (env) => {
@@ -1002,7 +922,7 @@ export const settingsScenes: Scene[] = [
   scene(
     'mcp-resource-tree',
     ['ST-063'],
-    'plugins',
+    'mcp',
     'Actual permission resource-tree popup',
     '.knowledge-resource-tree-popup:visible',
     async (env) => {
@@ -1011,7 +931,7 @@ export const settingsScenes: Scene[] = [
       await env.page.getByRole('combobox', { name: '选择知识库资源', exact: true }).click();
     },
     {
-      before: (env) => plugin(env, 'mcp'),
+      before: (env) => enableFeature(env, 'mcp'),
       window: true,
       tests: ['tests/e2e/plugin-config.spec.ts'],
       representative: true,
@@ -1027,7 +947,7 @@ export const settingsScenes: Scene[] = [
     scene(
       'client-' + id,
       [source],
-      'plugins',
+      'mcp',
       'Actual API client ' + id + ' form',
       (page) => page.getByRole('form', { name: title, exact: true }),
       (env) => editClient(env, label),
@@ -1037,7 +957,7 @@ export const settingsScenes: Scene[] = [
   scene(
     'client-reauthorize',
     ['ST-069'],
-    'plugins',
+    'mcp',
     'Invalidated fixture identity reauthorization form',
     (page) => page.getByRole('form', { name: '重新授权并签发', exact: true }),
     async (env) => {
@@ -1064,11 +984,11 @@ export const settingsScenes: Scene[] = [
   scene(
     'client-one-time-key',
     ['ST-070'],
-    'plugins',
+    'mcp',
     'Real newly issued one-time key, shared screenshot mask applies',
     (page) => page.getByRole('region', { name: '一次性 API Key', exact: true }),
     async (env) => {
-      await apiGuide(env);
+      await openApiClients(env);
       await btn(env.page, '创建 API 客户端').click();
       await env.page
         .getByRole('textbox', { name: '客户端名称', exact: true })
@@ -1078,7 +998,7 @@ export const settingsScenes: Scene[] = [
       await expect(btn(env.page, '创建 API 客户端')).toBeDisabled();
     },
     {
-      before: (env) => plugin(env, 'mcp'),
+      before: (env) => enableFeature(env, 'mcp'),
       importantStates: { 'ST-070': ['尚未关闭密钥时阻止新表单/签发'] },
       afterCapture: async ({ page }) => {
         await btn(page, '已保存，关闭密钥').click();
@@ -1091,7 +1011,7 @@ export const settingsScenes: Scene[] = [
   scene(
     'client-cas-conflict',
     ['ST-071', 'ST-066'],
-    'plugins',
+    'mcp',
     'Real API client rename CAS conflict retains draft',
     '.api-clients',
     async (env) => {
@@ -1124,11 +1044,11 @@ export const settingsScenes: Scene[] = [
   scene(
     'client-revoke-confirm',
     ['ST-072'],
-    'plugins',
+    'mcp',
     'API connection inline revoke confirmation',
     '.api-clients',
     async (env) => {
-      await apiGuide(env);
+      await openApiClients(env);
       await clientRow(env.page).getByRole('button', { name: '撤销 API 连接', exact: true }).click();
     },
     { before: apiClient, tests: ['tests/e2e/mcp-api-clients.spec.ts'] },
@@ -1177,7 +1097,7 @@ export const settingsScenes: Scene[] = [
     dlg('确认本次提交内容'),
     async (env) => {
       await nativeReview(env);
-      await env.page.route('**/api/plugins/git/call', async (route) => {
+      await env.page.route('**/api/platform/git/actions', async (route) => {
         if (route.request().postDataJSON()?.id === 'git.commit') await route.abort('failed');
         else await route.continue();
       });
@@ -1262,9 +1182,9 @@ export const settingsScenes: Scene[] = [
   scene(
     'git-plugin-commit',
     ['ST-083'],
-    'plugins',
+    'mcp',
     'Actual Git commit contribution with no preview',
-    '.plugin-dialog',
+    '.git-commit-dialog',
     commitPanel,
     {
       before: gitReady,
@@ -1277,9 +1197,9 @@ export const settingsScenes: Scene[] = [
   scene(
     'git-plugin-preview',
     ['ST-084', 'ST-083'],
-    'plugins',
+    'mcp',
     'Actual isolated Git plugin preview and cancel action',
-    '.plugin-dialog',
+    '.git-commit-dialog',
     previewPanel,
     {
       before: gitReady,
@@ -1318,31 +1238,15 @@ export const settingsScenes: Scene[] = [
   scene(
     'mcp-bridge',
     ['ST-091', 'ST-056'],
-    'plugins',
-    'Actual MCP navigation bridge before full panel',
-    '.plugin-dialog',
+    'mcp',
+    'The sidebar opens MCP connection settings directly',
+    '[aria-label="MCP 服务设置"]',
     async (env) => {
       await showSidebar(env.page);
       await btn(env.page, 'MCP 连接').click();
-      await expect(
-        env.page.locator('.plugin-dialog').getByRole('button', { name: 'MCP 连接', exact: true }),
-      ).toBeVisible();
+      await mcp(env);
     },
-    {
-      before: (env) => plugin(env, 'mcp'),
-      path: '/',
-      window: true,
-      importantStates: { 'ST-091': ['宿主标题MCP连接，内容也只有MCP连接按钮'] },
-      verify: async ({ page }) => {
-        await page
-          .locator('.plugin-dialog')
-          .getByRole('button', { name: 'MCP 连接', exact: true })
-          .click();
-        await expect(page.locator('.dooknow-mcp-settings')).toBeVisible();
-        return { bridgeOpenedActualSettings: true };
-      },
-      tests: ['tests/e2e/mcp.spec.ts'],
-    },
+    { before: (env) => enableFeature(env, 'mcp'), path: '/', tests: ['tests/e2e/mcp.spec.ts'] },
   ),
   ...(['busy', 'api-error'] as const).map((kind) =>
     scene(
@@ -1452,6 +1356,7 @@ export const settingsScenes: Scene[] = [
     'Storage statistics read failure',
     '.storage-settings',
     async ({ page }) => {
+      await page.getByRole('tab', { name: '存储与整理', exact: true }).click();
       await expect(page.locator('.storage-settings').getByRole('alert')).toBeVisible();
     },
     {
@@ -1544,70 +1449,16 @@ export const settingsScenes: Scene[] = [
       },
     },
   ),
-  ...(['busy', 'error'] as const).map((kind) =>
-    scene(
-      'uninstall-' + kind,
-      ['ST-053'],
-      'plugins',
-      'Uninstall ' + kind + ' preserves real overlay',
-      dlg('卸载插件'),
-      async (env) => {
-        await mcp(env);
-        await btn(env.page, '卸载插件').click();
-        await btn(env.page, '确认卸载').click();
-        if (kind === 'busy')
-          await expect(dlg('卸载插件')(env.page)).toHaveAttribute('aria-busy', 'true');
-        else await expect(dlg('卸载插件')(env.page).getByRole('alert')).toBeVisible();
-      },
-      {
-        before: async (env) => {
-          await plugin(env, 'mcp');
-          await env.page.route(
-            '**/api/platform/plugins/mcp/uninstall',
-            kind === 'busy' ? held : failed('CAPTURE_UNINSTALL_REJECTED'),
-          );
-        },
-        window: true,
-        fault: 'Uninstall POST ' + (kind === 'busy' ? 'held' : 'rejected') + ' before mutation.',
-        importantStates:
-          kind === 'busy' ? { 'ST-053': ['busy锁关闭'] } : { 'ST-053': ['失败仍保留对话框'] },
-      },
-    ),
-  ),
-  scene(
-    'plugin-restart-warning',
-    ['ST-054', 'ST-049'],
-    'plugins',
-    'Restart-required warning from isolated registry model',
-    '.plugin-settings',
-    async env => { await mcp(env); const warning = env.page.locator('.plugin-settings .ant-alert-warning').filter({ hasText: '配置或版本需要重启生效' });
-      await expect(warning).toBeVisible(); await expect(warning).toContainText('dooknow restart'); },
-    {
-      before: async (env) => {
-        await plugin(env, 'mcp');
-        await env.page.route('**/api/platform/plugins', async (route) => {
-          const response = await route.fetch();
-          const json = await response.json();
-          json.installed = json.installed.map((p: any) =>
-            p.id === 'mcp' ? { ...p, restartRequired: true } : p,
-          );
-          await route.fulfill({ response, json });
-        });
-      },
-      fault: 'Registry restartRequired read flag only; no service restart/config mutation.',
-      importantStates: { 'ST-054': ['重启待生效'], 'ST-049': ['重启待生效'] },
-    },
-  ),
   scene(
     'mcp-resource-read-error',
     ['ST-062'],
-    'plugins',
+    'mcp',
     'Permission resources read failure leaves retry in existing editor',
     '.domain-permissions',
     mcp,
     {
       before: async (env) => {
-        await plugin(env, 'mcp');
+        await enableFeature(env, 'mcp');
         await env.page.route(
           '**/api/platform/mcp/permissions',
           failed('CAPTURE_PERMISSION_RESOURCES_UNAVAILABLE'),
@@ -1621,7 +1472,7 @@ export const settingsScenes: Scene[] = [
     scene(
       'oauth-narrow-' + kind,
       ['ST-060'],
-      'plugins',
+      'mcp',
       'OAuth narrowing ' + kind,
       '.client-permissions',
       async (env) => {
@@ -1654,7 +1505,7 @@ export const settingsScenes: Scene[] = [
     scene(
       'oauth-revoke-' + kind,
       ['ST-061'],
-      'plugins',
+      'mcp',
       'OAuth revoke ' + kind,
       '.guide-client',
       async (env) => {
@@ -1686,7 +1537,7 @@ export const settingsScenes: Scene[] = [
   scene(
     'client-permission-conflict',
     ['ST-067', 'ST-071'],
-    'plugins',
+    'mcp',
     'Real stale grant version preserves reviewed permission draft',
     '.api-clients',
     async (env) => {
@@ -1717,7 +1568,7 @@ export const settingsScenes: Scene[] = [
     scene(
       'client-rotate-' + kind,
       ['ST-068', 'ST-071'],
-      'plugins',
+      'mcp',
       'API key rotation ' + kind + ' with no key issued',
       '.api-clients',
       async (env) => {
@@ -1752,11 +1603,11 @@ export const settingsScenes: Scene[] = [
   scene(
     'client-revoke-busy',
     ['ST-072'],
-    'plugins',
+    'mcp',
     'API client revoke request pending',
     '.api-clients',
     async (env) => {
-      await apiGuide(env);
+      await openApiClients(env);
       await clientRow(env.page).getByRole('button', { name: '撤销 API 连接', exact: true }).click();
       await clientRow(env.page)
         .getByRole('button', { name: '确认撤销 API 连接', exact: true })

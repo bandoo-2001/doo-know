@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
-import { createOperations } from '../plugins/mcp/server/operations.js';
-import { hostClient } from '../plugins/mcp/server/service.js';
+import { createOperations } from '../apps/server/mcp/operations.js';
+import { hostClient } from '../apps/server/mcp/service.js';
 import type { BlogPost } from '../shared/blog-contracts.js';
 
 const p = { id: 'fixture-owner', clientId: 'fixture-client', scopes: ['knowledge:read', 'knowledge:write', 'blog:read', 'blog:publish'], allowedPrefixes: ['00-Inbox'] };

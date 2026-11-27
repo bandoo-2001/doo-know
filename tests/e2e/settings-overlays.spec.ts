@@ -1,3 +1,4 @@
+import { setFeatureSwitch } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 import { showSource } from '../support/editor-navigation';
@@ -26,6 +27,10 @@ test('账户页面保留摘要，密码表单按需打开并在取消后清空',
 
 test('恢复密钥和备份恢复仅显示入口，任务记录始终留在页面', async ({ page }) => {
   await page.goto('/?view=settings&section=backup');
+  const actions = page.getByRole('group', { name: '备份操作', exact: true });
+  await expect(actions.getByRole('button')).toHaveCount(3);
+  for (const name of ['创建加密备份', '从备份恢复', '下载恢复密钥'])
+    await expect(actions.getByRole('button', { name, exact: true })).toBeInViewport({ ratio: 1 });
   await expect(page.getByLabel('当前密码', { exact: true })).toHaveCount(0);
   await expect(page.locator('#restore-backup-file')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '任务与结果', exact: true })).toBeVisible();
@@ -274,7 +279,11 @@ test('Git 连接草稿在取消凭据编辑后保留，凭据秘密不会再次�
       new URL(response.url()).pathname === '/api/platform/git/credentials' && response.request().method() === 'GET',
       { timeout: test.info().timeout },
     ),
-    page.goto('/?view=settings&section=library'),
+    (async () => {
+      await page.goto('/?view=settings&section=git');
+      await setFeatureSwitch(page, 'Git 版本管理', true);
+      await page.getByRole('tab', { name: '云端同步', exact: true }).click();
+    })(),
   ]);
   const panel = page.getByRole('region', { name: '云端同步面板', exact: true });
   for (const response of [status, credentials]) {
@@ -410,14 +419,11 @@ test('窄且低的深色视窗保留弹窗边界、可滚动内容与清晰文�
 });
 
 test('工作区 Git 返回保存仅确认一次，取消保留凭据草稿，放弃后回到未保存笔记', async ({ page }) => {
-  const { configurePlugin, returnToNotes, showSidebar } =
+  const { openFeatureSettings, setFeatureSwitch, returnToNotes, showSidebar } =
     await import('../support/settings-navigation');
   await page.goto('/');
-  await configurePlugin(page, 'Git 版本管理');
-  const enable = page
-    .locator('.plugin-settings')
-    .getByRole('button', { name: '启用插件', exact: true });
-  if (await enable.isVisible()) await enable.click();
+  await openFeatureSettings(page, 'Git 版本管理');
+  await setFeatureSwitch(page, 'Git 版本管理', true);
   await returnToNotes(page);
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const original = '# Return to save fixture\n';

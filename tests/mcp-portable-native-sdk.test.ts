@@ -1,3 +1,4 @@
+import { featureCapabilities } from '../shared/feature-config.js';
 import { it, expect } from 'vitest';
 import { readFile, mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -9,13 +10,13 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { pluginRuntimeFixture } from './support/plugin-runtime';
-import { pluginServices } from '../apps/server/plugins/services';
-import { pluginHost } from '../apps/server/plugins/host';
+import { integrationServices } from '../apps/server/features/services';
+import { initializeFeatureSettings } from '../packages/core/feature-settings.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants';
 import { policyScopes } from '../packages/core/auth/permissions';
-import { createOperations, registerOperations } from '../plugins/mcp/server/operations';
-import { hostClient } from '../plugins/mcp/server/service';
-import { resultSize } from '../plugins/mcp/server/budgets';
+import { createOperations, registerOperations } from '../apps/server/mcp/operations';
+import { hostClient } from '../apps/server/mcp/service';
+import { resultSize } from '../apps/server/mcp/budgets';
 import type { PermissionPolicy } from '../shared/permissions';
 import { diagramCreationService } from '../packages/core/knowledge/diagram-creation';
 import { primaryDiagramService } from '../packages/core/knowledge/primary-diagrams';
@@ -51,7 +52,7 @@ it('completes real read-only SDK export preview preparation, downloads the offli
     close: Array<() => Promise<void>> = [];
   const directory = await mkdtemp(join(tmpdir(), 'native-sdk-offline-'));
   try {
-    pluginHost(f.config, f.db);
+    initializeFeatureSettings(f.db);
     const runtime = f.platform.get(),
       principal = f.principal;
     const target = runtime.knowledge.core.create(
@@ -106,9 +107,7 @@ it('completes real read-only SDK export preview preparation, downloads the offli
     const originalAssetCount = (
       f.db.prepare('SELECT count(*) n FROM assets').get() as { n: number }
     ).n;
-    const manifest = JSON.parse(
-      await readFile(new URL('../plugins/mcp/manifest.json', import.meta.url), 'utf8'),
-    );
+    const manifest = { version: '2.0.5', capabilities: featureCapabilities.mcp };
     const policy = (actions: ('read' | 'write')[]): PermissionPolicy => ({
       version: 2,
       domains: {
@@ -150,7 +149,7 @@ it('completes real read-only SDK export preview preparation, downloads the offli
         { objectIdSecret: 'native-sdk-object-secret-at-least-thirty-two-characters' },
         hostClient(
           () =>
-            pluginServices(f.platform, f.db, 'mcp', manifest.capabilities, {
+            integrationServices(f.platform, f.db, 'mcp', manifest.capabilities, {
               ownerId: p.id,
               principal: p,
               channel: 'mcp',

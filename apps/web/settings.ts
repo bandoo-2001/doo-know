@@ -15,7 +15,13 @@ export const settingsSections: {
     key: 'library',
     label: '知识库与存储',
     icon: 'book',
-    description: '查看资料位置、空间用量与分享，导入或导出文件。',
+    description: '管理资料导入导出、存储空间和分享。',
+  },
+  {
+    key: 'git',
+    label: 'Git 版本管理',
+    icon: 'git-branch',
+    description: '设置提交署名、查看仓库状态和同步云端。',
   },
   {
     key: 'search',
@@ -36,10 +42,10 @@ export const settingsSections: {
     description: '查看后台任务、搜索准备、索引更新与写入状态。',
   },
   {
-    key: 'plugins',
-    label: '插件与连接',
+    key: 'mcp',
+    label: 'MCP 连接',
     icon: 'plug',
-    description: '管理已安装功能和外部应用连接。',
+    description: '管理 MCP 服务、客户端授权和调用记录。',
   },
   { key: 'account', label: '账号与安全', icon: 'lock', description: '管理密码和登录设备。' },
   {

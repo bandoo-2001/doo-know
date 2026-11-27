@@ -17,18 +17,13 @@ import { recoverFolders } from '../folders.js';
 import { workspaceWrite } from '../workspace/gate.js';
 import { portableLibrary } from '../portable-library.js';
 import { beginOperation, completeOperation, existingResult, sha256 } from '../knowledge/operations.js';
-import { readKnowledgeRootIdentity } from './root-identity.js';
+import { verifyKnowledgeRootIdentity } from './root-identity.js';
 export function assertRoot(config: Pick<AppConfig, 'knowledgeRoot'>, db: AppDatabase) {
-  try {
-    const identity = readKnowledgeRootIdentity(config.knowledgeRoot),
-      stored = db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as
-        | { value: string }
-        | undefined;
-    if (stored && stored.value !== identity) throw new Error();
-    if (!stored) db.prepare("INSERT INTO index_meta VALUES('root_identity',?)").run(identity);
-  } catch {
-    fail(503, 'SOURCE_UNAVAILABLE', '原文目录不可用', true);
-  }
+  const stored = db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as
+    | { value: string }
+    | undefined;
+  const identity = verifyKnowledgeRootIdentity(config.knowledgeRoot, stored?.value);
+  if (!stored) db.prepare("INSERT INTO index_meta VALUES('root_identity',?)").run(identity);
 }
 export function scopeFor(p: Principal, scope?: string) {
   requireScope(p, 'knowledge:index');

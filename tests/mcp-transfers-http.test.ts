@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
 import { openDatabase } from '../packages/core/db.js';
-import { createMcpTransferStore } from '../apps/server/plugins/mcp-transfers.js';
+import { createMcpTransferStore } from '../apps/server/mcp/mcp-transfers.js';
 
 it('serves complete downloads to the signed-in owner without bearer tokens or filesystem paths', async () => {
   const f = await createFixture(), db = openDatabase(f.dataRoot);

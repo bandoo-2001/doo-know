@@ -1,15 +1,20 @@
 <script setup lang="ts">
+import { Button as AButton } from 'ant-design-vue';
 import Icon from '../Icon.vue';
 import SearchRuntimeSettings from '../SearchRuntimeSettings.vue';
+const emit = defineEmits<{ 'open-status': [] }>();
 </script>
 <template>
   <div class="settings-stack">
     <SearchRuntimeSettings />
     <section class="settings-card">
-      <h2 class="settings-section-title"><Icon name="search" :size="18" />索引与搜索</h2>
-      <p class="settings-muted">
-        文件名搜索可以直接使用；关键词与语义搜索的实际可用情况以上方检查结果为准。新笔记保存后会进入索引队列，进度可从设置中的「后台状态」查看。
-      </p>
+      <div class="settings-item-header">
+        <div>
+          <h2 class="settings-section-title"><Icon name="search" :size="18" />索引与搜索</h2>
+          <p>保存笔记后会自动更新索引。可以在后台状态中查看进度和需要处理的项目。</p>
+        </div>
+        <AButton size="small" @click="emit('open-status')">查看索引状态</AButton>
+      </div>
     </section>
   </div>
 </template>

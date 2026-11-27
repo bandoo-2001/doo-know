@@ -387,25 +387,25 @@ const ImportContainer = defineComponent({
     <div v-if="!inline" class="transfer-action-grid">
       <SettingsActionCard
         title="批量导入"
-        description="导入 Markdown、Excalidraw 白板与附件，支持保留目录结构。"
+        description="导入笔记、白板和附件，保留目录结构。"
         icon="upload"
         action-label="批量导入"
         @open="importOpen = true"
       />
       <SettingsActionCard
-        title="导入便携包"
-        description="导入完整便携归档或解压目录，恢复主图、原件和预览。"
-        icon="upload"
-        action-label="导入便携包"
-        @open="archiveOpen = true"
-      />
-      <SettingsActionCard
         v-if="showExport"
         title="导出资料"
-        description="将整个知识库或指定目录打包，方便迁移原文。"
+        description="打包整个知识库或选定目录。"
         icon="download"
         action-label="导出资料"
         @open="exportOpen = true"
+      />
+      <SettingsActionCard
+        title="导入便携包"
+        description="从便携归档或解压目录恢复完整资料。"
+        icon="upload"
+        action-label="导入便携包"
+        @open="archiveOpen = true"
       />
     </div>
 

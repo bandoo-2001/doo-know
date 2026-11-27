@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { pluginHost } from '../apps/server/plugins/host.js';
+import { initializeFeatureSettings } from '../packages/core/feature-settings.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 import { platformPolicy } from '../packages/core/auth/grants.js';
 import { requireScope } from '../packages/core/agent/auth.js';
@@ -225,7 +225,7 @@ it('v2 blog publishing does not require source write', async () => {
 it('owner narrowing cannot widen resources and invalidates the old grant version', async () => {
   const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
   const f = await pluginRuntimeFixture();
-  pluginHost(f.config, f.db);
+  initializeFeatureSettings(f.db);
   try {
     const { narrowMcpClientGrant } =
       await import('../apps/server/platform/mcp-client-permissions.js');
@@ -277,7 +277,7 @@ it('owner narrowing cannot widen resources and invalidates the old grant version
 it('a v2 plugin ceiling can remove legacy archive and blog-read aliases', async () => {
   const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
   const f = await pluginRuntimeFixture();
-  pluginHost(f.config, f.db);
+  initializeFeatureSettings(f.db);
   try {
     const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
     const { libraryId } = syncDirectoryCatalog(f.config, f.db),
@@ -443,7 +443,7 @@ it('a persisted v1 publisher obeys the v2 blog article selection ceiling', async
   const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
   const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
   const f = await pluginRuntimeFixture();
-  pluginHost(f.config, f.db);
+  initializeFeatureSettings(f.db);
   try {
     const owner = f.principal.id,
       blog = f.platform.get().blog,
@@ -571,7 +571,7 @@ it.each(['owner', 'instance'] as const)(
     const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
     const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
     const f = await pluginRuntimeFixture();
-    pluginHost(f.config, f.db);
+    initializeFeatureSettings(f.db);
     try {
       const owner = f.principal.id,
         { libraryId } = syncDirectoryCatalog(f.config, f.db);
@@ -634,7 +634,7 @@ it.each(['archive', 'restore'] as const)(
     const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
     const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
     const f = await pluginRuntimeFixture();
-    pluginHost(f.config, f.db);
+    initializeFeatureSettings(f.db);
     try {
       const owner = f.principal.id,
         k = f.platform.get().knowledge,
@@ -769,7 +769,7 @@ it('a read-only legacy grant under a v2 ceiling can search without manual index 
   const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
   const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
   const f = await pluginRuntimeFixture();
-  pluginHost(f.config, f.db);
+  initializeFeatureSettings(f.db);
   try {
     const owner = f.principal.id,
       k = f.platform.get().knowledge,

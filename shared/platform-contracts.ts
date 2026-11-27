@@ -18,7 +18,7 @@ export interface HostConfig extends Omit<AppConfig, 'knowledgeRoot'> {
   secretFile?: string;
   applicationRoot?: string;
   profileFile?: string;
-  pluginCatalog?: import('../packages/plugin-contracts/index.js').PluginCatalogEntry[];
+  /** Used to locate old installation files during an explicit purge. */
   pluginRoot?: string;
   serviceName?: string;
   serviceManaged?: boolean;
@@ -48,8 +48,10 @@ export type PlatformPhase =
   | 'ready'
   | 'source_unavailable'
   | 'configuration_error';
+export type KnowledgeSourceProblem = 'missing' | 'replaced' | 'symlink' | 'not_directory' | 'permission_denied' | 'unavailable';
 export interface PlatformStatus {
   phase: PlatformPhase;
+  sourceProblem?: KnowledgeSourceProblem;
   setupRequired: boolean;
   configurationSource: 'deployment' | 'application' | 'none';
   knowledgeRoot?: string;

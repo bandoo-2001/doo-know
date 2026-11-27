@@ -1,8 +1,8 @@
 import { expect, it } from 'vitest';
 import { createServer } from 'node:http';
-import { activate } from '../plugins/mcp/server/index.js';
-import { BridgeError } from '../plugins/mcp/server/errors.js';
-import type { PluginContext, PluginServices, ProtocolCall } from '../packages/plugin-sdk/index.js';
+import { activate } from '../apps/server/mcp/index.js';
+import { BridgeError } from '../apps/server/mcp/errors.js';
+import type { FeatureRuntimeContext, IntegrationServices, ProtocolCall } from '../packages/core/integration-ports.js';
 
 it('routes HTTP cancellation to the original identity-bound request and releases tracking afterward', async () => {
   const protocols = new Map<string, (call: ProtocolCall) => Promise<void>>(), storage = new Map<string, unknown>();
@@ -16,12 +16,12 @@ it('routes HTTP cancellation to the original identity-bound request and releases
       release = () => resolve({ items: [] });
       options.signal.addEventListener('abort', () => { aborted = true; reject(new BridgeError('CALL_CANCELLED', 499)); }, { once: true });
     });
-  } } } as unknown as PluginServices;
+  } } } as unknown as IntegrationServices;
   activate({ config: () => ({ allowedPrefixes: ['00-Inbox'] }), secrets: { getOrCreate: () => 'isolated-http-cancellation-fixture-secret' },
     storage: { get: (key: string) => storage.get(key), set: (key: string, value: unknown) => { storage.set(key, value); } },
     registerProtocol: (id: string, handler: (call: ProtocolCall) => Promise<void>) => { protocols.set(id, handler); return () => {}; },
     registerProvider: () => () => {}, registerCommand: () => () => {}, onConfigure: () => () => {}, onDispose: (fn: () => unknown) => { disposers.push(fn); },
-  } as unknown as PluginContext);
+  } as unknown as FeatureRuntimeContext);
   const server = createServer(async (request, response) => {
     try {
       const parts: Buffer[] = []; for await (const part of request) parts.push(Buffer.from(part));

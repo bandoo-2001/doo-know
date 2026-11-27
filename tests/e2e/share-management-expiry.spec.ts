@@ -47,6 +47,7 @@ test('share management distinguishes expired links and shows their permission an
     });
   });
   await page.goto('/?view=settings&section=library');
+  await page.getByRole('tab', { name: '分享', exact: true }).click();
   const card = page.locator('section.settings-card').filter({
     has: page.getByRole('heading', { name: '共享链接', exact: true }),
   });

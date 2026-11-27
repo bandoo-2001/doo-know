@@ -1,6 +1,7 @@
 import { test, expect } from '../support/browser-test';
 import {
   openSettingsSection,
+  setFeatureSwitch,
   returnToNotes,
   showSidebar,
   closeSidebar,
@@ -33,7 +34,9 @@ test('connects an existing library, previews and pushes, then checks and pulls a
     git('-C', fixture.knowledgeRoot, 'commit', '-m', 'Checkpoint earlier browser fixtures');
 
   await page.goto('/');
-  await openSettingsSection(page, '知识库与存储');
+  await openSettingsSection(page, 'Git 版本管理');
+  await setFeatureSwitch(page, 'Git 版本管理', true);
+  await page.getByRole('tab', { name: '云端同步', exact: true }).click();
   const panel = page.getByRole('region', { name: '云端同步面板', exact: true });
   await panel.getByRole('button', { name: /^(管理同步|关联云端仓库)$/ }).click();
   const connection = page.getByRole('dialog', { name: '管理云端同步', exact: true });
@@ -45,6 +48,7 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   await expect(panel.getByText('云端仓库已连接。', { exact: true })).toBeVisible({
     timeout: 30000,
   });
+  await panel.locator('summary').filter({ hasText: '同步详情' }).click();
   await expect(
     panel.getByText('推送权限尚未验证。读取连接成功不代表可以推送。', { exact: true }),
   ).toBeVisible({ timeout: 30000 });
@@ -93,7 +97,7 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   page.on('request', (request) => {
     if (
       request.method() === 'POST' &&
-      request.url().endsWith('/api/plugins/git/call') &&
+      request.url().endsWith('/api/platform/git/actions') &&
       request.postDataJSON()?.id === 'git.commit'
     )
       commits++;
@@ -192,7 +196,7 @@ test('@git-onboarding imports from the initial page into a fresh knowledge libra
   const fixture = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
   const initial = await (await page.request.get('/api/platform/status')).json();
   expect(initial.phase).toBe('setup_required');
-  expect((await (await page.request.get('/api/platform/plugins')).json()).installed).toEqual([]);
+  expect(await (await page.request.get('/api/platform/features')).json()).toMatchObject({ git: { state: 'disabled' }, mcp: { state: 'disabled' } });
   await page.goto('/');
   await expect(page.getByRole('heading', { name: '准备你的知识库', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '从 GitHub／Gitee 导入', exact: true }).click();
@@ -227,19 +231,15 @@ test('@git-onboarding imports from the initial page into a fresh knowledge libra
   const current = await (await page.request.get('/api/platform/status')).json();
   expect(current.phase).toBe('ready');
   expect(current.knowledgeRoot).toBe(join(fixture.gitImportParent, name));
-  const registry = await (await page.request.get('/api/platform/plugins')).json();
-  expect(registry.installed.find((entry: any) => entry.id === 'git')).toMatchObject({
-    state: 'enabled',
-    installedVersion: '1.1.3',
-  });
-  expect(registry.installed.some((entry: any) => entry.id === 'mcp')).toBe(false);
+  const registry = await (await page.request.get('/api/platform/features')).json();
+  expect(registry.git.state).toBe('enabled');
+  expect(registry.mcp.state).toBe('disabled');
   expect(await readFile(join(current.knowledgeRoot, '00-Inbox/远端导入示例.md'), 'utf8')).toBe(
     fixture.gitImportContent,
   );
   const gitStatus = await (await page.request.get('/api/platform/git/status')).json();
   expect(gitStatus).toMatchObject({
-    pluginInstalled: true,
-    pluginEnabled: true,
+    enabled: true,
     repository: 'ready',
     branch: 'main',
     connection: { url: fixture.gitRemoteURL, branch: 'main' },

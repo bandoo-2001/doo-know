@@ -26,14 +26,14 @@ it('accepts previously explicit To Doo scopes in legacy grants', () => {
 
 it('enforces live independent To Doo owner, instance, list restrictions and revocation through the SDK', async () => {
   const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
-  const { pluginHost } = await import('../apps/server/plugins/host.js');
+  const { initializeFeatureSettings } = await import('../packages/core/feature-settings.js');
   const { oauthGrantStore } = await import('../apps/server/platform/oauth-grants.js');
-  const { pluginServices } = await import('../apps/server/plugins/services.js');
-  const { createOperations } = await import('../plugins/mcp/server/operations.js');
-  const { hostClient } = await import('../plugins/mcp/server/service.js');
+  const { integrationServices } = await import('../apps/server/features/services.js');
+  const { createOperations } = await import('../apps/server/mcp/operations.js');
+  const { hostClient } = await import('../apps/server/mcp/service.js');
   const f = await pluginRuntimeFixture();
   try {
-    pluginHost(f.config, f.db);
+    initializeFeatureSettings(f.db);
     const datasetId = f.platform.get().toDoo.exportCheckpoint().datasetId;
     const domain = {
       enabled: true,
@@ -71,7 +71,7 @@ it('enforces live independent To Doo owner, instance, list restrictions and revo
       tokenIssuedAt: grant.notBefore,
       pluginId: 'mcp',
     };
-    const services = pluginServices(f.platform, f.db, 'mcp', p.scopes, {
+    const services = integrationServices(f.platform, f.db, 'mcp', p.scopes, {
       ownerId: p.id,
       principal: p,
       channel: 'mcp',

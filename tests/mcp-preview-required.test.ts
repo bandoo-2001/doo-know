@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { sha256 } from '../packages/core/knowledge/operations.js';
 import { safePreviewRequiredDetails } from '../shared/mcp-preview-required.js';
 import { operationPreviewNeed } from '../shared/mcp-operation-preview-tools.js';
-import { BridgeError, annotateError, errorBody } from '../plugins/mcp/server/errors.js';
+import { BridgeError, annotateError, errorBody } from '../apps/server/mcp/errors.js';
 import { mcpResultFrameSize } from '../shared/mcp-frame.js';
 
 it('preserves the legacy primary publication hash tuple without inventing a fixed snapshot ID', () => {

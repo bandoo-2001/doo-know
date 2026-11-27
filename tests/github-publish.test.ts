@@ -27,9 +27,8 @@ it.each([['private', false], ['private', true], ['public', false]] as const)('up
     await writeFile(join(root, 'release.json'), JSON.stringify(info));
     await writeFile(join(root, 'release-1.1.0-rc.3.json'), JSON.stringify(info));
     await writeFile(join(root, 'release.txt'), `1.1.0-rc.3 dooknow-1.1.0-rc.3-linux-x64.tar.gz ${info.sha256}\n`);
-    await writeFile(join(root, 'catalog.json'), '[]');
     await writeFile(join(root, 'install.sh'), '#!/bin/bash\n# __DOOKNOW_GITHUB_APPLICATION_ASSET__ __DOOKNOW_GITHUB_RELEASE_TXT_ASSET__\n');
-    const assets: any[] = resume ? [{ id: 99, name: 'catalog.json', size: 2, state: 'uploaded', digest: 'sha256:' + hash('[]') }] : [], writes: any[] = []; let tagExists = resume;
+    const assets: any[] = resume ? [{ id: 99, name: info.file, size: 'application'.length, state: 'uploaded', digest: 'sha256:' + info.sha256 }] : [], writes: any[] = []; let tagExists = resume;
     vi.stubGlobal('fetch', async (input: any, init: any = {}) => {
       const url = new URL(input), method = init.method || 'GET';
       if (method !== 'GET') writes.push({ url: url.pathname, method, body: typeof init.body === 'string' ? JSON.parse(init.body) : undefined });
@@ -50,7 +49,7 @@ it.each([['private', false], ['private', true], ['public', false]] as const)('up
     const bootstrap = join(root, 'bootstrap.sh');
     const verification = await writeTestReleaseEvidence(root, commit);
     const result = await publishGithubRelease({ directory: root, repository: 'owner/private', tag: 'v1.1.0-rc.3', commit, token: 'fixture_github_012345678901234567890123456789', bootstrap, verification, visibility });
-    expect(result.assets).toHaveLength(6);
+    expect(result.assets).toHaveLength(5);
     expect(result.private).toBe(visibility === 'private');
     const created = writes.find(w => w.method === 'POST' && w.url.endsWith('/releases'));
     if (resume) expect(created).toBeUndefined();
@@ -77,7 +76,7 @@ it('rejects public repositories, a moved tag, and files changed after the initia
     await writeFile(join(root, info.file), 'application');
     for (const file of ['release.json', 'release-1.1.0-rc.3.json']) await writeFile(join(root, file), JSON.stringify(info));
     await writeFile(join(root, 'release.txt'), `1.1.0-rc.3 ${info.file} ${info.sha256}\n`);
-    await writeFile(join(root, 'catalog.json'), '[]'); await writeFile(join(root, 'install.sh'), '#!/bin/bash\n');
+    await writeFile(join(root, 'install.sh'), '#!/bin/bash\n');
     const verification = await writeTestReleaseEvidence(root, commit);
     const options = { directory: root, repository: 'owner/private', tag: 'v1.1.0-rc.3', commit, token: 'fixture_github_012345678901234567890123456789', bootstrap: join(root, 'bootstrap.sh'), verification };
     vi.stubGlobal('fetch', async () => Response.json({ private: false }));

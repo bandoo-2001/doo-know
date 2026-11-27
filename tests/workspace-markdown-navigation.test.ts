@@ -145,14 +145,15 @@ async function mount(waitForNote = true) {
       if (id === '../blog-workbench') return blogWorkbench;
       if (id === '../blog-diagrams') return blogDiagrams;
       if (id === '../to-doo-capture') return toDooCapture;
-      if (id === '../plugins')
+      if (id === '../git/status') return { refreshGitStatus: async () => {}, clearGitStatus: () => {} };
+      if (id === '../features')
         return {
-          refreshPlugins: async () => {},
-          disposePluginUIs: async () => {},
-          pluginRegistry: Vue.ref([]),
+          refreshFeatures: async () => {},
+          clearFeatures: async () => {},
+          features: Vue.ref({}),
         };
       if (id === '../git-sync') return { gitUnsaved: Vue.ref(false) };
-      if (id === '../plugin-drafts') return { clearPluginDrafts: vi.fn() };
+      if (id === '../mcp-settings-draft') return { clearMcpSettings: vi.fn() };
       if (id === '../useNoteDraft')
         return {
           useNoteDraft: (context: any, restore: any) =>

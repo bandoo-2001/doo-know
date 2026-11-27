@@ -52,34 +52,56 @@ onMounted(() => void load());
 </script>
 <template>
   <div class="settings-stack">
-    <section class="settings-card">
-      <div class="settings-item-header">
-        <div>
+    <div class="settings-action-grid about-overview">
+      <section class="settings-card">
+        <div class="settings-item-header">
           <h2 class="settings-section-title"><Icon name="book" :size="18" />DooKnow</h2>
-          <p>让原文成为可以持续使用的知识。</p>
+          <AButton size="small" :loading="busy" @click="load">
+            <template #icon
+              ><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+            >刷新信息</AButton
+          >
         </div>
-        <AButton size="small" :loading="busy" @click="load"
-          ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
-          >刷新信息</AButton
-        >
-      </div>
-      <AAlert v-if="error" type="error" :message="error" />
-      <p v-if="busy && !state" role="status">正在读取应用信息…</p>
-      <template v-if="state"
-        ><p>服务版本 {{ state.release.version }}</p>
+        <AAlert v-if="error" type="error" :message="error" />
+        <p v-if="busy && !state" role="status">正在读取应用信息…</p>
+        <template v-if="state">
+          <p class="release-version">
+            服务版本 <strong>{{ state.release.version }}</strong>
+          </p>
+          <p class="settings-muted">
+            运行环境：{{ environments[state.release.environment] || state.release.environment }}
+          </p>
+          <details>
+            <summary>查看功能状态</summary>
+            <p>
+              知识库{{ state.library.ready ? '可用' : '尚未就绪' }} · 共享{{
+                state.capabilities.shares ? '可用' : '尚未就绪'
+              }}
+              · 回收站{{ state.capabilities.trash ? '可用' : '尚未就绪' }} · 设备管理可用
+            </p>
+          </details>
+        </template>
+      </section>
+      <section class="settings-card">
+        <h2 class="settings-section-title"><Icon name="activity" :size="18" />诊断与支持</h2>
         <p class="settings-muted">
-          运行环境：{{ environments[state.release.environment] || state.release.environment }}
+          下载版本、功能状态和数量统计。笔记正文、密码、密钥和私有目录已排除。
         </p>
-        <p class="settings-muted">
-          知识库{{ state.library.ready ? '可用' : '尚未就绪' }} · 共享{{
-            state.capabilities.shares ? '可用' : '尚未就绪'
-          }}
-          · 回收站{{ state.capabilities.trash ? '可用' : '尚未就绪' }} · 设备管理可用
-        </p></template
-      >
-    </section>
-    <section class="settings-card">
-      <h2 class="settings-section-title"><Icon name="help" :size="18" />使用帮助</h2>
+        <AAlert v-if="diagnosticError" type="error" :message="diagnosticError" />
+        <div class="settings-actions">
+          <AButton :loading="diagnosticBusy" @click="diagnostics"
+            ><template #icon
+              ><Icon class="settings-button-icon" name="download" :size="15" /></template
+            >下载脱敏诊断</AButton
+          ><span class="settings-success" role="status">{{ notice }}</span>
+        </div>
+      </section>
+    </div>
+    <details class="settings-card settings-disclosure">
+      <summary>
+        <span class="settings-section-title"><Icon name="help" :size="18" />使用帮助</span
+        ><Icon name="chevron" :size="15" />
+      </summary>
       <ul class="settings-muted">
         <li>笔记采用手动保存，按 <kbd>Ctrl / ⌘ + S</kbd> 保存内容。</li>
         <li>在左侧目录选择笔记，使用顶部搜索查找内容。</li>
@@ -88,7 +110,7 @@ onMounted(() => void load());
         <li>设置中的「后台状态」显示检索、写入和后台任务进度。</li>
         <li>弹窗打开时按 <kbd>Esc</kbd> 关闭允许关闭的弹窗。</li>
       </ul>
-    </section>
+    </details>
     <section class="settings-card">
       <h2 class="settings-section-title"><Icon name="refresh" :size="18" />更新与回退</h2>
       <p class="settings-muted">
@@ -97,7 +119,7 @@ onMounted(() => void load());
       <details class="settings-muted">
         <summary>查看操作顺序</summary>
         <ol>
-          <li>先保存笔记和插件配置，再确认备份与恢复密钥可用。</li>
+          <li>先保存笔记和设置，再确认备份与恢复密钥可用。</li>
           <li>
             正式安装使用主机终端运行
             <code>dooknow update</code
@@ -120,19 +142,14 @@ onMounted(() => void load());
         >
       </details>
     </section>
-    <section class="settings-card">
-      <h2 class="settings-section-title"><Icon name="activity" :size="18" />诊断与支持</h2>
-      <p class="settings-muted">
-        下载当前版本、功能状态与数量统计，便于排查问题。诊断不包含笔记正文、密码、密钥或私有目录路径。
-      </p>
-      <AAlert v-if="diagnosticError" type="error" :message="diagnosticError" />
-      <div class="settings-actions">
-        <AButton :loading="diagnosticBusy" @click="diagnostics"
-          ><template #icon
-            ><Icon class="settings-button-icon" name="download" :size="15" /></template
-          >下载脱敏诊断</AButton
-        ><span class="settings-success" role="status">{{ notice }}</span>
-      </div>
-    </section>
   </div>
 </template>
+
+<style scoped>
+.release-version {
+  margin: 10px 0 4px;
+}
+.release-version strong {
+  font-variant-numeric: tabular-nums;
+}
+</style>

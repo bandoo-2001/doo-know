@@ -2,7 +2,7 @@ import { expect, type Page } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { closeSidebar, showSidebar, showMainMenu, configurePlugin } from '../../tests/support/settings-navigation';
+import { closeSidebar, showSidebar, showMainMenu, openFeatureSettings, setFeatureSwitch } from '../../tests/support/settings-navigation';
 import { showSource, showRead, showSplit } from '../../tests/support/editor-navigation';
 import { clickNoteAction } from '../../tests/support/note-actions';
 import { openGraphPanel, chooseGraphMode } from '../../tests/support/graph-navigation';
@@ -34,9 +34,8 @@ async function rich({ page }: SceneEnv) {
 }
 async function share({ page }: SceneEnv) { await button(page, '分享').click(); }
 async function mcp(env: SceneEnv) {
-  await configurePlugin(env.page, 'MCP 服务');
-  const enable = env.page.locator('.plugin-settings').getByRole('button', { name: '启用插件', exact: true });
-  if (await enable.isVisible()) await enable.click();
+  await openFeatureSettings(env.page, 'MCP 服务');
+  await setFeatureSwitch(env.page, 'MCP 服务', true);
 }
 async function guestEditor({ page }: SceneEnv) {
   await button(page, '编辑笔记').click();
@@ -130,12 +129,12 @@ export const scenes: Scene[] = [
   { id: 'account-menu', sourceIds: ['WS-097'], title: '个人账户菜单', state: 'Open account menu', role: 'owner', path: '/', target: '.account-popup', open: async ({ page }) => { await showMainMenu(page); await button(page, '个人账户').click(); }, window: true, tests: ['tests/e2e/app-main-menu.spec.ts'] },
   { id: 'compact-navigation', sourceIds: ['WS-098'], title: '更多导航', state: 'Open actual compact navigation sheet', role: 'owner', path: '/', target: '.workspace-footer', open: async ({ page }) => { await showMainMenu(page); }, widths: [390, 320, 360, 844, 820], tests: ['tests/e2e/responsive-tabbar.spec.ts'] },
   { id: 'trash-empty', sourceIds: ['WS-107', 'WS-110'], title: '回收站', state: 'Actual empty trash response', role: 'owner', path: '/?view=trash', target: '.trash-workspace', tests: ['tests/e2e/folder-trash.spec.ts'] },
-  ...['editor', 'library', 'search', 'backup', 'status', 'plugins', 'account', 'about'].map((section, i): Scene => ({
+  ...['editor', 'library', 'search', 'backup', 'status', 'mcp', 'account', 'about'].map((section, i): Scene => ({
     ...setting('settings-' + section, [['ST-001'], ['ST-002', 'ST-013', 'ST-014', 'ST-016', 'ST-025', 'ST-028', 'ST-037', 'ST-074'], ['ST-003', 'ST-038'], ['ST-004', 'ST-029', 'ST-034'], ['ST-005'], ['ST-006', 'ST-047'], ['ST-007'], ['ST-008']][i], section, 'Actual settings ' + section, '.settings-workspace'), representative: true,
   })),
   { ...setting('shortcuts', ['ST-009'], 'editor', 'Keyboard operations dialog', dialog('键盘操作'), click('查看快捷键')), window: true, representative: true,
     afterCapture: async ({ page }) => { await page.keyboard.press('Escape'); await expect(page.getByRole('dialog', { name: '键盘操作', exact: true })).toBeHidden(); await expect(button(page, '查看快捷键')).toBeFocused(); return { escape: 'closed', focusReturn: 'trigger' }; } },
-  setting('preferences-preview', ['ST-010'], 'editor', 'Expanded preference preview', '[aria-label="编辑器显示预览"]', async ({ page }) => { await page.locator('summary').filter({ hasText: '显示预览' }).click(); }),
+  setting('preferences-preview', ['ST-010'], 'editor', 'Expanded preference preview', '[aria-label="编辑器显示预览"]', async ({ page }) => { await page.getByRole('tab', { name: '阅读外观', exact: true }).click(); await page.locator('summary').filter({ hasText: '显示预览' }).click(); }),
   setting('preferences-dirty', ['ST-011'], 'editor', 'Unsaved preference controls', '.settings-workspace', async ({ page }) => { await page.getByRole('switch', { name: '自动换行', exact: true }).click(); await expect(button(page, '取消更改')).toBeEnabled(); }),
   setting('status-details', ['ST-041'], 'status', 'Actual expanded service details', '.settings-workspace', async ({ page }) => { for (const summary of await page.locator('summary').all()) { if (await summary.isVisible()) await summary.click(); } }),
   ...[['password', 'ST-043', 'account', '修改密码'], ['recovery-key', 'ST-030', 'backup', '下载恢复密钥'], ['restore-backup', 'ST-032', 'backup', '从备份恢复'], ['import-files', 'ST-018', 'library', '批量导入'], ['import-portable', 'ST-022', 'library', '导入便携包'], ['export-files', 'ST-024', 'library', '导出资料']].map(([id, sourceId, section, title]): Scene => ({
@@ -162,22 +161,14 @@ export const scenes: Scene[] = [
       }
       expect(submitted).toBe(0);
     }), window: true })),
-  { ...setting('git-connection', ['ST-075'], 'library', 'Manage cloud sync drawer', dialog('管理云端同步'), async ({ page }) => { await page.getByRole('region', { name: '云端同步面板', exact: true }).getByRole('button', { name: /^(管理同步|关联云端仓库)$/ }).click(); }), window: true, representative: true },
-  { ...setting('git-credentials', ['ST-076'], 'library', 'HTTPS credential child dialog', dialog('添加凭据'), async ({ page }) => {
+  { ...setting('git-connection', ['ST-075'], 'git', 'Manage cloud sync drawer', dialog('管理云端同步'), async ({ page }) => { await setFeatureSwitch(page, 'Git 版本管理', true); await page.getByRole('tab', { name: '云端同步', exact: true }).click(); await page.getByRole('region', { name: '云端同步面板', exact: true }).getByRole('button', { name: /^(管理同步|关联云端仓库)$/ }).click(); }), window: true, representative: true },
+  { ...setting('git-credentials', ['ST-076'], 'git', 'HTTPS credential child dialog', dialog('添加凭据'), async ({ page }) => { await setFeatureSwitch(page, 'Git 版本管理', true); await page.getByRole('tab', { name: '云端同步', exact: true }).click();
     await page.getByRole('region', { name: '云端同步面板', exact: true }).getByRole('button', { name: /^(管理同步|关联云端仓库)$/ }).click(); await button(page, '添加凭据').click();
   }), window: true, representative: true },
-  setting('plugin-catalog', ['ST-048'], 'plugins', 'Add plugin catalog', '.plugin-manager', async ({ page }) => { await page.getByRole('tab', { name: '添加插件', exact: true }).click(); }),
-  setting('mcp-config', ['ST-049', 'ST-056', 'ST-057', 'ST-059', 'ST-062', 'ST-073'], 'plugins', 'Actual MCP settings and domain policy', '.plugin-settings', mcp),
-  setting('mcp-api-guide', ['ST-058', 'ST-064'], 'plugins', 'API key connection guide', '.plugin-settings', async env => { await mcp(env); await click('API Key 接入')(env); }),
-  { ...setting('mcp-create-client', ['ST-065'], 'plugins', 'Create API client form', '.mcp-api-client-form, [aria-label="创建 API 客户端"], .api-client-form', async env => { await mcp(env); await click('API Key 接入')(env); await click('创建 API 客户端')(env); }), window: true },
-  setting('git-plugin-config', ['ST-050', 'ST-082'], 'plugins', 'Actual Git plugin settings', '.plugin-settings', async ({ page }) => { await configurePlugin(page, 'Git 版本管理'); }),
-  { ...setting('plugin-uninstall', ['ST-053'], 'plugins', 'Uninstall confirmation only', dialog('卸载插件'), async env => {
-    await mcp(env);
-    await env.page.locator('.plugin-settings').getByRole('button', { name: '卸载插件', exact: true }).click();
-    const window = env.page.getByRole('dialog', { name: '卸载插件', exact: true });
-    await expect(window.getByText('卸载后保留插件配置与数据。', { exact: true })).toBeVisible();
-    await expect(window.getByRole('button', { name: '确认卸载', exact: true })).toBeEnabled();
-  }), window: true },
+  setting('mcp-config', ['ST-049', 'ST-056', 'ST-057', 'ST-059', 'ST-062', 'ST-073'], 'mcp', 'Actual MCP settings and domain policy', '[aria-label="MCP 服务设置"]', mcp),
+  setting('mcp-api-guide', ['ST-058', 'ST-064'], 'mcp', 'API key connection guide', '[aria-label="MCP 服务设置"]', async env => { await mcp(env); await env.page.getByRole('tab', { name: '接入指南', exact: true }).click(); await click('API Key 接入')(env); }),
+  { ...setting('mcp-create-client', ['ST-065'], 'mcp', 'Create API client form', '.mcp-api-client-form, [aria-label="创建 API 客户端"], .api-client-form', async env => { await mcp(env); await env.page.getByRole('tab', { name: '接入指南', exact: true }).click(); await click('API Key 接入')(env); await click('管理 API Key')(env); await click('创建 API 客户端')(env); }), window: true },
+  setting('git-plugin-config', ['ST-050', 'ST-082'], 'git', 'Actual Git settings', '[aria-label="Git 版本管理"]', async ({ page }) => { await openFeatureSettings(page, 'Git 版本管理'); }),
   { id: 'login', sourceIds: ['PB-001'], title: '登录', state: 'Empty required fields; submit disabled', role: 'anonymous', path: '/', target: '.login-card', representative: true, tests: ['tests/e2e/login-help.spec.ts'] },
   { id: 'login-help', sourceIds: ['PB-002'], title: '首次使用帮助', state: 'Expanded account source help', role: 'anonymous', path: '/', target: '.login-card', open: async ({ page }) => { await page.getByText('第一次使用或还没有账号？', { exact: true }).click(); }, tests: ['tests/e2e/login-help.spec.ts'] },
   { id: 'session-unavailable', sourceIds: ['PB-005'], title: '登录状态读取失败', state: 'Actual bootstrap transport failure with working retry', role: 'anonymous', path: '/', target: '.share-error', readiness: 'target',

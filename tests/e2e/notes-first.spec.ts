@@ -1,4 +1,4 @@
-import { configurePlugin, showMainMenu } from '../support/settings-navigation';
+import { openFeatureSettings, showMainMenu } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
@@ -114,27 +114,27 @@ test('allows keyboard and pointer resizing of the desktop directory and remember
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test('explains invalid plugin input and confirms a successful save without sending invalid data', async ({
+test('explains invalid MCP input and confirms a successful save without sending invalid data', async ({
   page,
   context,
 }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
-  await configurePlugin(page, 'MCP 服务');
+  await openFeatureSettings(page, 'MCP 服务');
   const input = page.getByRole('textbox', { name: '允许访问的目录', exact: true });
   const original = await input.inputValue();
   const invalid = '00-Inbox\n../private';
   let saves = 0;
   page.on('request', (r) => {
-    if (r.method() === 'PUT' && r.url().endsWith('/plugins/mcp/config')) saves++;
+    if (r.method() === 'PUT' && r.url().endsWith('/mcp/config')) saves++;
   });
   await input.fill(invalid);
-  await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
-  await expect(page.locator('.plugin-feedback.ant-alert-error')).toContainText('允许访问的目录格式不正确');
+  await page.getByRole('button', { name: '保存 MCP 配置', exact: true }).click();
+  await expect(page.locator('[aria-label="MCP 服务设置"] .ant-alert-error')).toContainText('每行填写一个知识库相对目录或文件');
   expect(saves).toBe(0);
   await expect(input).toHaveValue(invalid);
-  await input.fill(original);
-  await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
-  await expect(page.getByRole('status').filter({ hasText: '插件配置已保存' })).toBeVisible();
+  await input.fill(original === '00-Inbox' ? 'README.md' : '00-Inbox');
+  await page.getByRole('button', { name: '保存 MCP 配置', exact: true }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'MCP 配置已保存。' })).toBeVisible();
   expect(saves).toBe(1);
 });

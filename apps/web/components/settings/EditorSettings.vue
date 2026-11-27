@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import Icon from '../Icon.vue';
-import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { Button as AButton, Select as ASelect, Switch as ASwitch } from 'ant-design-vue';
-import { editorPreferences, setEditorPreferences } from '../../preferences';
+import { editorSettingsDraft as draft, editorPreferencesPersisted, hasUnsavedEditorSettings, discardEditorSettingsDraft, setEditorPreferences } from '../../preferences';
 import { documentEditorEnabled } from '../../editor/compatibility';
+import SettingsTabs from './SettingsTabs.vue';
 import SettingsActionCard from './SettingsActionCard.vue';
 import SettingsOverlay from './SettingsOverlay.vue';
 const documentEditingEnabled = documentEditorEnabled();
 const emit = defineEmits<{ 'preferences-changed': [] }>();
-const draft = reactive({ ...editorPreferences });
 const notice = ref('');
 const shortcutsOpen = ref(false);
+const tabs = [{ key: 'editing', label: '编辑行为' }, { key: 'reading', label: '阅读外观' }] as const;
+const activeTab = ref<(typeof tabs)[number]['key']>('editing');
 const shortcuts = [
   ['保存笔记', 'Ctrl / ⌘ + S'],
   ['撤销', 'Ctrl / ⌘ + Z'],
@@ -31,11 +33,7 @@ onBeforeUnmount(() => appearanceQuery?.removeEventListener('change', updateSyste
 const previewTheme = computed(() =>
   draft.theme === 'system' ? (systemDark.value ? 'dark' : 'light') : draft.theme,
 );
-const dirty = computed(() =>
-  Object.keys(draft).some(
-    (key) => draft[key as keyof typeof draft] !== editorPreferences[key as keyof typeof draft],
-  ),
-);
+const dirty = computed(hasUnsavedEditorSettings);
 const readingLabels = { comfortable: '舒适宽度', wide: '宽屏阅读', full: '铺满区域' };
 const previewWidth = computed(
   () => ({ comfortable: '78%', wide: '92%', full: '100%' })[draft.readingWidth],
@@ -50,18 +48,20 @@ watch(
   { flush: 'sync' },
 );
 function cancel() {
-  Object.assign(draft, editorPreferences);
+  discardEditorSettingsDraft();
   notice.value = '已取消未保存的更改';
 }
 
-watch(editorPreferences, (value) => Object.assign(draft, value));
+watch(() => draft.editorKind, (kind) => {
+  if (documentEditingEnabled && kind === 'document' && draft.mode === 'split') draft.mode = 'edit';
+}, { flush: 'sync' });
 function save() {
-  setEditorPreferences({
+  const persisted = setEditorPreferences({
     ...draft,
     ...(!documentEditingEnabled && draft.mode === 'split' ? { editorKind: 'source' as const } : {}),
   });
-  Object.assign(draft, editorPreferences);
-  notice.value = '编辑器偏好已保存';
+  discardEditorSettingsDraft();
+  notice.value = persisted ? '编辑器偏好已保存' : '偏好已应用到当前页面。浏览器存储不可用，刷新后需要重新设置。';
   emit('preferences-changed');
 }
 function reset() {
@@ -82,7 +82,7 @@ function reset() {
     <section class="settings-card">
       <h2 class="settings-section-title"><Icon name="file" :size="18" />编辑与阅读</h2>
       <p class="settings-muted">
-        设置保存在当前账户的这台浏览器中。保存后用于笔记显示，原文格式保持不变。
+        偏好保存在当前账户使用的这台浏览器中。
       </p>
       <div class="editor-settings-toolbar">
         <div class="settings-actions" role="group" aria-label="编辑器偏好操作">
@@ -97,12 +97,15 @@ function reset() {
           >
         </div>
         <p class="editor-settings-status" role="status">
-          <span :class="notice && !dirty ? 'settings-success' : 'settings-muted'">{{
-            notice || (dirty ? '有未保存的更改' : '当前偏好已保存')
+          <span :class="notice && !dirty && editorPreferencesPersisted ? 'settings-success' : 'settings-muted'">{{
+            notice || (dirty ? '有未保存的更改' : editorPreferencesPersisted ? '当前偏好已保存' : '当前偏好仅在此页面生效')
           }}</span>
         </p>
       </div>
       <form id="editor-preferences-form" @submit.prevent="save" @change="notice = ''">
+        <SettingsTabs v-model="activeTab" :tabs="tabs" label="编辑偏好选项">
+          <template #default="{ tab }">
+          <template v-if="tab.key === 'editing'">
         <div v-if="documentEditingEnabled" class="settings-row">
           <div>
             <label for="pref-editor-kind">默认编辑方式</label>
@@ -154,6 +157,8 @@ function reset() {
           </div>
           <ASwitch id="pref-lines" aria-label="显示行号" v-model:checked="draft.lineNumbers" />
         </div>
+          </template>
+          <template v-else>
         <div class="settings-row">
           <label for="pref-size">文字大小</label
           ><ASelect
@@ -242,6 +247,9 @@ function reset() {
             </p>
           </section>
         </details>
+          </template>
+          </template>
+        </SettingsTabs>
       </form>
     </section>
     <SettingsActionCard

@@ -1,7 +1,7 @@
 import { ref } from 'vue';
-import { api, ApiError } from './api';
+import { ApiError } from './api';
 export const gitUnsaved = ref(false);
-/** Existing plugin note updates use noteId; remote pulls refresh the whole workspace. */
+/** Single-note updates use noteId; remote pulls refresh the whole workspace. */
 export interface WorkspaceChangeDetail {
   scope?: 'workspace';
   noteId?: string;
@@ -46,7 +46,7 @@ const messages: Record<string, string> = {
   GIT_JOB_CANCELLED: '任务已取消。请刷新核对本地与云端状态。',
   GIT_CREDENTIAL_NOT_FOUND: '凭据已移除或临时凭据已过期，请重新选择认证。',
   GIT_CREDENTIAL_REQUIRED: '请为这个私有仓库选择凭据。',
-  GIT_AUTHOR_REQUIRED: '请先设置版本记录的提交作者和邮箱。',
+  GIT_AUTHOR_REQUIRED: '请填写提交作者和邮箱。可在当前提交面板或“设置 → Git 版本管理 → 提交署名”中保存。',
   GIT_PREVIEW_CHANGED: '预览后文件发生变化，请重新预览。',
   INVALID_GIT_PREVIEW: '预览已经失效，请重新预览。',
   GIT_PREVIEW_EXPIRED: '预览已经过期，请重新预览。',
@@ -57,14 +57,15 @@ const messages: Record<string, string> = {
   GIT_BUSY: '另一个仓库任务正在进行，请等待完成。',
   GIT_JOB_BUSY: '另一个仓库任务正在进行，请等待完成。',
   GIT_NOT_INSTALLED: '系统 Git 尚未准备好，请让部署者安装 Git 2.39 或更新版本。',
-  GIT_PLUGIN_DISABLED: '请先启用 Git 插件。',
+  GIT_DISABLED: '请先启用 Git 版本管理。',
+  CONFIG_VERSION_CONFLICT: 'Git 署名已在其他位置更新，请重新读取已保存设置。',
+  PORTABLE_GIT_SETTINGS_UNAVAILABLE: '暂时无法读取仓库中的 Git 署名设置。',
   GIT_UNSUPPORTED_TREE: '云端包含链接或子模块等不支持的文件，不会覆盖本地资料。',
   DIRECTORY_EXISTS: '目标文件夹已经存在，请换一个知识库名称或保存位置。',
   INVALID_LIBRARY_NAME: '请填写知识库名称，不要包含斜杠，也不要以点开头。',
-  FORBIDDEN_KNOWLEDGE_ROOT: '这个位置不能用于保存资料，请换一个保存位置。',
-  PLUGIN_INSTALL_FAILED: '功能添加失败。请刷新核对安装状态后重试。',
-  PLUGIN_DOWNLOAD_TIMEOUT: '下载超时，请检查部署设备的网络或下载代理，再核对安装状态。',
-  PLUGIN_INSTALL_INTERRUPTED: '安装被中断，结果待核对。请刷新安装状态后重试。',
+  FORBIDDEN_KNOWLEDGE_ROOT: '请在允许的资料目录内选择独立的文件夹，或留空使用推荐位置。',
+  INVALID_KNOWLEDGE_ROOT: '请填写服务器上已有文件夹的完整路径，或留空使用推荐位置。',
+  DIRECTORY_NOT_WRITABLE: '服务账号无法写入这个位置，请选择可读写的服务器文件夹。',
 };
 export function gitError(value: unknown): string {
   const code =
@@ -90,93 +91,6 @@ export const jobPhases: Record<string, string> = {
   updating_files: '更新本地原文',
   refreshing: '刷新目录与搜索索引',
   complete: '已完成',
-  downloading: '下载插件',
-  verifying: '校验安装包',
-  installing: '安装插件',
 };
-export interface PluginInstallation {
-  id: string;
-  pluginId: string;
-  version: string;
-  requestId?: string;
-  status: 'queued' | 'running' | 'succeeded' | 'failed' | 'needs_reconciliation';
-  phase: string;
-  error?: string;
-}
 export const jobPending = (job?: { status: string } | null) =>
   !!job && ['queued', 'running'].includes(job.status);
-function wait(signal?: AbortSignal) {
-  return new Promise<void>((resolve, reject) => {
-    const abort = () => {
-      clearTimeout(timer);
-      reject(new DOMException('已离开页面', 'AbortError'));
-    };
-    const timer = setTimeout(() => {
-      signal?.removeEventListener('abort', abort);
-      resolve();
-    }, 450);
-    if (signal?.aborted) abort();
-    else signal?.addEventListener('abort', abort, { once: true });
-  });
-}
-/** Check server receipts before every new install, including after a browser reload/lost response. */
-export async function installPlugin(
-  id: string,
-  options: {
-    signal?: AbortSignal;
-    onUpdate?: (job: PluginInstallation) => void;
-    receiptId?: string;
-  } = {},
-) {
-  const current = () => {
-    if (options.signal?.aborted) throw new DOMException('已离开页面', 'AbortError');
-  };
-  current();
-  // Resume a known receipt directly: terminal transitions must never become a new install.
-  const receipt = options.receiptId
-    ? await api<PluginInstallation>(
-        '/api/platform/plugin-installations/' + encodeURIComponent(options.receiptId),
-      )
-    : undefined;
-  current();
-  if (receipt && receipt.pluginId !== id)
-    throw new ApiError(409, { code: 'PLUGIN_INSTALL_FAILED' });
-  const list = receipt
-    ? undefined
-    : await api<{ items: PluginInstallation[] }>('/api/platform/plugin-installations');
-  current();
-  let job = receipt || list?.items.find((entry) => entry.pluginId === id && jobPending(entry));
-  if (!job) {
-    const requestId = crypto.randomUUID();
-    try {
-      job = await api<PluginInstallation>('/api/platform/plugin-installations', 'POST', {
-        id,
-        requestId,
-      });
-    } catch (error) {
-      // A timed out POST may have started installation. Do not issue another POST.
-      current();
-      const receipt = await api<{ items: PluginInstallation[] }>(
-        '/api/platform/plugin-installations',
-      );
-      job = receipt.items.find(
-        (entry) => entry.requestId === requestId || (entry.pluginId === id && jobPending(entry)),
-      );
-      if (!job) throw error;
-    }
-  }
-  while (true) {
-    current();
-    options.onUpdate?.(job);
-    if (!jobPending(job)) {
-      if (job.status !== 'succeeded')
-        throw new ApiError(409, { code: job.error || 'PLUGIN_INSTALL_INTERRUPTED' });
-      return job;
-    }
-    await wait(options.signal);
-    current();
-    job = await api<PluginInstallation>(
-      '/api/platform/plugin-installations/' + encodeURIComponent(job.id),
-    );
-  }
-}

@@ -53,7 +53,7 @@ def source_relationship(commit, changed, row):
     if git_is_old[commit]:
         return "historical application"
     changed = set(changed)
-    catalog_files = {'plugins/mcp/manifest.json','plugins/git/manifest.json'}
+    catalog_files = {'shared/feature-config.ts','shared/feature-contracts.ts'}
     ids = set(row.get('sourceIds', []))
     if changed & catalog_files and (scene in ('plugin-catalog','settings-plugins','plugin-uninstall') or ids & {'ST-047','ST-048','ST-049','ST-050','ST-051','ST-052','ST-053','ST-054'}):
         return 'earlier plugin catalog versions; scoped layout reference only'

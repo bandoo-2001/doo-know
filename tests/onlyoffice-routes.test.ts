@@ -1,9 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { crc32 } from 'node:zlib';
 import { jwtVerify, SignJWT } from 'jose';
 import { afterEach, expect, it, vi } from 'vitest';
@@ -11,8 +9,6 @@ import { officeFormats, type OfficeFormat } from '../packages/core/onlyoffice/fo
 import { extractIndexedOfficeText } from '../packages/core/onlyoffice/extract.js';
 import { pdfOcrConfiguration } from '../packages/core/onlyoffice/pdf-ocr.js';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
-// @ts-expect-error build tool is plain ESM
-import { buildPlugins } from '../scripts/build-plugins.mjs';
 
 function docx(text: string) {
   return packageBytes([
@@ -148,7 +144,6 @@ it('serves the latest native Office text and owner-only originals through packag
     response.end(officeFile(type, updatedMarker(type)));
   });
   await new Promise<void>((resolve) => editor.listen(0, '127.0.0.1', resolve));
-  const artifacts = await mkdtemp(join(tmpdir(), 'dooknow-office-mcp-'));
   let fixture: Awaited<ReturnType<typeof createFixture>> | undefined;
   const officeKey = 'office-index-fixture-key-at-least-thirty-two-characters';
   try {
@@ -158,20 +153,13 @@ it('serves the latest native Office text and owner-only originals through packag
     vi.stubEnv('DOOKNOW_ONLYOFFICE_APP_URL', undefined);
     vi.stubEnv('DOOKNOW_ONLYOFFICE_JWT_SECRET_FILE', undefined);
     vi.stubEnv('DOOKNOW_ONLYOFFICE_JWT_SECRET', officeKey);
-    const catalog = await buildPlugins({
-      output: artifacts,
-      ids: ['mcp'],
-      baseURL: pathToFileURL(artifacts + '/').href,
-    });
     const f = (fixture = await createFixture({
-      pluginCatalog: catalog,
       indexing: { watch: false },
     }));
     const headers = await loginFixtureOwner(f);
     const post = (url: string, payload: Record<string, unknown> = {}) =>
       f.app.inject({ method: 'POST', url, headers, payload });
-    const installed = await post('/api/platform/plugins/mcp/install');
-    expect(installed.statusCode, installed.body).toBe(200);
+    const { mcp } = (await f.app.inject({ url: '/api/platform/features', headers })).json();
     const permission = await f.app.inject({ url: '/api/platform/mcp/permissions', headers });
     expect(permission.statusCode, permission.body).toBe(200);
     const policy = permission.json().policy;
@@ -179,15 +167,15 @@ it('serves the latest native Office text and owner-only originals through packag
     const externalWebOrigin = 'https://office-research.example';
     const configured = await f.app.inject({
       method: 'PUT',
-      url: '/api/platform/plugins/mcp/config',
+      url: '/api/platform/mcp/config',
       headers,
       payload: {
-        configVersion: installed.json().configVersion,
+        configVersion: mcp.configVersion,
         values: { externalWebOrigin, permissionPolicy: policy },
       },
     });
     expect(configured.statusCode, configured.body).toBe(200);
-    const enabled = await post('/api/platform/plugins/mcp/enable');
+    const enabled = await f.app.inject({ method: 'PUT', url: '/api/platform/mcp/enabled', headers, payload: { enabled: true } });
     expect(enabled.statusCode, enabled.body).toBe(200);
     const owner = await post('/api/platform/mcp/api-clients', {
       name: 'Full library fixture',
@@ -337,7 +325,6 @@ it('serves the latest native Office text and owner-only originals through packag
     }
   } finally {
     await fixture?.close();
-    await rm(artifacts, { recursive: true, force: true });
     await new Promise<void>((resolve, reject) =>
       editor.close((error) => (error ? reject(error) : resolve())),
     );

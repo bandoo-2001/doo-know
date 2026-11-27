@@ -8,6 +8,7 @@ const app = (page: Page) => page.getByRole('region', { name: 'To Doo 行动工�
 async function dataTab(page: Page) {
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
   await selectToDooContext(page, '数据与恢复');
+  await app(page).getByRole('tab', { name: '导入', exact: true }).click();
   await app(page).getByRole('button', { name: '粘贴文件内容', exact: true }).click();
   await expandToDooGroup(app(page), '导入选项');
   await selectToDooOption(app(page), '格式', '滴答 CSV');
@@ -142,6 +143,7 @@ test('name-only calendar and subscription drafts request confirmation before lea
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
   const workspace = app(page);
   await selectToDooContext(page, '提醒与连接');
+  await workspace.getByRole('tab', { name: '日历', exact: true }).click();
   await expandToDooGroup(workspace, '连接外部只读日历');
   const name = workspace.getByRole('textbox', { name: '来源名称', exact: true });
   await name.fill('仅名称草稿');
@@ -167,6 +169,7 @@ test('file entry is Chinese and application warnings explain the affected row', 
 }) => {
   await dataTab(page);
   const workspace = app(page);
+  await workspace.getByRole('tab', { name: '导入', exact: true }).click();
   await expect(workspace.getByRole('button', { name: '选择导入文件', exact: true })).toBeVisible();
   await workspace.getByLabel('选择导入文件', { exact: true }).setInputFiles({
     name: '核对.csv',

@@ -1,3 +1,4 @@
+import { verifyKnowledgeRootIdentity } from '../../packages/core/indexing/root-identity.js';
 import { folderRestorePending } from '../../packages/core/knowledge/folder-restore-pending.js';
 import { noteTrashRestorePending } from '../../packages/core/knowledge/note-trash-native-restore.js';
 import { mkdir, readdir, lstat, cp, writeFile, readFile } from 'node:fs/promises';
@@ -58,9 +59,14 @@ export async function backup(config: AppConfig, destination: string) {
   independent(destination, config.knowledgeRoot);
   independent(destination, config.dataRoot);
   await mkdir(destination, { mode: 0o700 });
-  const before = await inventory(config.knowledgeRoot),
-    db = new Database(join(config.dataRoot, 'app.sqlite'));
+  const db = new Database(join(config.dataRoot, 'app.sqlite'));
   try {
+    const hasIndex = db.prepare("SELECT 1 FROM sqlite_schema WHERE type='table' AND name='index_meta'").get();
+    const binding = hasIndex
+      ? db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as { value: string } | undefined
+      : undefined;
+    const sourceIdentity = verifyKnowledgeRootIdentity(config.knowledgeRoot, binding?.value);
+    const before = await inventory(config.knowledgeRoot);
     if(folderRestorePending(db))throw new Error('目录恢复尚未恢复一致，请完成恢复后备份');
     if(noteTrashRestorePending(db))throw new Error('笔记恢复尚未恢复一致，请完成恢复后备份');
     const organizationTable = db
@@ -101,6 +107,7 @@ export async function backup(config: AppConfig, destination: string) {
         force: false,
       });
     }
+    verifyKnowledgeRootIdentity(config.knowledgeRoot, sourceIdentity);
     const after = await inventory(config.knowledgeRoot);
     if (JSON.stringify(before) !== JSON.stringify(after))
       throw new Error('备份期间原文变化，请暂停编辑后重新备份');

@@ -2,7 +2,7 @@ import type { BrowserContext, Page } from '@playwright/test';
 import { execFileSync } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { configurePlugin } from '../support/settings-navigation';
+import { openFeatureSettings, setFeatureSwitch } from '../support/settings-navigation';
 import { clickNoteAction, selectGitHistoryVersion } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 
@@ -11,21 +11,19 @@ test.use({ actionTimeout: 10000 });
 async function setupGit(page: Page, context: BrowserContext) {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
-  await configurePlugin(page, 'Git 版本管理');
+  await openFeatureSettings(page, 'Git 版本管理');
   await page.getByLabel('提交作者', { exact: true }).fill('Diff Browser Fixture');
   await page.getByLabel('作者邮箱', { exact: true }).fill('diff-browser@example.invalid');
-  await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
-  const enable = page
-    .locator('.plugin-settings')
-    .getByRole('button', { name: '启用插件', exact: true });
-  if (await enable.isVisible()) await enable.click();
-  await expect(
-    page.locator('.plugin-settings').getByRole('button', { name: '停用插件', exact: true }),
-  ).toBeEnabled();
+  const saveAuthor = page.getByRole('button', { name: '保存提交署名', exact: true });
+  if (await saveAuthor.isEnabled()) {
+    await saveAuthor.click();
+    await expect(page.getByText('提交署名已保存。', { exact: true })).toBeVisible();
+  }
+  await setFeatureSwitch(page, 'Git 版本管理', true);
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const headers = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token };
   const call = async (id: string, input: unknown = {}) => {
-    const response = await page.request.post('/api/plugins/git/call', {
+    const response = await page.request.post('/api/platform/git/actions', {
       headers,
       data: { kind: id === 'git.initialize' ? 'command' : 'provider', id, input },
     });
@@ -86,7 +84,7 @@ test('只读差异安全显示中文、长行及行号，布局自适应且恢�
   let restores = 0;
   let restoredCommit: string | undefined;
   page.on('request', (request) => {
-    if (request.method() !== 'POST' || !request.url().endsWith('/api/plugins/git/call')) return;
+    if (request.method() !== 'POST' || !request.url().endsWith('/api/platform/git/actions')) return;
     const data = request.postDataJSON();
     if (data.id === 'git.restore') {
       restores++;
@@ -162,7 +160,7 @@ test('真实超限差异保持 256 KiB 截断提示，不重读大 patch 或禁�
   page.on('request', (request) => {
     if (
       request.method() === 'POST' &&
-      request.url().endsWith('/api/plugins/git/call') &&
+      request.url().endsWith('/api/platform/git/actions') &&
       request.postDataJSON()?.id === 'git.diff'
     )
       diffRequests++;

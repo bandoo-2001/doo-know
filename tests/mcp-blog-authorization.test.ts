@@ -4,12 +4,12 @@ import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 import { platformPolicy } from '../packages/core/auth/grants.js';
 import { createMcpApiClient, authenticateMcpApiKey, setMcpApiClientPermissions } from '../apps/server/platform/mcp-api-keys.js';
 import { checkTokenCutoff } from '../packages/core/agent/auth.js';
-import { pluginHost } from '../apps/server/plugins/host.js';
+import { initializeFeatureSettings } from '../packages/core/feature-settings.js';
 
 const scopes = ['knowledge:read', 'knowledge:write', 'blog:publish'];
 it('requires an explicit publication grant and both publication config controls without expanding old grants', async () => {
   const f = await pluginRuntimeFixture();
-  pluginHost(f.config, f.db);
+  initializeFeatureSettings(f.db);
   try {
     const configure = (readOnly: boolean, allowPublish: boolean) => {
       f.db.prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'").run(JSON.stringify({ readOnly, allowPublish, allowedPrefixes: ['00-Inbox'] }));
@@ -29,7 +29,7 @@ it('requires an explicit publication grant and both publication config controls 
 
 it('keeps API Key publication disabled after ceiling expansion until owner grants it', async () => {
   const f = await pluginRuntimeFixture();
-  pluginHost(f.config, f.db);
+  initializeFeatureSettings(f.db);
   try {
     const { currentLibraryIdentity, currentBlogInstanceId } = await import('../packages/core/auth/permissions.js');
     const knowledge = {enabled:true,ownerId:f.principal.id,instanceId:currentLibraryIdentity(f.db)!.libraryId,actions:['read','write'],resources:{mode:'all' as const}};

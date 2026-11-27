@@ -133,7 +133,8 @@ function progress(task: TransferTask) {
     ? Math.min(100, Math.round((task.progress.completed / task.progress.total) * 100))
     : 0;
 }
-defineExpose({ refresh, loading });
+const attentionCount = computed(() => matching.value.length - historyCount.value);
+defineExpose({ refresh, loading, attentionCount });
 let timer: ReturnType<typeof setInterval>;
 onMounted(() => {
   void refresh();
@@ -260,7 +261,7 @@ onUnmounted(() => clearInterval(timer));
             <p>
               校验回执：<code>{{ task.result.verification.restoreReceipt }}</code>
             </p>
-            <p>副本已退出旧会话、撤销共享并停用插件；启用前需要重新准备搜索并检查部署绑定。</p>
+            <p>副本已退出旧会话、撤销共享并关闭 Git 功能及 MCP 连接。重新使用前请准备搜索组件并检查部署绑定。</p>
           </details></template
         >
         <details v-if="task.items?.length">

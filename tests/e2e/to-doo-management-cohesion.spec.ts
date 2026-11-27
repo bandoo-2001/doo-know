@@ -47,6 +47,7 @@ test('optional calendar forms retain drafts across sections and idle recovery st
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   await selectToDooContext(page, '提醒与连接');
+  await app.getByRole('tab', { name: '日历', exact: true }).click();
   const address = app.getByRole('textbox', { name: 'HTTPS 日历地址', exact: true });
   await expect(address).not.toBeVisible();
   await expandToDooGroup(app, '连接外部只读日历');
@@ -59,11 +60,13 @@ test('optional calendar forms retain drafts across sections and idle recovery st
   await expect(address).toHaveValue('https://example.test/draft.ics');
   await address.fill('');
   await selectToDooContext(page, '数据与恢复');
+  await expect(app.getByRole('button', { name: '导出 JSON', exact: true })).toBeVisible();
+  await app.getByRole('tab', { name: '进度与恢复', exact: true }).click();
   await expect(toDooDisclosureHeader(app, '成果笔记恢复')).toHaveAttribute(
     'aria-expanded',
     'false',
   );
-  await expect(app.getByRole('button', { name: '导出 JSON', exact: true })).toBeVisible();
+  await app.getByRole('tab', { name: '导入', exact: true }).click();
   const content = app.getByLabel('或粘贴文件内容', { exact: true });
   await expect(content).not.toBeVisible();
   await app.getByRole('button', { name: '粘贴文件内容', exact: true }).click();

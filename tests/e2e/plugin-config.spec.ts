@@ -1,28 +1,21 @@
-import { openLegacyMcpSettings } from '../support/settings-navigation';
+import { openFeatureSettings, openLegacyMcpSettings } from '../support/settings-navigation';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
-import type { PluginView } from '../../packages/plugin-contracts';
+import type { FeatureView } from '../../shared/feature-contracts';
 import { test, expect } from '../support/browser-test';
 
 test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
 });
 
-async function mcp(page: Page): Promise<PluginView> {
-  const registry = await (await page.request.get('/api/platform/plugins')).json();
-  return registry.installed.find((entry: PluginView) => entry.id === 'mcp');
+async function mcp(page: Page): Promise<FeatureView> {
+  const registry = await (await page.request.get('/api/platform/features')).json();
+  return registry.mcp;
 }
 
 async function openMcp(page: Page) {
-  await page.goto('/?view=settings&section=plugins');
-  await expect(page.getByRole('button', { name: '刷新插件状态', exact: true })).toBeEnabled();
-  const card = page.locator('.plugin-card').filter({ hasText: 'MCP 服务' });
-  if (await card.isVisible()) await card.getByRole('button', { name: '配置', exact: true }).click();
-  else {
-    await page.getByRole('tab', { name: '添加插件', exact: true }).click();
-    await page.getByRole('button', { name: '安装MCP 服务', exact: true }).click();
-  }
-  await expect(page.getByRole('heading', { name: 'MCP 服务设置', exact: true })).toBeVisible();
+  await page.goto('/?view=settings&section=mcp');
+  await expect(page.getByRole('switch', { name: '启用 MCP 服务', exact: true })).toBeEnabled();
   await openLegacyMcpSettings(page);
 }
 
@@ -30,19 +23,19 @@ async function saveRemote(page: Page, values: Record<string, unknown>, configVer
   return page.evaluate(
     async (input) => {
       const csrf = await (await fetch('/api/security/csrf')).json();
-      const response = await fetch('/api/platform/plugins/mcp/config', {
+      const response = await fetch('/api/platform/mcp/config', {
         method: 'PUT',
         headers: { 'content-type': 'application/json', 'x-csrf-token': csrf.token },
         body: JSON.stringify(input),
       });
       if (!response.ok) throw Error('Fixture configuration update failed: ' + response.status);
-      return (await response.json()) as PluginView;
+      return (await response.json()) as FeatureView;
     },
     { values, configVersion },
   );
 }
 
-test('shows authentication switches and retains separate plugin drafts', async ({
+test('shows authentication switches and retains separate feature drafts', async ({
   page,
 }, info) => {
   await openMcp(page);
@@ -56,29 +49,18 @@ test('shows authentication switches and retains separate plugin drafts', async (
   await prefixes.fill('00-Inbox\n我的草稿目录');
   const initialApiKey = await apiKey.getAttribute('aria-checked');
   await apiKey.click();
-  const form = page.locator('.plugin-form'),
+  const form = page.locator('.mcp-config-form'),
     addressRow = page.getByLabel('外部网页地址', { exact: true }).locator('..');
   expect((await addressRow.boundingBox())!.width).toBeGreaterThan(
     (await form.boundingBox())!.width * 0.9,
   );
   await page.screenshot({ path: info.outputPath('mcp-config-form.png'), animations: 'disabled' });
-  await page.getByRole('button', { name: '返回插件列表', exact: true }).click();
-  const git = page.locator('.plugin-card').filter({ hasText: 'Git 版本管理' });
-  if (!(await git.isVisible())) {
-    await page.getByRole('tab', { name: '添加插件', exact: true }).click();
-    await page.getByRole('button', { name: '安装Git 版本管理', exact: true }).click();
-  } else await git.getByRole('button', { name: '配置', exact: true }).click();
+  await openFeatureSettings(page, 'Git 版本管理');
   await page.getByLabel('提交作者', { exact: true }).fill('尚未保存的作者');
-  await page.getByRole('button', { name: '返回插件列表', exact: true }).click();
-  await page
-    .locator('.plugin-card')
-    .filter({ hasText: 'MCP 服务' })
-    .getByRole('button', { name: '配置', exact: true })
-    .click();
+  await openFeatureSettings(page, 'MCP 服务');
   await expect(prefixes).toHaveValue('00-Inbox\n我的草稿目录');
   await expect(apiKey).toHaveAttribute('aria-checked', initialApiKey === 'true' ? 'false' : 'true');
-  await page.getByRole('button', { name: '返回插件列表', exact: true }).click();
-  await git.getByRole('button', { name: '配置', exact: true }).click();
+  await openFeatureSettings(page, 'Git 版本管理');
   await expect(page.getByLabel('提交作者', { exact: true })).toHaveValue('尚未保存的作者');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
@@ -96,27 +78,26 @@ test('preserves input on remote changes, requires explicit reload and saves agai
       { readOnly: !initial.config.readOnly },
       initial.configVersion,
     );
-    await page.getByRole('button', { name: '刷新插件状态', exact: true }).click();
-    await expect(page.getByText('已保存配置在其他位置发生变化', { exact: true })).toBeVisible();
+    await expect(page.getByText('MCP 配置已在其他位置更新。', { exact: true })).toBeVisible();
     await expect(prefixes).toHaveValue('00-Inbox\n未保存的目录');
-    await expect(page.getByRole('button', { name: '保存插件配置', exact: true })).toBeDisabled();
+    await expect(page.getByRole('button', { name: '保存 MCP 配置', exact: true })).toBeDisabled();
     await page.getByRole('button', { name: '重新载入已保存配置', exact: true }).click();
-    await page.getByRole('button', { name: '保留当前输入', exact: true }).click();
+    await page.getByRole('button', { name: '继续编辑', exact: true }).click();
     await expect(prefixes).toHaveValue('00-Inbox\n未保存的目录');
     await page.getByRole('button', { name: '重新载入已保存配置', exact: true }).click();
-    await page.getByRole('button', { name: '丢弃输入并重新载入', exact: true }).click();
+    await page.getByRole('button', { name: '重新载入', exact: true }).click();
     await expect(prefixes).toHaveValue((remote.config.allowedPrefixes as string[]).join('\n'));
-    await expect(page.getByText('已保存配置在其他位置发生变化', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('MCP 配置已在其他位置更新。', { exact: true })).toHaveCount(0);
     await prefixes.fill('00-Inbox\nREADME.md');
     const request = page.waitForRequest(
-      (r) => r.url().endsWith('/api/platform/plugins/mcp/config') && r.method() === 'PUT',
+      (r) => r.url().endsWith('/api/platform/mcp/config') && r.method() === 'PUT',
     );
-    await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
+    await page.getByRole('button', { name: '保存 MCP 配置', exact: true }).click();
     const payload = (await request).postDataJSON();
     expect(payload.values.allowedPrefixes).toEqual(['00-Inbox', 'README.md']);
     expect(payload.configVersion).toBe(remote.configVersion);
-    await expect(page.locator('.form-success')).toContainText('插件配置已保存');
-    await expect(page.getByText('已保存配置在其他位置发生变化', { exact: true })).toHaveCount(0);
+    await expect(page.locator('.mcp-config-footer [role="status"]')).toContainText('MCP 配置已保存。');
+    await expect(page.getByText('MCP 配置已在其他位置更新。', { exact: true })).toHaveCount(0);
     expect((await mcp(page)).config.allowedPrefixes).toEqual(['00-Inbox', 'README.md']);
   } finally {
     const current = await mcp(page);
@@ -146,7 +127,7 @@ test('selects full-library autonomous organization while archive, index and publ
   expect(await index.isChecked()).toBe(indexed);
   await expect(blog.getByRole('switch',{name:'启用博客权限',exact:true})).toHaveAttribute('aria-checked',published!);
   expect((await mcp(page)).config).toEqual(saved.config);
-  await expect(page.locator('.plugin-draft-notice')).toContainText('未保存');
+  await expect(page.locator('.mcp-config-footer')).toContainText('未保存');
 });
 
 test('upgrades an existing domain policy with a disabled To Doo card and saves only explicit task access', async ({ page }) => {
@@ -168,9 +149,9 @@ test('upgrades an existing domain policy with a disabled To Doo card and saves o
     await card.getByText('读取', { exact: true }).click();
     await expect(card.getByRole('checkbox', { name: '读取', exact: true })).toBeChecked();
     const saved = page.waitForResponse(response =>
-      new URL(response.url()).pathname === '/api/platform/plugins/mcp/config' &&
+      new URL(response.url()).pathname === '/api/platform/mcp/config' &&
       response.request().method() === 'PUT');
-    await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
+    await page.getByRole('button', { name: '保存 MCP 配置', exact: true }).click();
     expect((await saved).ok()).toBe(true);
     const policy = (await mcp(page)).config.permissionPolicy as typeof oldPolicy;
     expect(policy.domains['to-doo']).toMatchObject({ enabled: true, actions: ['read'] });
@@ -208,8 +189,8 @@ test('keeps new share and management grants opt-in and saves independent draft a
     await blog.getByText('公开发布', { exact: true }).click();
     await knowledge.getByText('分享管理', { exact: true }).click();
     await tasks.getByText('导出与分享', { exact: true }).click();
-    const saved = page.waitForResponse(response => new URL(response.url()).pathname === '/api/platform/plugins/mcp/config' && response.request().method() === 'PUT');
-    await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
+    const saved = page.waitForResponse(response => new URL(response.url()).pathname === '/api/platform/mcp/config' && response.request().method() === 'PUT');
+    await page.getByRole('button', { name: '保存 MCP 配置', exact: true }).click();
     expect((await saved).ok()).toBe(true);
     const actual = (await mcp(page)).config.permissionPolicy as typeof policy;
     expect(actual.domains.blog.actions.sort()).toEqual(['read', 'write']);

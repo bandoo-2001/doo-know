@@ -278,6 +278,7 @@ test('focus, habit check-ins, anniversary and real CSV import/export use durable
   const download = page.waitForEvent('download');
   await app.getByRole('button', { name: '导出 JSON', exact: true }).click();
   expect((await download).suggestedFilename()).toBe('to-doo.json');
+  await app.getByRole('tab', { name: '导入', exact: true }).click();
   await expandToDooGroup(app, '导入选项');
   await selectToDooOption(app, '格式', '滴答 CSV');
   await app.getByRole('button', { name: '粘贴文件内容', exact: true }).click();

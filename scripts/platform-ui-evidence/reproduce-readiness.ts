@@ -54,7 +54,7 @@ async function snapshot(phase: string, extra: Record<string, unknown> = {}) {
     }),
     fontResources: performance.getEntriesByType('resource').filter(entry => /\.(?:woff2?|ttf|otf)(?:[?#]|$)/.test(entry.name)).map(entry => ({
       name: new URL(entry.name).pathname, duration: entry.duration, startTime: entry.startTime })),
-    conflictVisible: [...document.querySelectorAll('.plugin-settings')].some(element => (element.textContent ?? '').includes('已保存配置在其他位置发生变化')),
+    conflictVisible: [...document.querySelectorAll('[aria-label="MCP 服务设置"]')].some(element => (element.textContent ?? '').includes('MCP 配置已在其他位置更新。')),
     secretFieldLengths: [...document.querySelectorAll('input[type="password"],textarea[aria-label="新 API Key"]')].map(element => (element as HTMLInputElement).value.length),
   }));
   const entry = { phase, elapsedMs: Date.now() - started, ...extra, state };
@@ -76,8 +76,7 @@ const scene = settingsScenes.find(scene => scene.id === 'settings-extra-plugin-c
 const env = { page, context, fixture, variant: { id: '1440-light', width: 1440, height: 1000, theme: 'light' as const } };
 try {
   if (freshMcp) {
-    const registry = await fixture.api('/api/platform/plugins');
-    if (registry.installed.some((plugin: any) => plugin.id === 'mcp')) await fixture.api('/api/platform/plugins/mcp/uninstall', 'POST', {});
+    await fixture.api('/api/platform/mcp/enabled', 'PUT', { enabled: false });
     console.log(JSON.stringify({ phase: 'fresh-mcp-precondition', actualUninstall: true, scope: 'guarded-synthetic-fixture-only-data-retained' }));
   }
   await bounded('MINIMAL_SCENE_BEFORE_OPEN', (async () => {
@@ -90,7 +89,7 @@ try {
     if (liveWait) {
       const fonts = await waitFontReadiness(page, 10000);
       const animations = await waitAnimationSettle(page, 10000);
-      await expect(page.getByText('已保存配置在其他位置发生变化', { exact: true })).toBeVisible();
+      await expect(page.getByText('MCP 配置已在其他位置更新。', { exact: true })).toBeVisible();
       await expect(page.getByRole('button', { name: '保存插件配置', exact: true })).toBeDisabled();
       await snapshot('fresh-current-live-animation-wait-resolved', { fonts, animations });
     } else {
