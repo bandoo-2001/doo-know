@@ -14,7 +14,6 @@ import type { ManagedBackup, ManagedBackupList } from '../../../../shared/transf
 import TransferTasks from './TransferTasks.vue';
 import MaintenanceSettings from '../MaintenanceSettings.vue';
 import { downloadRecoveryKey } from './download';
-import SettingsActionCard from './SettingsActionCard.vue';
 import SettingsOverlay from './SettingsOverlay.vue';
 const emit = defineEmits<{ 'open-note': [id: string] }>();
 const items = ref<ManagedBackup[]>([]),
@@ -223,33 +222,26 @@ onMounted(() => void load());
 </script>
 <template>
   <div class="settings-stack">
-    <section class="settings-card">
-      <div class="settings-item-header">
-        <div><h2 class="settings-section-title"><Icon name="shield" :size="18" />加密备份</h2>
-          <p>保存应用数据和可读取的原文。备份完成后，请将文件与恢复密钥分开保存。</p>
-        </div>
+    <section class="settings-card backup-overview">
+      <h2 class="settings-section-title"><Icon name="shield" :size="18" />加密备份</h2>
+      <p class="settings-muted">备份应用数据和原文，恢复时会生成独立副本。请将备份文件与恢复密钥分开保存。</p>
+      <div class="settings-actions backup-actions" role="group" aria-label="备份操作">
         <AButton type="primary" :loading="busy === 'create'" :disabled="!!busy" @click="create">
-          <template #icon><Icon class="settings-button-icon" name="shield" :size="15" /></template>创建加密备份</AButton>
+          <template #icon><Icon class="settings-button-icon" name="shield" :size="15" /></template>
+          创建加密备份
+        </AButton>
+        <AButton @click="openUploadRestore">
+          <template #icon><Icon class="settings-button-icon" name="undo" :size="15" /></template>
+          从备份恢复
+        </AButton>
+        <AButton @click="openKey">
+          <template #icon><Icon class="settings-button-icon" name="key" :size="15" /></template>
+          下载恢复密钥
+        </AButton>
       </div>
       <AAlert v-if="error" type="error" :message="error" show-icon />
       <p v-if="notice" class="settings-success" role="status">{{ notice }}</p>
     </section>
-    <div class="settings-action-grid">
-    <SettingsActionCard
-      title="恢复密钥"
-      description="验证账户密码后下载恢复密钥，请与备份分开、加密保存。"
-      icon="key"
-      action-label="下载恢复密钥"
-      @open="openKey"
-    />
-    <SettingsActionCard
-      title="从已下载的备份恢复"
-      description="选择加密备份与对应密钥，校验后生成独立副本。"
-      icon="undo"
-      action-label="从备份恢复"
-      @open="openUploadRestore"
-    />
-    </div>
     <section class="settings-card">
       <div class="settings-item-header"><h2 class="settings-section-title"><Icon name="clock" :size="18" />备份记录</h2>
         <AButton size="small" :loading="loading" @click="load(false, true)">
@@ -295,7 +287,7 @@ onMounted(() => void load());
             </div>
           </div>
           <p v-if="item.external" class="settings-muted">
-            恢复此备份需要对应私钥，请在「从已下载的备份恢复」中选择文件。
+            恢复此备份需要对应私钥，请在「从备份恢复」中选择文件。
           </p>
           <details>
             <summary>备份编号与密钥指纹</summary>
@@ -479,6 +471,16 @@ onMounted(() => void load());
 <style scoped>
 .restore-steps {
   margin: 4px 0 24px;
+}
+.backup-overview > .settings-muted { margin: 4px 0; }
+@media (max-width: 520px) {
+  .settings-workspace .backup-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .backup-actions .ant-btn { min-width: 0; min-height: 40px; padding-inline: 6px; }
+  .backup-actions .ant-btn-primary { grid-column: 1 / -1; }
 }
 .restore-file-form {
   max-width: none;

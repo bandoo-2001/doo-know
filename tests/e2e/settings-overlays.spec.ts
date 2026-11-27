@@ -27,6 +27,10 @@ test('账户页面保留摘要，密码表单按需打开并在取消后清空',
 
 test('恢复密钥和备份恢复仅显示入口，任务记录始终留在页面', async ({ page }) => {
   await page.goto('/?view=settings&section=backup');
+  const actions = page.getByRole('group', { name: '备份操作', exact: true });
+  await expect(actions.getByRole('button')).toHaveCount(3);
+  for (const name of ['创建加密备份', '从备份恢复', '下载恢复密钥'])
+    await expect(actions.getByRole('button', { name, exact: true })).toBeInViewport({ ratio: 1 });
   await expect(page.getByLabel('当前密码', { exact: true })).toHaveCount(0);
   await expect(page.locator('#restore-backup-file')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '任务与结果', exact: true })).toBeVisible();
