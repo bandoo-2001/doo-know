@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { ref, watch } from 'vue';
 import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
 import { featureAction } from '../features';
 import { createPageWindow } from './settings/paged-records';
+const props = defineProps<{ active: boolean }>();
 type Call = {
   id: string;
   at: string;
@@ -32,12 +33,16 @@ async function load(more = false, reset = false) {
     busy.value = false;
   }
 }
-let timer: ReturnType<typeof setInterval>;
-onMounted(() => {
-  void load();
-  timer = setInterval(() => void load(), 10_000);
-});
-onBeforeUnmount(() => clearInterval(timer));
+watch(
+  () => props.active,
+  (active, _, onCleanup) => {
+    if (!active) return;
+    void load();
+    const timer = setInterval(() => void load(), 10_000);
+    onCleanup(() => clearInterval(timer));
+  },
+  { immediate: true },
+);
 </script>
 
 <template>

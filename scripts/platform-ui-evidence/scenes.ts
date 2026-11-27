@@ -166,8 +166,8 @@ export const scenes: Scene[] = [
     await page.getByRole('region', { name: '云端同步面板', exact: true }).getByRole('button', { name: /^(管理同步|关联云端仓库)$/ }).click(); await button(page, '添加凭据').click();
   }), window: true, representative: true },
   setting('mcp-config', ['ST-049', 'ST-056', 'ST-057', 'ST-059', 'ST-062', 'ST-073'], 'mcp', 'Actual MCP settings and domain policy', '[aria-label="MCP 服务设置"]', mcp),
-  setting('mcp-api-guide', ['ST-058', 'ST-064'], 'mcp', 'API key connection guide', '[aria-label="MCP 服务设置"]', async env => { await mcp(env); await click('API Key 接入')(env); }),
-  { ...setting('mcp-create-client', ['ST-065'], 'mcp', 'Create API client form', '.mcp-api-client-form, [aria-label="创建 API 客户端"], .api-client-form', async env => { await mcp(env); await click('API Key 接入')(env); await click('创建 API 客户端')(env); }), window: true },
+  setting('mcp-api-guide', ['ST-058', 'ST-064'], 'mcp', 'API key connection guide', '[aria-label="MCP 服务设置"]', async env => { await mcp(env); await env.page.getByRole('tab', { name: '接入指南', exact: true }).click(); await click('API Key 接入')(env); }),
+  { ...setting('mcp-create-client', ['ST-065'], 'mcp', 'Create API client form', '.mcp-api-client-form, [aria-label="创建 API 客户端"], .api-client-form', async env => { await mcp(env); await env.page.getByRole('tab', { name: '接入指南', exact: true }).click(); await click('API Key 接入')(env); await click('管理 API Key')(env); await click('创建 API 客户端')(env); }), window: true },
   setting('git-plugin-config', ['ST-050', 'ST-082'], 'library', 'Actual Git settings', '[aria-label="Git 版本管理"]', async ({ page }) => { await openFeatureSettings(page, 'Git 版本管理'); }),
   { id: 'login', sourceIds: ['PB-001'], title: '登录', state: 'Empty required fields; submit disabled', role: 'anonymous', path: '/', target: '.login-card', representative: true, tests: ['tests/e2e/login-help.spec.ts'] },
   { id: 'login-help', sourceIds: ['PB-002'], title: '首次使用帮助', state: 'Expanded account source help', role: 'anonymous', path: '/', target: '.login-card', open: async ({ page }) => { await page.getByText('第一次使用或还没有账号？', { exact: true }).click(); }, tests: ['tests/e2e/login-help.spec.ts'] },

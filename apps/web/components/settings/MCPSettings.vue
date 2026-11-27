@@ -9,9 +9,8 @@ import {
   Switch as ASwitch,
 } from 'ant-design-vue';
 import Icon from '../Icon.vue';
-import MCPConnectionGuide from '../MCPConnectionGuide.vue';
+import MCPConnectionTabs from '../MCPConnectionTabs.vue';
 import MCPDomainPermissions from '../MCPDomainPermissions.vue';
-import MCPActivity from '../MCPActivity.vue';
 import { featureConfig } from '../../../../shared/feature-config';
 import { ApiError, api } from '../../api';
 import { features, refreshFeatures, saveFeatureConfig, setFeatureEnabled } from '../../features';
@@ -35,8 +34,6 @@ const error = ref('');
 const notice = ref('');
 const invalidPrefixes = ref(false);
 const legacyOpen = ref(false);
-const permissionsOpen = ref(hasUnsavedMcpSettings());
-const activityOpen = ref(false);
 const expectedSession = mcpDraftSession();
 let active = true;
 const current = () => active && expectedSession === mcpDraftSession();
@@ -175,7 +172,9 @@ function save() {
           @change="(enabled) => toggle(enabled === true)"
         />
       </div>
-      <p v-if="mcp && !mcp.desiredEnabled && enableBlocked" role="status">保存当前权限和连接配置后即可启用 MCP。</p>
+      <p v-if="mcp && !mcp.desiredEnabled && enableBlocked" role="status">
+        保存当前权限和连接配置后即可启用 MCP。
+      </p>
       <AAlert v-if="error" type="error" show-icon :message="error" />
       <AAlert v-else-if="mcp?.error" type="warning" show-icon :message="mcp.error" />
       <AButton
@@ -187,71 +186,35 @@ function save() {
         {{ mcp?.state === 'failed' ? '重试启用' : '重试读取设置' }}
       </AButton>
     </section>
-    <section v-if="mcp" class="settings-card">
-      <MCPConnectionGuide :feature="mcp" :dirty="hasUnsavedMcpSettings()" />
-    </section>
-    <details v-if="mcp && values" class="settings-card mcp-panel" :open="permissionsOpen"
-      @toggle="permissionsOpen = ($event.target as HTMLDetailsElement).open">
-      <summary>权限与连接配置</summary>
-      <AAlert
-        v-if="stale && values"
-        class="mcp-config-conflict"
-        type="warning"
-        show-icon
-        message="MCP 配置已在其他位置更新。"
-        description="当前输入已保留。重新载入已保存设置后，可以继续编辑。"
-      >
-        <template #action>
-          <APopconfirm
-            title="重新载入会丢弃当前未保存输入"
-            ok-text="重新载入"
-            cancel-text="继续编辑"
-            @confirm="reload"
-          >
-            <AButton size="small" :disabled="busy">重新载入已保存配置</AButton>
-          </APopconfirm>
-        </template>
-      </AAlert>
-      <form v-if="mcp && values" class="mcp-config-form" @submit.prevent="save">
-        <MCPDomainPermissions
-          :key="mcpSettingsDraft?.configVersion"
-          v-model="values.permissionPolicy"
-          :disabled="busy"
-        />
-        <div
-          v-for="key in ['oauthEnabled', 'apiKeyEnabled'] as const"
-          :key="key"
-          class="mcp-config-field mcp-config-toggle"
+    <MCPConnectionTabs v-if="mcp" :feature="mcp" :dirty="hasUnsavedMcpSettings()">
+      <template #permissions>
+        <AAlert
+          v-if="stale && values"
+          class="mcp-config-conflict"
+          type="warning"
+          show-icon
+          message="MCP 配置已在其他位置更新。"
+          description="当前输入已保留。重新载入已保存设置后，可以继续编辑。"
         >
-          <label :for="'mcp-' + key">{{ fields[key].title }}</label>
-          <ASwitch
-            :id="'mcp-' + key"
-            v-model:checked="values[key]"
-            :aria-label="fields[key].title"
+          <template #action>
+            <APopconfirm
+              title="重新载入会丢弃当前未保存输入"
+              ok-text="重新载入"
+              cancel-text="继续编辑"
+              @confirm="reload"
+            >
+              <AButton size="small" :disabled="busy">重新载入已保存配置</AButton>
+            </APopconfirm>
+          </template>
+        </AAlert>
+        <form v-if="mcp && values" class="mcp-config-form" @submit.prevent="save">
+          <MCPDomainPermissions
+            :key="mcpSettingsDraft?.configVersion"
+            v-model="values.permissionPolicy"
             :disabled="busy"
           />
-        </div>
-        <div class="mcp-config-field">
-          <label for="mcp-external-origin">{{ fields.externalWebOrigin.title }}</label>
-          <AInput
-            id="mcp-external-origin"
-            v-model:value="values.externalWebOrigin"
-            :maxlength="2048"
-            :disabled="busy"
-          />
-          <p>{{ fields.externalWebOrigin.description }}</p>
-        </div>
-        <details
-          v-if="!values.permissionPolicy"
-          :open="legacyOpen"
-          @toggle="legacyOpen = ($event.target as HTMLDetailsElement).open"
-        >
-          <summary>旧版兼容设置</summary>
-          <p>
-            旧连接仍按原目录与只读设置授权。保存上方的分域权限后，使用独立的业务权限和资源范围。
-          </p>
           <div
-            v-for="key in legacyMcpSwitches"
+            v-for="key in ['oauthEnabled', 'apiKeyEnabled'] as const"
             :key="key"
             class="mcp-config-field mcp-config-toggle"
           >
@@ -264,57 +227,87 @@ function save() {
             />
           </div>
           <div class="mcp-config-field">
-            <label for="mcp-allowed-prefixes">{{ fields.allowedPrefixes.title }}</label>
-            <AInput.TextArea
-              id="mcp-allowed-prefixes"
-              v-model:value="values.allowedPrefixes"
-              spellcheck="false"
+            <label for="mcp-external-origin">{{ fields.externalWebOrigin.title }}</label>
+            <AInput
+              id="mcp-external-origin"
+              v-model:value="values.externalWebOrigin"
+              :maxlength="2048"
               :disabled="busy"
-              :aria-invalid="invalidPrefixes"
-              :status="invalidPrefixes ? 'error' : undefined"
-              :auto-size="{ minRows: 4, maxRows: 10 }"
             />
-            <p>每行一个知识库相对目录或文件，最多 64 项。</p>
+            <p>{{ fields.externalWebOrigin.description }}</p>
           </div>
-        </details>
-        <div class="mcp-config-field">
-          <label for="mcp-to-doo-lists">{{ fields.toDooListIds.title }}</label>
-          <ASelect
-            id="mcp-to-doo-lists"
-            v-model:value="values.toDooListIds"
-            mode="multiple"
-            :options="listOptions"
-            :disabled="busy || !toDooEnabled"
-            placeholder="全部清单"
-          />
-        </div>
-        <div class="mcp-config-field">
-          <label for="mcp-to-doo-domains">{{ fields.toDooDomains.title }}</label>
-          <ASelect
-            id="mcp-to-doo-domains"
-            v-model:value="values.toDooDomains"
-            mode="multiple"
-            :options="taskDomainOptions"
-            :disabled="busy || !toDooEnabled"
-          />
-        </div>
-        <footer class="mcp-config-footer">
-          <AButton
-            html-type="submit"
-            type="primary"
-            :disabled="busy || stale || !hasUnsavedMcpSettings()"
-            >保存 MCP 配置</AButton
+          <details
+            v-if="!values.permissionPolicy"
+            :open="legacyOpen"
+            @toggle="legacyOpen = ($event.target as HTMLDetailsElement).open"
           >
-          <span v-if="notice" role="status">{{ notice }}</span>
-          <span v-else-if="hasUnsavedMcpSettings() && !stale" role="status">有未保存的更改。</span>
-        </footer>
-      </form>
-    </details>
-    <details v-if="mcp?.state === 'enabled'" class="settings-card mcp-panel"
-      @toggle="activityOpen = ($event.target as HTMLDetailsElement).open">
-      <summary>调用记录</summary>
-      <MCPActivity v-if="activityOpen" />
-    </details>
+            <summary>旧版兼容设置</summary>
+            <p>
+              旧连接仍按原目录与只读设置授权。保存上方的分域权限后，使用独立的业务权限和资源范围。
+            </p>
+            <div
+              v-for="key in legacyMcpSwitches"
+              :key="key"
+              class="mcp-config-field mcp-config-toggle"
+            >
+              <label :for="'mcp-' + key">{{ fields[key].title }}</label>
+              <ASwitch
+                :id="'mcp-' + key"
+                v-model:checked="values[key]"
+                :aria-label="fields[key].title"
+                :disabled="busy"
+              />
+            </div>
+            <div class="mcp-config-field">
+              <label for="mcp-allowed-prefixes">{{ fields.allowedPrefixes.title }}</label>
+              <AInput.TextArea
+                id="mcp-allowed-prefixes"
+                v-model:value="values.allowedPrefixes"
+                spellcheck="false"
+                :disabled="busy"
+                :aria-invalid="invalidPrefixes"
+                :status="invalidPrefixes ? 'error' : undefined"
+                :auto-size="{ minRows: 4, maxRows: 10 }"
+              />
+              <p>每行一个知识库相对目录或文件，最多 64 项。</p>
+            </div>
+          </details>
+          <div class="mcp-config-field">
+            <label for="mcp-to-doo-lists">{{ fields.toDooListIds.title }}</label>
+            <ASelect
+              id="mcp-to-doo-lists"
+              v-model:value="values.toDooListIds"
+              mode="multiple"
+              :options="listOptions"
+              :disabled="busy || !toDooEnabled"
+              placeholder="全部清单"
+            />
+          </div>
+          <div class="mcp-config-field">
+            <label for="mcp-to-doo-domains">{{ fields.toDooDomains.title }}</label>
+            <ASelect
+              id="mcp-to-doo-domains"
+              v-model:value="values.toDooDomains"
+              mode="multiple"
+              :options="taskDomainOptions"
+              :disabled="busy || !toDooEnabled"
+            />
+          </div>
+          <footer class="mcp-config-footer">
+            <AButton
+              html-type="submit"
+              type="primary"
+              :disabled="busy || stale || !hasUnsavedMcpSettings()"
+              >保存 MCP 配置</AButton
+            >
+            <span v-if="notice" role="status">{{ notice }}</span>
+            <span v-else-if="hasUnsavedMcpSettings() && !stale" role="status"
+              >有未保存的更改。</span
+            >
+          </footer>
+        </form>
+      </template>
+    </MCPConnectionTabs>
   </div>
 </template>
 
@@ -322,6 +315,8 @@ function save() {
 .mcp-config-form {
   display: grid;
   gap: 14px;
+}
+.mcp-config-conflict + .mcp-config-form {
   margin-top: 16px;
 }
 .mcp-config-field {
@@ -347,8 +342,6 @@ details p {
 .mcp-config-form details .mcp-config-field {
   margin-top: 10px;
 }
-.mcp-panel > summary { font-size: 15px; font-weight: 600; }
-.mcp-panel[open] > summary { margin-bottom: 14px; }
 details summary {
   cursor: pointer;
 }

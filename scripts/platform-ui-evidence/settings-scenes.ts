@@ -79,10 +79,12 @@ async function config(page: Page, id: 'mcp' | 'git') {
 }
 async function mcp(env: SceneEnv) {
   await config(env.page, 'mcp');
+  await env.page.getByRole('tab', { name: '权限设置', exact: true }).click();
 }
-async function apiGuide(env: SceneEnv) {
-  await mcp(env);
-  await btn(env.page, 'API Key 接入').click();
+async function openApiClients(env: SceneEnv) {
+  await config(env.page, 'mcp');
+  await env.page.getByRole('tab', { name: '客户端', exact: true }).click();
+  await btn(env.page, 'API Key 客户端').click();
 }
 async function apiClient(env: SceneEnv) {
   await enableFeature(env, 'mcp');
@@ -99,7 +101,7 @@ async function apiClient(env: SceneEnv) {
 const clientRow = (page: Page) =>
   page.getByRole('article', { name: store(page).client.name, exact: true });
 async function editClient(env: SceneEnv, label: string) {
-  await apiGuide(env);
+  await openApiClients(env);
   await clientRow(env.page).getByRole('button', { name: label, exact: true }).click();
 }
 async function importStep(env: SceneEnv, review = false) {
@@ -315,7 +317,9 @@ async function oauthModel(env: SceneEnv) {
   );
 }
 async function oauthRow(env: SceneEnv) {
-  await mcp(env);
+  await config(env.page, 'mcp');
+  await env.page.getByRole('tab', { name: '客户端', exact: true }).click();
+  await btn(env.page, 'OAuth 授权').click();
   return env.page
     .locator('.guide-client')
     .filter({ hasText: store(env.page).oauthClient.clientId });
@@ -982,7 +986,7 @@ export const settingsScenes: Scene[] = [
     'Real newly issued one-time key, shared screenshot mask applies',
     (page) => page.getByRole('region', { name: '一次性 API Key', exact: true }),
     async (env) => {
-      await apiGuide(env);
+      await openApiClients(env);
       await btn(env.page, '创建 API 客户端').click();
       await env.page
         .getByRole('textbox', { name: '客户端名称', exact: true })
@@ -1042,7 +1046,7 @@ export const settingsScenes: Scene[] = [
     'API connection inline revoke confirmation',
     '.api-clients',
     async (env) => {
-      await apiGuide(env);
+      await openApiClients(env);
       await clientRow(env.page).getByRole('button', { name: '撤销 API 连接', exact: true }).click();
     },
     { before: apiClient, tests: ['tests/e2e/mcp-api-clients.spec.ts'] },
@@ -1600,7 +1604,7 @@ export const settingsScenes: Scene[] = [
     'API client revoke request pending',
     '.api-clients',
     async (env) => {
-      await apiGuide(env);
+      await openApiClients(env);
       await clientRow(env.page).getByRole('button', { name: '撤销 API 连接', exact: true }).click();
       await clientRow(env.page)
         .getByRole('button', { name: '确认撤销 API 连接', exact: true })

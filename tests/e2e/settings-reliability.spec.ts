@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import {
   openFeatureSettings,
+  openMcpTab,
   openSettingsSection,
   setFeatureSwitch,
 } from '../support/settings-navigation';
@@ -84,6 +85,8 @@ test('requires saving new MCP settings before enabling and permits immediate dis
 });
 
 test('keeps older MCP calls visible while refreshing the recent list', async ({ page }) => {
+  await page.clock.install();
+  let logRequests = 0;
   const rows = Array.from({ length: 55 }, (_, i) => ({
     id: String(i),
     tool: 'fixture-tool-' + i,
@@ -95,6 +98,7 @@ test('keeps older MCP calls visible while refreshing the recent list', async ({ 
   await page.route('**/api/platform/mcp/actions', async (route) => {
     const input = route.request().postDataJSON();
     if (input.id !== 'mcp.calls') return route.continue();
+    logRequests++;
     const start = input.input.cursor === undefined ? 0 : Number(input.input.cursor) + 1;
     const items = rows.slice(start, start + 50);
     await route.fulfill({
@@ -107,7 +111,7 @@ test('keeps older MCP calls visible while refreshing the recent list', async ({ 
   const wasOn = (await toggle.getAttribute('aria-checked')) === 'true';
   try {
     await setFeatureSwitch(page, 'MCP 服务', true);
-    await page.locator('summary').filter({ hasText: '调用记录' }).click();
+    await openMcpTab(page, '调用记录');
     await page.getByRole('button', { name: '加载更早调用', exact: true }).click();
     await expect(page.getByText('fixture-tool-54', { exact: true })).toBeVisible();
     const refresh = page.waitForResponse(
@@ -116,8 +120,16 @@ test('keeps older MCP calls visible while refreshing the recent list', async ({ 
         r.request().postDataJSON().input.cursor === undefined,
       { timeout: 16000 },
     );
+    await page.clock.fastForward(10_500);
     await refresh;
     await expect(page.locator('.mcp-call-list li')).toHaveCount(55);
+    await openMcpTab(page, '接入指南');
+    await expect(page.getByRole('heading', { name: '最近调用' })).toBeHidden();
+    const pausedRequests = logRequests;
+    await page.clock.fastForward(20_000);
+    expect(logRequests).toBe(pausedRequests);
+    await openMcpTab(page, '调用记录');
+    await expect(page.getByText('fixture-tool-54', { exact: true })).toBeVisible();
   } finally {
     await setFeatureSwitch(page, 'MCP 服务', wasOn);
   }

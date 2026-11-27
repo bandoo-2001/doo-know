@@ -1,4 +1,4 @@
-import { openLegacyMcpSettings } from '../support/settings-navigation';
+import { openLegacyMcpSettings, openMcpTab } from '../support/settings-navigation';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -42,6 +42,11 @@ test('MCP inputs and authentication switches survive other settings and a return
   const initial = await apiKey.getAttribute('aria-checked');
   await apiKey.click();
   const changed = initial === 'true' ? 'false' : 'true';
+  await openMcpTab(page, '接入指南');
+  await expect(externalUrl).toBeHidden();
+  await page.getByRole('button', { name: '前往保存', exact: true }).click();
+  await expect(externalUrl).toHaveValue('https://draft.example.invalid/session');
+  await expect(apiKey).toHaveAttribute('aria-checked', changed);
   await section(page, '通用与编辑');
   await expect(page.getByRole('heading', { name: '编辑与阅读', exact: true })).toBeVisible();
   await section(page, 'MCP 连接');

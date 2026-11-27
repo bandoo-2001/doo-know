@@ -64,11 +64,8 @@ export async function openFeatureSettings(page: Page, title: FeatureTitle) {
   const mcp = title === 'MCP 服务';
   await openSettingsSection(page, mcp ? 'MCP 连接' : 'Git 版本管理');
   await expect(page.getByRole('switch', { name: '启用 ' + title, exact: true })).toBeVisible();
-  if (mcp) await openSettingsDetails(page, '权限与连接配置');
-  await expect(mcp
-    ? page.getByRole('switch', { name: '启用 OAuth 连接', exact: true })
-    : page.getByLabel('提交作者', { exact: true })).toBeVisible();
   if (mcp) await openLegacyMcpSettings(page);
+  else await expect(page.getByLabel('提交作者', { exact: true })).toBeVisible();
 }
 
 export async function setFeatureSwitch(page: Page, title: FeatureTitle, enabled: boolean) {
@@ -86,19 +83,17 @@ export async function returnToNotes(page: Page) {
   await expect(page.locator('.settings-workspace')).toHaveCount(0);
 }
 
-/** Legacy compatibility scenarios deliberately open the v1 form. New rights use domain cards. */
-export async function openSettingsDetails(page: Page, label: string) {
-  const control = page.locator('summary').filter({ hasText: new RegExp('^' + label + '$') });
-  await expect(control).toBeVisible();
-  if (!await control.evaluate(element => (element.parentElement as HTMLDetailsElement).open))
-    await control.click();
+export async function openMcpTab(page: Page, name: '接入指南' | '客户端' | '权限设置' | '调用记录') {
+  const tab = page.getByRole('tablist', { name: 'MCP 连接选项' }).getByRole('tab', { name, exact: true });
+  await tab.click();
+  await expect(tab).toHaveAttribute('aria-selected', 'true');
 }
 
-export async function openLegacyMcpSettings(page:Page){
-  await openSettingsDetails(page, '权限与连接配置');
-  const summary=page.locator('summary').filter({hasText:'旧版兼容设置'});
-  if(await summary.isVisible()){
-    const open=await summary.evaluate(element=>(element.parentElement as HTMLDetailsElement).open);
-    if(!open)await summary.click();
-  }
+/** Legacy compatibility scenarios deliberately open the v1 form. */
+export async function openLegacyMcpSettings(page: Page) {
+  await openMcpTab(page, '权限设置');
+  await expect(page.getByRole('switch', { name: '启用 OAuth 连接', exact: true })).toBeVisible();
+  const summary = page.locator('summary').filter({ hasText: '旧版兼容设置' });
+  if (await summary.isVisible() && !await summary.evaluate(el => (el.parentElement as HTMLDetailsElement).open))
+    await summary.click();
 }

@@ -2,7 +2,7 @@ import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import Database from 'better-sqlite3';
-import { openFeatureSettings, setFeatureSwitch, returnToNotes } from '../support/settings-navigation';
+import { openMcpTab, openSettingsSection, openFeatureSettings, openLegacyMcpSettings, setFeatureSwitch, returnToNotes } from '../support/settings-navigation';
 
 test('guides a new MCP user before enablement and keeps local readiness separate from external verification', async ({
   page,
@@ -10,7 +10,7 @@ test('guides a new MCP user before enablement and keeps local readiness separate
 }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
-  await openFeatureSettings(page, 'MCP 服务');
+  await openSettingsSection(page, 'MCP 连接');
   await setFeatureSwitch(page, 'MCP 服务', false);
   await expect(
     page.getByRole('region', { name: 'MCP 连接指南', exact: true }),
@@ -18,13 +18,15 @@ test('guides a new MCP user before enablement and keeps local readiness separate
   await page.locator('summary').filter({ hasText: '连接与验证步骤' }).click();
   await expect(page.getByText('配置已保存，MCP 尚未启用', { exact: true })).toBeVisible();
   await expect(page.getByText('外部连接尚未验证', { exact: true })).toBeVisible();
-  await expect(page.getByLabel('允许访问的目录', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'API Key 接入', exact: true }).click();
   await expect(page.getByText('Authorization: Bearer <API Key>', { exact: true })).toBeVisible();
   await expect(page.locator('.guide-value code')).toHaveText(/\/mcp\/api-key$/);
+  await page.getByRole('button', { name: '管理 API Key', exact: true }).click();
   await expect(page.getByRole('button', { name: '创建 API 客户端', exact: true })).toBeDisabled();
+  await openMcpTab(page, '接入指南');
   await page.getByRole('button', { name: 'OAuth 接入', exact: true }).click();
   await expect(page.getByText('OAuth 需要客户端和授权浏览器可达的 HTTPS 站点。', { exact: true })).toBeVisible();
+  await openLegacyMcpSettings(page);
   await expect(page.getByRole('switch', { name: '启用 OAuth 连接', exact: true })).toBeVisible();
   await expect(page.getByRole('switch', { name: '启用 API Key 连接', exact: true })).toBeVisible();
   await page.getByLabel('允许访问的目录', { exact: true }).fill('00-Inbox');
@@ -52,10 +54,12 @@ test('switching MCP off keeps a visible authorization revocation path without re
     await page.goto('/');
     await openFeatureSettings(page, 'MCP 服务');
     await setFeatureSwitch(page, 'MCP 服务', false);
-    const guide = page.getByRole('region', { name: 'MCP 连接指南', exact: true });
-    const row = guide.locator('.guide-client').filter({ hasText: clientId });
+    await openMcpTab(page, '客户端');
+    await page.getByRole('button', { name: 'OAuth 授权', exact: true }).click();
+    const clients = page.getByRole('tabpanel', { name: '客户端', exact: true });
+    const row = clients.locator('.guide-client').filter({ hasText: clientId });
     await row.getByRole('button', { name: '撤销此连接授权', exact: true }).click();
-    await guide.getByRole('button', { name: '确认撤销授权', exact: true }).click();
+    await clients.getByRole('button', { name: '确认撤销授权', exact: true }).click();
     await expect(row.getByText('已撤销', { exact: true })).toBeVisible();
     expect(
       oauthGrantStore(db)
